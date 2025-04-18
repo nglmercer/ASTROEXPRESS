@@ -6,9 +6,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "start": "node server.js",
+    "serve": "npm run build && npm run start"
   },
   "dependencies": {
-    "astro": "^5.7.3"
+    "@astrojs/node": "^9.2.0",
+    "astro": "^5.7.3",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.0",
+    "cors": "^2.8.5"
   }
 }

@@ -1,48 +1,69 @@
-# Astro Starter Kit: Basics
+# AstroExpress
 
-```sh
-npm create astro@latest -- --template basics
+Este proyecto combina Astro y Express para crear una aplicación web que puede ser utilizada localmente y potencialmente compilada con Electron en el futuro.
+
+## Características
+
+- **Astro**: Framework de frontend con renderizado en el servidor
+- **Express**: Servidor backend para APIs y lógica de servidor
+- **Integración completa**: Ambas tecnologías funcionan juntas sin problemas
+
+## Requisitos
+
+- Node.js (versión 16 o superior)
+- npm
+
+## Instalación
+
+```bash
+# Instalar dependencias
+npm install
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Comandos disponibles
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+```bash
+# Desarrollo (solo Astro)
+npm run dev
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+# Construir el proyecto
+npm run build
 
-## 🚀 Project Structure
+# Iniciar el servidor Express con Astro integrado
+npm run start
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+# Construir y luego iniciar el servidor (recomendado)
+npm run serve
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Estructura del proyecto
 
-## 🧞 Commands
+- `/src`: Código fuente de Astro
+  - `/components`: Componentes de Astro
+  - `/layouts`: Layouts de Astro
+  - `/pages`: Páginas de Astro
+- `/public`: Archivos estáticos
+- `server.js`: Servidor Express que integra con Astro
 
-All commands are run from the root of the project, from a terminal:
+## Cómo funciona
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+El proyecto utiliza Express como servidor principal, que sirve tanto el contenido estático generado por Astro como las APIs personalizadas. Astro está configurado en modo SSR (Server-Side Rendering) utilizando el adaptador de Node.js.
 
-## 👀 Want to learn more?
+## APIs de ejemplo
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- `GET /api/hello`: Devuelve un mensaje simple en formato JSON
+
+## Preparación para Electron
+
+Este proyecto está diseñado para ser compatible con Electron en el futuro. La integración de Express facilita la comunicación entre el frontend y el backend cuando se empaquete como aplicación de escritorio.
+
+## Personalización
+
+Puedes añadir más rutas de API en el archivo `server.js` y más páginas en el directorio `/src/pages`.
+
+```javascript
+// Ejemplo de cómo añadir una nueva ruta API en server.js
+app.get('/api/datos', (req, res) => {
+  res.json({ datos: 'Información personalizada' });
+});
+```
