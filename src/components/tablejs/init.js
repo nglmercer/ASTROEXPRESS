@@ -1,12 +1,9 @@
 // /src/pages/events/events.js (o tu ruta)
-import { databases, IndexedDBManager, Emitter, getAllDataFromDatabase } from '/src/components/tablejs/idb.js'; // Ajusta ruta
 import {rendertables} from '/src/components/tablejs/inittable.js'
 import {
     openDynamicModal,
-    initializeTables,
-    updateTableData,
-    setupModalEventListeners,
-    setupTableActionListeners
+    setupTableListeners,
+    setupModalEventListeners
 } from '/src/components/tablejs/crudUIHelpers.js'; // Ajusta ruta
 import {estadoscatalogos} from '/src/config/estadoscatalogos.json';
 import {tiposcatalogos} from '/src/config/tiposcatalogos.json';
@@ -33,7 +30,7 @@ function getKeysFromArray(array, keyCount = 4) {
 fetchcatalogos().then(data => {
     console.log('Catálogos obtenidos:', data);
     setTimeout(() => {
-        rendertables(data, "catalogos", getKeysFromArray(data)); // Asegúrate de que el ID del elemento sea correcto
+        rendertables(data, "catalogo", getKeysFromArray(data)); // Asegúrate de que el ID del elemento sea correcto
 
     }, 1000); // Espera 10ms antes de renderizar la tabla
     // Aquí puedes hacer algo con los datos obtenidos
@@ -41,15 +38,6 @@ fetchcatalogos().then(data => {
     console.error('Error al obtener los catálogos:', error);
     // Manejo de errores
 });
- async function fetchUserRoles() {
-    await new Promise(resolve => setTimeout(resolve, 10));
-    return [
-        { value: 'any', label: 'Cualquiera' },
-        { value: 'sub', label: 'Suscriptor (Async)' },
-        { value: 'mod', label: 'Moderador (Async)' },
-        { value: 'gifter', label: 'Regalador (Async)' },
-    ];
- }
 
 
 const formConfigurations = {
@@ -151,21 +139,11 @@ const formConfigurations = {
         })
     }
 };
-/*
-export interface Temporada {
-    idTemporada: number;
-    numeroTemporada: number;
-    nombreTemporada: string;
-    descripcionTemporada: string;
-    portadaTemporada: string;
-    catalogoTemporada: number;
-    nsfw: number;
-}
-*/
+
 const pageConfig = {
     modalId: 'modal-container', // Asegúrate que sea el ID correcto
     editorId: 'dynamic-editor',   // Asegúrate que sea el ID correcto
-    managerId: 'eventConfigManager',
+    managerId: 'catalogo',
     eventTypes: ['temporada', 'user', 'catalogo'] // Tipos gestionados en esta página
 };
 
@@ -174,39 +152,12 @@ const editorEl = document.getElementById(pageConfig.editorId);
 const managerEl = document.getElementById(pageConfig.managerId);
 
 if (!modalEl || !editorEl || !managerEl) {
-    console.error("Error: Elementos UI necesarios no encontrados.");
+    console.error("Error: Elementos UI necesarios no encontrados.","modalEl",modalEl,"editorEl",editorEl,"managerEl",managerEl);
     // Podrías detener aquí o mostrar un error visual
 }
 
-const globalEmitter = new Emitter(); // Un Emitter para todos los eventos de esta página
-
-const dbConfigMap = {
-  comment: databases.commentEventsDB,
-  gift: databases.giftEventsDB,
-  bits: databases.bitsEventsDB,
-  likes: databases.likesEventsDB
-};
-
-const dbManagerMap = {};
-pageConfig.eventTypes.forEach(type => {
-    if(dbConfigMap[type] && formConfigurations[type]) {
-        dbManagerMap[type] = new IndexedDBManager(dbConfigMap[type], globalEmitter);
-    } else {
-         console.warn(`Configuración de DB o Formulario faltante para el tipo: ${type}`);
-    }
-});
 
 
-const tableConfigs = {};
-pageConfig.eventTypes.forEach(type => {
-    if(dbManagerMap[type]) { // Solo añade si el manager se pudo crear
-        tableConfigs[`${type}Events`] = { // Convención: compId = type + "Events"
-            title: formConfigurations[type].title || `Eventos ${type}`,
-            formConfig: formConfigurations[type],
-            dbConfig: dbConfigMap[type]
-        };
-    }
-});
 
 
 function openModal(type, data = null) {
@@ -214,12 +165,7 @@ function openModal(type, data = null) {
 }
 
 function refreshTable(compId) {
-    const config = tableConfigs[compId];
-    if (config) {
-        updateTableData(managerEl, compId, config.dbConfig, getAllDataFromDatabase);
-    } else {
-        console.warn(`No se encontró config para refrescar tabla: ${compId}`);
-    }
+
 }
 
 // Listener para botones "Añadir" específicos por tipo
@@ -232,21 +178,9 @@ document.body.addEventListener('click', (event) => {
 
 
 
-// Listener global del Emitter (opcional, si necesitas reaccionar a eventos de DB de forma global)
-globalEmitter.onAny((eventName, eventData) => {
-    console.log(`Evento DB recibido [${eventName}]:`, eventData);
-    // Podrías querer refrescar tablas aquí también, pero cuidado con bucles
-    // if (['save', 'update', 'delete'].includes(eventName) && eventData?.config?.name) {
-    //     const compId = `${eventData.config.name}Events`; // Asumiendo que config.name es el formType
-    //     if (tableConfigs[compId]) {
-    //          // refreshTable(compId); // Podría ser redundante si ya se refresca tras la acción
-    //     }
-    // }
-});
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeTables(managerEl, tableConfigs, getAllDataFromDatabase, ["name", "id","isActive", "actions"])
-    .then(() => console.log('Gestor de eventos inicializado.'))
-    .catch(error => console.error('Error inicializando gestor de eventos:', error));
+    setupTableListeners(managerEl, openModal,(...args) => {console.log("setupTableListeners",args)});
+    setupModalEventListeners(modalEl, editorEl, refreshTable, null);
 });

@@ -97,47 +97,14 @@ export async function updateTableData(managerEl, compId, dbConfig, getAllDataFn)
      }
 }
 
-export function setupModalEventListeners(modalEl, editorEl, dbManagerMap, afterSaveOrDelete, onCancel = null) {
+export function setupModalEventListeners(modalEl, editorEl, onCancel = null) {
     editorEl.addEventListener('item-upd', async (e) => {
         const savedData = e.detail;
-        const formType = modalEl.dataset.currentFormType;
-        const dbManager = dbManagerMap[formType];
 
-        if (!formType || !dbManager) {
-            console.error('No se pudo determinar formType o DBManager para guardar.', { formType, dbManager });
-            return;
-        }
-
-        console.log(`Guardando item tipo ${formType}:`, savedData);
-        try {
-            const result = await dbManager.saveData(savedData);
-            modalEl.hide();
-            if (afterSaveOrDelete) afterSaveOrDelete(formType, result);
-        } catch (error) {
-            console.error(`Error al guardar item tipo ${formType}:`, error);
-        }
     });
 
      editorEl.addEventListener('del-item', async (e) => {
         const itemToDelete = e.detail;
-        const formType = modalEl.dataset.currentFormType;
-        const dbManager = dbManagerMap[formType];
-
-        if (!formType || !dbManager || !itemToDelete || !itemToDelete.id) {
-            console.error('Datos insuficientes para eliminar.', { formType, dbManager, itemToDelete });
-            return;
-        }
-
-        if (confirm(`¿Seguro que quieres eliminar este item de tipo "${formType}" (ID: ${itemToDelete.id})?`)) {
-            console.log(`Eliminando item tipo ${formType}:`, itemToDelete);
-            try {
-                await dbManager.deleteData(itemToDelete.id);
-                modalEl.hide();
-                if (afterSaveOrDelete) afterSaveOrDelete(formType, itemToDelete);
-            } catch (error) {
-                console.error(`Error al eliminar item tipo ${formType} (ID: ${itemToDelete.id}):`, error);
-            }
-        }
     });
 
     editorEl.addEventListener('cancel', () => {
@@ -152,58 +119,35 @@ export function setupModalEventListeners(modalEl, editorEl, dbManagerMap, afterS
      });
 }
 
-export function setupTableActionListeners(managerEl, openModalFn, dbManagerMap, tableConfigs, afterDelete) {
+export function setupTableListeners(managerEl, openfn =  () => {}, afterfn = () => {}) {
+    if (typeof managerEl === "string") {
+        managerEl = document.querySelector(managerEl);
+    }
     managerEl.addEventListener('comp-action', async (e) => {
         const { compId, action, item } = e.detail;
         console.log('Acción de tabla:', e.detail);
 
-        let formType = null;
         const potentialType = compId.replace(/Table|Events|ConfigManager|Manager/gi, '');
-        if (dbManagerMap[potentialType]) {
-            formType = potentialType;
-        } else {
-             for(const [id, config] of Object.entries(tableConfigs)) {
-                if (id === compId) {
-                    // Intenta derivar de alguna propiedad en config si la lógica anterior falla
-                    // Esta parte es un fallback y puede necesitar ajustes
-                     const initialData = config.formConfig?.getInitialData ? config.formConfig.getInitialData() : {};
-                     if(initialData.type && dbManagerMap[initialData.type]) {
-                        formType = initialData.type;
-                     }
-                    break;
-                }
-            }
-        }
 
 
-        if (!formType) {
-            console.error(`No se pudo determinar formType para compId: ${compId}`);
-            return;
-        }
-
-        const dbManager = dbManagerMap[formType];
-        if (!dbManager) {
-            console.error(`No se encontró DB Manager para tipo: ${formType} (compId: ${compId})`);
-            return;
-        }
+        console.log("formType:", potentialType);
 
         if (action === 'edit') {
-            console.log(`Solicitando edición para ${formType}:`, item);
-            openModalFn(formType, item);
+            console.log(`Solicitando edición para ${potentialType}:`, item);
+           openfn(potentialType, item);
 
         } else if (action === 'delete') {
-            if (confirm(`¿Seguro que quieres eliminar "${item.name || 'item'}" (ID: ${item.id}) de tipo ${formType}?`)) {
+            if (confirm(`¿Seguro que quieres eliminar "${item.name || 'item'}" (ID: ${item.id}) de tipo ${potentialType}?`)) {
                 try {
-                    await dbManager.deleteData(item.id);
-                    console.log(`Elemento ${item.id} de tipo ${formType} eliminado.`);
-                    if (afterDelete) afterDelete(compId, item);
+                    console.log(`Elemento ${item.id} de tipo ${potentialType} eliminado.`);
+                    if (afterfn) afterfn(compId, item);
                 } catch (error) {
-                    console.error(`Error al eliminar ${item.id} de tipo ${formType}:`, error);
+                    console.error(`Error al eliminar ${item.id} de tipo ${potentialType}:`, error);
                     alert(`Error al eliminar: ${error.message}`);
                 }
             }
         } else {
-            console.log(`Acción no manejada "${action}" para ${formType}:`, item);
+            console.log(`Acción no manejada "${action}" para ${potentialType}:`, item);
         }
     });
 }

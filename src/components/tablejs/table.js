@@ -265,6 +265,32 @@ class ObjectTableLit extends BaseLitElement {
             .acts-cell button { margin: 2px; }
         `
     ];
+    _handleRowClick(event) {
+        event.preventDefault(); // Evitar el menú contextual del navegador en click derecho
+
+        const row = event.currentTarget;
+        const idx = parseInt(row.dataset.idx, 10);
+
+        if (isNaN(idx) || idx < 0 || idx >= this.data.length) {
+            console.warn(`${this.constructor.name}: Invalid index ${idx} from row.`);
+            return;
+        }
+
+        const item = this.data[idx];
+
+        // Disparar un nuevo evento específico para la activación de fila
+        this.dispatchEvent(new CustomEvent('row-activated', {
+            detail: {
+                item: JSON.parse(JSON.stringify(item)),
+                index: idx,
+                originalEvent: event.type // Útil para saber si fue 'dblclick' o 'contextmenu'
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        // console.log(`Fila activada por ${event.type}:`, item, idx); // Opcional: para depurar
+    }
 
     render() {
         // ... (Render sin cambios lógicos)
@@ -281,15 +307,18 @@ class ObjectTableLit extends BaseLitElement {
                         </tr>
                     </thead>
                     <tbody>
-                        ${this.data.map((item, idx) => html`
-                            <tr data-idx=${idx}>
-                                ${this.keys.map(k => {
-            const val = item[k];
-            let dVal = (val !== undefined && val !== null) ? String(val) : '';
-            if (typeof val === 'boolean') dVal = val ? 'Sí' : 'No';
-            // Usamos directamente el texto, el color de TD ya está definido
-            return html`<td class="${(typeof val === 'string' && val.length > 50) ? 'wrap' : ''}">${dVal}</td>`;
-        })}
+                    ${this.data.map((item, idx) => html`
+                        <tr
+                            data-idx=${idx}
+                            @dblclick=${this._handleRowClick}  
+                            @contextmenu=${this._handleRowClick} 
+                        >
+                            ${this.keys.map(k => {
+        const val = item[k];
+        let dVal = (val !== undefined && val !== null) ? String(val) : '';
+        if (typeof val === 'boolean') dVal = val ? 'Sí' : 'No';
+        return html`<td class="${(typeof val === 'string' && val.length > 50) ? 'wrap' : ''}">${dVal}</td>`;
+    })}
                                 <td class="acts-cell">
                                     ${this._renderActionButtons(idx)}
                                 </td>
@@ -775,9 +804,58 @@ class GridManagerLit extends LitElement {
         }
 
         return html`
-            <div class="mgr-ctr" @internal-action=${this._handleBubbledEvent}>
+            <div
+                class="mgr-ctr"
+                @internal-action=${this._handleBubbledEvent} 
+                @row-activated=${this._handleBubbledEvent}
+            >
                 ${Object.entries(this.comps || {}).map(([id, cfg]) => this._renderManagedComp(id, cfg))}
             </div>`;
+    }
+
+    // Modificar el método _handleBubbledEvent para manejar el nuevo evento
+    _handleBubbledEvent(e) {
+        const wrap = e.target.closest('.comp-wrap[data-comp-id]');
+        const compId = wrap?.dataset.compId;
+
+        if (!compId || !this.comps?.[compId]) {
+            if (wrap) console.warn(`GM: Event ${e.type} from unknown compId ${compId}`);
+            return;
+        }
+
+        const { detail } = e;
+
+        if (e.type === 'internal-action' && detail?.originalAction) {
+            // Código existente para manejar acciones de botones
+            const originalAction = detail.originalAction;
+            console.log(`GM: Action "${originalAction}" from "${compId}". Idx: ${detail.index}`, detail.item);
+            this.dispatchEvent(new CustomEvent('comp-action', {
+                detail: {
+                    compId: compId,
+                    action: originalAction,
+                    item: detail.item,
+                    index: detail.index
+                },
+                bubbles: true,
+                composed: true
+            }));
+        } else if (e.type === 'row-activated' && detail?.item !== undefined && detail?.index !== undefined) { // <-- AÑADIR ESTA CONDICIÓN
+            // NUEVO: Código para manejar la activación de fila
+            console.log(`GM: Row activated from "${compId}" by ${detail.originalEvent}. Idx: ${detail.index}`, detail.item);
+            this.dispatchEvent(new CustomEvent('comp-row-activated', { // Disparar un nuevo evento para el manager
+                detail: {
+                    compId: compId,
+                    item: detail.item,
+                    index: detail.index,
+                    originalEvent: detail.originalEvent // Propagar el tipo de evento original
+                },
+                bubbles: true,
+                composed: true
+            }));
+        } else {
+             // Log para eventos inesperados
+            console.warn(`GM: Unexpected event caught or missing detail: ${e.type}`, e.detail);
+        }
     }
 }
 
