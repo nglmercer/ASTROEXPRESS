@@ -7,7 +7,9 @@ import {
     setupModalEventListeners,
     setupTableActionListeners
 } from '/src/components/tablejs/crudUIHelpers.js'; // Ajusta ruta
-import estadoscatalogos from '/src/config/estadoscatalogos.json';
+import {estadoscatalogos} from '/src/config/estadoscatalogos.json';
+import {tiposcatalogos} from '/src/config/tiposcatalogos.json';
+import createSelectOptions from '/src/utils/selectmap.js';
  async function fetchUserRoles() {
     await new Promise(resolve => setTimeout(resolve, 10));
     return [
@@ -72,15 +74,15 @@ const formConfigurations = {
             trailerCatalogo: null
         }),
         getFieldConfig: async () => ({
-            idCatalogo: { label: 'ID Catálogo', type: 'number', required: true },
+            idCatalogo: { label: 'ID Catálogo', type: 'number', hidden: true },
             nombreCatalogo: { label: 'Nombre', type: 'text', required: true },
-            tipoCatalogo: { label: 'Tipo', type: 'number' },
-            estadoCatalogo: { label: 'Estado', type: 'select', options: estadoscatalogos.estadoscatalogos },
+            tipoCatalogo: { label: 'Tipo', type: 'select', options: createSelectOptions("tiposcatalogos", tiposcatalogos) },
+            estadoCatalogo: { label: 'Estado', type: 'select', options: createSelectOptions("estadoscatalogos", estadoscatalogos) },
             imagenPortadaCatalogo: { label: 'Imagen Portada', type: 'text' },
             imagenFondoCatalogo: { label: 'Imagen Fondo', type: 'text' },
             descripcionCatalogo: { label: 'Descripción', type: 'text' },
-            nsfwCatalogo: { label: 'NSFW', type: 'number' },
-            recomendacionCatalogo: { label: 'Recomendación', type: 'number' },
+            nsfwCatalogo: { label: 'NSFW', type: 'checkbox' },
+            recomendacionCatalogo: { label: 'Recomendación', type: 'checkbox' },
             trailerCatalogo: { label: 'Trailer', type: 'text' }
         })
     },

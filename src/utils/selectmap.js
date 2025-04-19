@@ -16,6 +16,36 @@
  * @param {*} [options.img] - Optional image/auxiliary data.
  * @returns {MapSelectOption} The formatted select option object.
  */
+let activelogs = false;
+
+// Permite activar o desactivar los logs desde fuera
+const setActiveLogs = (active) => {
+    activelogs = !!active;
+};
+
+const loggerdebug = () => {
+    if (!activelogs) return {
+        log: () => {},
+        debug: () => {},
+        warn: () => {},
+        error: () => {}
+    };
+    return {
+        log: (msg) => {
+            console.log(msg);
+        },
+        debug: (msg) => {
+            console.debug(msg);
+        },
+        warn: (msg) => {
+            console.warn(msg);
+        },
+        error: (msg) => {
+            console.error(msg);
+        }
+    };
+};
+
 function MapselectTemplate(options) {
     return {
         type: 'mapselect',
@@ -84,19 +114,19 @@ function createSelectOptions(configName, dataArray) {
     const dataInfo = typeofElm(dataArray);
 
     if (!configName || typeof configName !== 'string') {
-        console.error("createSelectOptions: Invalid configuration name provided.", configName);
+        loggerdebug.error("createSelectOptions: Invalid configuration name provided.", configName);
         return [];
     }
 
     if (!dataInfo.array) {
-        console.error(`createSelectOptions: Input data for "${configName}" is not an array.`, dataInfo.raw);
+        loggerdebug.error(`createSelectOptions: Input data for "${configName}" is not an array.`, dataInfo.raw);
         return [];
     }
 
     const config = allMapSelectConfigurations(configName);
 
     if (!config) {
-        console.error(`createSelectOptions: No configuration found for type "${configName}".`);
+        loggerdebug.error(`createSelectOptions: No configuration found for type "${configName}".`);
         return [];
     }
 
@@ -106,7 +136,7 @@ function createSelectOptions(configName, dataArray) {
     dataArray.forEach((item, index) => {
         const itemInfo = typeofElm(item);
         if (!itemInfo.type === 'object' || item === null) {
-            console.error(`createSelectOptions: Skipping element at index ${index} for "${configName}". Expected object, but received:`, item);
+            loggerdebug.error(`createSelectOptions: Skipping element at index ${index} for "${configName}". Expected object, but received:`, item);
             return; // Skip this element
         }
 
@@ -123,7 +153,7 @@ function createSelectOptions(configName, dataArray) {
         );
 
         if (missingRequiredKeys.length > 0) {
-            console.error(`createSelectOptions: Skipping element at index ${index} for "${configName}" due to missing required keys: ${missingRequiredKeys.join(', ')}.`, item);
+            loggerdebug.error(`createSelectOptions: Skipping element at index ${index} for "${configName}" due to missing required keys: ${missingRequiredKeys.join(', ')}.`, item);
             return; // Skip this element
         }
 
@@ -139,13 +169,12 @@ function createSelectOptions(configName, dataArray) {
     return selectOptions;
 }
 
-// --- Example Usage ---
-const estadosData = [
+// --- Example Usage --- // tests
+/* const estadosData = [
     { "idEstadoCatalogo": 1, "nombreEstadoCatalogo": "En emision", "nsfwEstadoCatalogo": 0, "colorEstadoCatalogo": "#592AC2" },
     { "idEstadoCatalogo": 2, "nombreEstadoCatalogo": "Finalizado", "nsfwEstadoCatalogo": 0, "colorEstadoCatalogo": "#28A745" },
     { "idEstadoCatalogo": 3, "nombreEstadoCatalogo": "Pausado", "nsfwEstadoCatalogo": 0, "colorEstadoCatalogo": "#FFC107" },
-    // Add one invalid item
-    { "idEstadoCatalogo": 4, "nombreEstadoCatalogo": "Dropped", "nsfwEstadoCatalogo": 1 /* Missing colorEstadoCatalogo */ },
+    { "idEstadoCatalogo": 4, "nombreEstadoCatalogo": "Dropped", "nsfwEstadoCatalogo": 1 },
     null, // Add a non-object item
     "invalid item"
 ];
@@ -154,14 +183,14 @@ const tiposData = [
     { "idTipoCatalogo": 1, "nombreTipoCatalogo": "Anime", "nsfwTipoCatalogo": 0 },
     { "idTipoCatalogo": 2, "nombreTipoCatalogo": "Manga", "nsfwTipoCatalogo": 0 },
     // Add one missing label
-    { "idTipoCatalogo": 3, /* Missing nombreTipoCatalogo */ "nsfwTipoCatalogo": 0 },
+    { "idTipoCatalogo": 3, "nsfwTipoCatalogo": 0 },
 ];
 
 const invalidData = "this is not an array";
 
-console.log("Mapping Estados Catalogos:", createSelectOptions("estadoscatalogos", estadosData));
-console.log("\nMapping Tipos Catalogos:", createSelectOptions("tiposcatalogos", tiposData));
-console.log("\nMapping with Invalid Data Type:", createSelectOptions("estadoscatalogos", invalidData));
-console.log("\nMapping Unknown Type:", createSelectOptions("unknownType", estadosData));
-console.log("\nMapping with null configName:", createSelectOptions(null, estadosData));
+loggerdebug.log("Mapping Estados Catalogos:", createSelectOptions("estadoscatalogos", estadosData));
+loggerdebug.log("\nMapping Tipos Catalogos:", createSelectOptions("tiposcatalogos", tiposData));
+loggerdebug.log("\nMapping with Invalid Data Type:", createSelectOptions("estadoscatalogos", invalidData));
+loggerdebug.log("\nMapping Unknown Type:", createSelectOptions("unknownType", estadosData));
+loggerdebug.log("\nMapping with null configName:", createSelectOptions(null, estadosData)); */
 export default createSelectOptions;
