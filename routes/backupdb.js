@@ -1,107 +1,158 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dbUrl = path.join(__dirname, "backup.db");
+const dbUrl = path.join(__dirname, 'backup.db');
 
 class DatabaseController {
-    constructor() {
-        this.dbUrl = dbUrl;
-    }
+  constructor() {
+    this.dbUrl = dbUrl;
+  }
 
-    /**
-     * Query database table with multiple filters
-     * @param {string} tableName - Name of the table to query
-     * @param {Object} filters - Object with column names and values to filter by
-     * @returns {Promise} - Resolves with matching rows or rejects with error
-     */
-    async queryWithFilters(tableName, filters = {}) {
-        return new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(this.dbUrl, sqlite3.OPEN_READWRITE, (err) => {
-                if (err) reject(new Error(`Failed to open database: ${err.message}`));
-            });
+  /**
+   * Internal helper to open database
+   * @param {number} mode - sqlite3.OPEN_READONLY or OPEN_READWRITE
+   * @returns {sqlite3.Database}
+   */
+  _open(mode) {
+    return new sqlite3.Database(this.dbUrl, mode, err => {
+      if (err) throw new Error(`Failed to open database: ${err.message}`);
+    });
+  }
 
-            const filterEntries = Object.entries(filters);
-            const whereClause = filterEntries.length 
-                ? `WHERE ${filterEntries.map(([col]) => `${col} = ?`).join(' AND ')}`
-                : '';
-            const query = `SELECT * FROM ${tableName} ${whereClause}`;
-            
-            db.all(query, filterEntries.map(([_, value]) => value), (err, rows) => {
-                db.close();
-                if (err) reject(err);
-                if (!rows || rows?.length === 0) resolve([]);
-                console.log("rows", rows);
-                resolve(rows?.length === 1 ? rows[0] : rows);
-            });
-        });
-    }
+  /**
+   * Query database table with multiple filters
+   */
+  async queryWithFilters(tableName, filters = {}) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READWRITE);
+      const entries = Object.entries(filters);
+      const where = entries.length
+        ? `WHERE ${entries.map(([c]) => `${c} = ?`).join(' AND ')}`
+        : '';
+      const sql = `SELECT * FROM ${tableName} ${where}`;
+      db.all(sql, entries.map(([, v]) => v), (err, rows) => {
+        db.close();
+        if (err) return reject(err);
+        if (!rows || rows.length === 0) return resolve([]);
+        resolve(rows.length === 1 ? rows[0] : rows);
+      });
+    });
+  }
 
-    /**
-     * Get records with pagination
-     * @param {string} tableName - Name of the table
-     * @param {number} limit - Number of records to return
-     * @param {number} offset - Number of records to skip
-     * @returns {Promise} - Resolves with array of records
-     */
-    async getRecords(tableName, limit = 10, offset = 0) {
-        return new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(this.dbUrl, sqlite3.OPEN_READWRITE, (err) => {
-                if (err) reject(new Error(`Failed to open database: ${err.message}`));
-            });
+  /**
+   * Get records with pagination
+   */
+  async getRecords(tableName, limit = 10, offset = 0) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READWRITE);
+      const sql = `SELECT * FROM ${tableName} LIMIT ? OFFSET ?`;
+      db.all(sql, [limit, offset], (err, rows) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(rows);
+      });
+    });
+  }
 
-            const query = `SELECT * FROM ${tableName} LIMIT ? OFFSET ?`;
-            db.all(query, [limit, offset], (err, rows) => {
-                db.close();
-                if (err) reject(err);
-                resolve(rows);
-            });
-        });
-    }
+  /**
+   * Get a single record by ID
+   */
+  async getById(tableName, id) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READWRITE);
+      const sql = `SELECT * FROM ${tableName} WHERE id = ? LIMIT 1`;
+      db.get(sql, [id], (err, row) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(row);
+      });
+    });
+  }
 
-    /**
-     * Get a single record by ID
-     * @param {string} tableName - Name of the table
-     * @param {number} id - ID of the record to fetch
-     * @returns {Promise} - Resolves with single record object
-     */
-    async getById(tableName, id) {
-        return new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(this.dbUrl, sqlite3.OPEN_READWRITE, (err) => {
-                if (err) reject(new Error(`Failed to open database: ${err.message}`));
-            });
+  /**
+   * List all user tables in the database
+   * @returns {Promise<Array<{name: string, sql: string}>>}
+   */
+  async listTables() {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const sql = `
+        SELECT name, sql
+        FROM sqlite_master
+        WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+      `;
+      db.all(sql, [], (err, rows) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(rows);
+      });
+    });
+  }
 
-            const query = `SELECT * FROM ${tableName} WHERE id = ? LIMIT 1`;
-            db.get(query, [id], (err, row) => {
-                db.close();
-                if (err) reject(err);
-                resolve(row);
-            });
-        });
-    }
+  /**
+   * Check if a table exists
+   * @param {string} tableName
+   * @returns {Promise<boolean>}
+   */
+  async tableExists(tableName) {
+    const tables = await this.listTables();
+    return tables.some(t => t.name === tableName);
+  }
+
+  /**
+   * Get column information for a table
+   * @param {string} tableName
+   * @returns {Promise<Array<{cid: number, name: string, type: string, notnull: number, dflt_value: any, pk: number}>>}
+   */
+  async getTableColumns(tableName) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const sql = `PRAGMA table_info(${tableName})`;
+      db.all(sql, [], (err, cols) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(cols);
+      });
+    });
+  }
+
+  /**
+   * Get row count for a table
+   * @param {string} tableName
+   * @returns {Promise<number>}
+   */
+  async getRowCount(tableName) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const sql = `SELECT COUNT(*) AS count FROM ${tableName}`;
+      db.get(sql, [], (err, row) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(row.count);
+      });
+    });
+  }
 }
 
-// Initialize database
-const db = new sqlite3.Database(dbUrl, (err) => {
-    if (err) console.error('Error creating database:', err);
-});
-
-// Export controller instance
+// Export singleton instance
 export const dbController = new DatabaseController();
-
-// Usage examples:
-// Get by multiple filters
- dbController.queryWithFilters('audios', { id: 1, type: 'mp3' })
- .then(console.log)
-   .catch(console.error);
-
-// Get first 10 records
- dbController.getRecords('audios', 10, 0)
- .then(console.log)
-   .catch(console.error);
-
-// Get by ID
-dbController.getById('audios', 1)
-   .then(console.log)
-   .catch(console.error);
+(async () => {
+    const exists = await dbController.tableExists('audios');
+    console.log('¿Existe tabla audios?', exists);
+    
+    /*
+    if (exists) {
+      const cols = await dbController.getTableColumns('audios');
+      console.log('Columnas de audios:', cols);
+  
+      const count = await dbController.getRowCount('audios');
+      console.log('Total filas en audios:', count);
+    }
+  
+    */
+     const tablas = await dbController.listTables();
+    console.log('Tablas en la BD:', tablas);
+  })();

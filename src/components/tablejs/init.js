@@ -1,5 +1,6 @@
 // /src/pages/events/events.js (o tu ruta)
 import { databases, IndexedDBManager, Emitter, getAllDataFromDatabase } from '/src/components/tablejs/idb.js'; // Ajusta ruta
+import {rendertables} from '/src/components/tablejs/inittable.js'
 import {
     openDynamicModal,
     initializeTables,
@@ -10,6 +11,36 @@ import {
 import {estadoscatalogos} from '/src/config/estadoscatalogos.json';
 import {tiposcatalogos} from '/src/config/tiposcatalogos.json';
 import createSelectOptions from '/src/utils/selectmap.js';
+import { fetchapi } from '/src/utils/fetchapi.js'; // Ajusta ruta
+async function fetchcatalogos() {
+    try {
+        const response = await fetchapi.obtenerCatalogosRecientes(); // Asegúrate de que esta función esté definida y exportada correctamente
+        console.log('Respuesta de la API:', response);
+        return response; // Retorna la respuesta de la API
+    } catch (error) {
+        console.error('Error en la solicitud:', error);
+        return []; // Retorna un arreglo vacío en caso de error
+    }
+
+}
+// funcion para obtener unicamente los keys de un objeto de una lista de objetos tambien añadir si devolver los primeros 10 o 20 elementos
+function getKeysFromArray(array, keyCount = 4) {
+    if (!Array.isArray(array) || array.length === 0) return [];
+    const keys = Object.keys(array[0]); // Obtener las claves del primer objeto
+    const keysToDisplay = keys.slice(0, keyCount); // Limitar a las primeras N claves
+    return keysToDisplay
+}
+fetchcatalogos().then(data => {
+    console.log('Catálogos obtenidos:', data);
+    setTimeout(() => {
+        rendertables(data, "catalogos", getKeysFromArray(data)); // Asegúrate de que el ID del elemento sea correcto
+
+    }, 1000); // Espera 10ms antes de renderizar la tabla
+    // Aquí puedes hacer algo con los datos obtenidos
+}).catch(error => {
+    console.error('Error al obtener los catálogos:', error);
+    // Manejo de errores
+});
  async function fetchUserRoles() {
     await new Promise(resolve => setTimeout(resolve, 10));
     return [
@@ -199,31 +230,7 @@ document.body.addEventListener('click', (event) => {
     }
 });
 
-setupModalEventListeners(
-    modalEl,
-    editorEl,
-    dbManagerMap,
-    (type, changedData) => {
-        console.log(`Operación modal completada para ${type}:`, changedData);
-        const compIdToRefresh = `${type}Events`; // Asume la convención
-        if (tableConfigs[compIdToRefresh]) {
-             refreshTable(compIdToRefresh);
-        } else {
-             console.warn(`No se encontró tabla ${compIdToRefresh} para refrescar.`);
-        }
-    }
-);
 
-setupTableActionListeners(
-    managerEl,
-    openModal,
-    dbManagerMap,
-    tableConfigs, // Pasa las configuraciones para el mapeo compId -> formType si es necesario
-    (compId, deletedItem) => {
-        console.log(`Item eliminado desde tabla ${compId}:`, deletedItem);
-        refreshTable(compId); // Refresca la tabla específica que cambió
-    }
-);
 
 // Listener global del Emitter (opcional, si necesitas reaccionar a eventos de DB de forma global)
 globalEmitter.onAny((eventName, eventData) => {

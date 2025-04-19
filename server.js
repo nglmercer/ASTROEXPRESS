@@ -1,16 +1,18 @@
 import express from "express";
 import apiRouter from "./routes/api.js"; // Importar el enrutador de la API
+import mockApiRouter from "./routes/mockApi.js"; // Importar el enrutador simulado
 import cors from "cors";
 import { handler as ssrHandler } from "./dist/server/entry.mjs";
 
 const PORT = 8081;
 const app = express();
-app.use(express.json()); // Middleware para parsear JSON
-app.use(express.static("dist/client/"));
-app.use("/api", apiRouter); // Montar el enrutador de la API en /api
 app.use(cors({
     origin: '*'
 }));
+app.use(express.json()); // Middleware para parsear JSON
+app.use(express.static("dist/client/"));
+app.use("/api", apiRouter); // Montar el enrutador de la API en /api
+app.use("/mock-api", mockApiRouter); // Montar el enrutador simulado en /mock-api
 // El manejador SSR de Astro debe ir DESPUÉS de las rutas de la API
 app.use((req, res, next) => {
   // Opcionalmente, puedes pasar datos al handler a través del objeto 'locals'.

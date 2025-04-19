@@ -1,6 +1,7 @@
 const baseApi = "productionUrl";
-const baseTestApi = "http://localhost:8080";
-const actualBaseApi = baseTestApi;
+const baseTestApi = "http://localhost:8080"; // Original test API
+const mockApi = "http://localhost:8081/mock-api"; // Mock API endpoint
+const actualBaseApi = mockApi; // Use mock API for development
 const http = {
     get: (url, options = {}) => {
         return fetch(url, {
