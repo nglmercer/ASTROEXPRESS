@@ -19,46 +19,9 @@ import createSelectOptions from '/src/utils/selectmap.js';
         { value: 'gifter', label: 'Regalador (Async)' },
     ];
  }
-async function getAllActions() {
-    try {
-        let actions = [];
-        const allactionsDb = await getAllDataFromDatabase(databases.ActionsDB);
-        if (allactionsDb && Array.isArray(allactionsDb)) {
-            actions = allactionsDb.map(item => ({ value: item.id, label: item.name }));
-        }
-        console.log("getAllActions", actions);
-        return actions;
-    } catch (error) {
-        console.error("Error getting actions:", error);
-        return [];
-    }
-}
- function comparatorStringOptions() {
-    return [
-        { value: 'any', label: 'Cualquiera' }, { value: 'equal', label: 'Igual a' },
-        { value: 'startsWith', label: 'Comienza con' }, { value: 'endsWith', label: 'Termina con' },
-        { value: 'contains', label: 'Contiene' }
-    ]
-}
+
 
 const formConfigurations = {
-    comment: {
-        title: "Configurar Evento de Comentario",
-        getInitialData: () => ({
-            id: '', name: 'Nuevo Evento Comentario', isActive: true,
-            role: 'any', comparator: 'startsWith', value: '', type: 'comment' // Añadir tipo
-        }),
-        getFieldConfig: async () => ({
-            name: { label: 'Nombre', type: 'text', required: true },
-            isActive: { label: 'Activo', type: 'switch' },
-            role: { label: 'Rol', type: 'select', options: await fetchUserRoles() },
-            comparator: { label: 'Comparador', type: 'select', options: comparatorStringOptions() },
-            value: { label: 'Valor Comentario', type: 'text', showIf: { field: 'comparator', value: 'any', negate: true } },
-            actions: { label: 'Acciones', type: 'select', options: await getAllActions(), multiple: true },
-            id: { hidden: false, readonly:"true" }, // Ocultar ID para nuevos
-            type: { hidden: true }
-        })
-    },
     catalogo: {
         title: "Configurar Catálogo",
         getInitialData: () => ({
@@ -112,7 +75,7 @@ const formConfigurations = {
             fechaUltimaTransaccion: null
         }),
         getFieldConfig: async () => ({
-            idUsuario: { label: 'ID Usuario', type: 'number', required: true },
+            idUsuario: { label: 'ID Usuario', type: 'number', hidden: true },
             apodoUsuario: { label: 'Apodo', type: 'text', required: true },
             correoUsuario: { label: 'Correo', type: 'text', required: true },
             claveUsuario: { label: 'Clave', type: 'password', required: true },
@@ -135,14 +98,44 @@ const formConfigurations = {
             fechaUltimaTransaccion: { label: 'Fecha Última Transacción', type: 'text' }
         })
     },
-    
+    temporada: {
+        title: "Configurar Temporada",
+        getInitialData: () => ({
+            idTemporada: 0,
+            numeroTemporada: 0,
+            nombreTemporada: '',
+            descripcionTemporada: '',
+            portadaTemporada: '',
+            catalogoTemporada: 0,
+            nsfw: 0
+        }),
+        getFieldConfig: async () => ({
+            idTemporada: { label: 'ID Temporada', type: 'number', hidden: true },
+            numeroTemporada: { label: 'Número Temporada', type: 'number', required: true },
+            nombreTemporada: { label: 'Nombre', type: 'text', required: true },
+            descripcionTemporada: { label: 'Descripción', type: 'text' },
+            portadaTemporada: { label: 'Portada', type: 'text' },
+            catalogoTemporada: { label: 'Catálogo', type: 'number' },
+            nsfw: { label: 'NSFW', type: 'checkbox' }
+        })
+    }
 };
-
+/*
+export interface Temporada {
+    idTemporada: number;
+    numeroTemporada: number;
+    nombreTemporada: string;
+    descripcionTemporada: string;
+    portadaTemporada: string;
+    catalogoTemporada: number;
+    nsfw: number;
+}
+*/
 const pageConfig = {
     modalId: 'modal-container', // Asegúrate que sea el ID correcto
     editorId: 'dynamic-editor',   // Asegúrate que sea el ID correcto
     managerId: 'eventConfigManager',
-    eventTypes: ['comment', 'user', 'catalogo'] // Tipos gestionados en esta página
+    eventTypes: ['temporada', 'user', 'catalogo'] // Tipos gestionados en esta página
 };
 
 const modalEl = document.getElementById(pageConfig.modalId);

@@ -16,35 +16,9 @@
  * @param {*} [options.img] - Optional image/auxiliary data.
  * @returns {MapSelectOption} The formatted select option object.
  */
-let activelogs = false;
-
-// Permite activar o desactivar los logs desde fuera
-const setActiveLogs = (active) => {
-    activelogs = !!active;
-};
-
-const loggerdebug = () => {
-    if (!activelogs) return {
-        log: () => {},
-        debug: () => {},
-        warn: () => {},
-        error: () => {}
-    };
-    return {
-        log: (msg) => {
-            console.log(msg);
-        },
-        debug: (msg) => {
-            console.debug(msg);
-        },
-        warn: (msg) => {
-            console.warn(msg);
-        },
-        error: (msg) => {
-            console.error(msg);
-        }
-    };
-};
+class Logger{static#a=!0;static#b=[];static setActiveLogs(a){Logger.#a=!!a}static getAllLogs(){return[...Logger.#b]}static clearLogs(){return Logger.#b=[],!0}constructor(){Logger.#a?(this.log=(...a)=>{console.log(...a),Logger.#b.push({type:"log",message:a,timestamp:new Date})},this.debug=(...a)=>{console.debug(...a),Logger.#b.push({type:"debug",message:a,timestamp:new Date})},this.warn=(...a)=>{console.warn(...a),Logger.#b.push({type:"warn",message:a,timestamp:new Date})},this.error=(...a)=>{console.error(...a),Logger.#b.push({type:"error",message:a,timestamp:new Date})}):(this.log=()=>{},this.debug=()=>{},this.warn=()=>{},this.error=()=>{})}}
+const loggerdebug = new Logger();
+Logger.setActiveLogs(false);
 
 function MapselectTemplate(options) {
     return {
@@ -165,7 +139,7 @@ function createSelectOptions(configName, dataArray) {
             img: imgValue // Pass undefined/null if imgKey was null or value missing
         }));
     });
-
+    loggerdebug.log("createSelectOptions: Returning selectOptions:", selectOptions,dataArray);
     return selectOptions;
 }
 
