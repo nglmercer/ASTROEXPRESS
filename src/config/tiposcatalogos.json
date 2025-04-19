@@ -1,0 +1,34 @@
+{
+  "tiposcatalogos": [
+    {
+      "idTipoCatalogo": 1,
+      "nombreTipoCatalogo": "Anime",
+      "nsfwTipoCatalogo": 0
+    },
+    {
+      "idTipoCatalogo": 2,
+      "nombreTipoCatalogo": "Pelicula",
+      "nsfwTipoCatalogo": 0
+    },
+    {
+      "idTipoCatalogo": 3,
+      "nombreTipoCatalogo": "Especial",
+      "nsfwTipoCatalogo": 0
+    },
+    {
+      "idTipoCatalogo": 4,
+      "nombreTipoCatalogo": "Ova",
+      "nsfwTipoCatalogo": 0
+    },
+    {
+      "idTipoCatalogo": 7,
+      "nombreTipoCatalogo": "Hentai",
+      "nsfwTipoCatalogo": 1
+    },
+    {
+      "idTipoCatalogo": 8,
+      "nombreTipoCatalogo": "",
+      "nsfwTipoCatalogo": null
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "estadoscatalogos": [
+    {
+      "idEstadoCatalogo": 1,
+      "nombreEstadoCatalogo": "En emision",
+      "nsfwEstadoCatalogo": 0,
+      "colorEstadoCatalogo": "#592AC2"
+    },
+    {
+      "idEstadoCatalogo": 2,
+      "nombreEstadoCatalogo": "Finalizado",
+      "nsfwEstadoCatalogo": 0,
+      "colorEstadoCatalogo": "#25D8D8"
+    },
+    {
+      "idEstadoCatalogo": 3,
+      "nombreEstadoCatalogo": "Proximamente",
+      "nsfwEstadoCatalogo": 0,
+      "colorEstadoCatalogo": "#8d8d8d"
+    },
+    {
+      "idEstadoCatalogo": 4,
+      "nombreEstadoCatalogo": "Sin estado",
+      "nsfwEstadoCatalogo": 0,
+      "colorEstadoCatalogo": "#8d8d8d"
+    },
+    {
+      "idEstadoCatalogo": 5,
+      "nombreEstadoCatalogo": "Escondido",
+      "nsfwEstadoCatalogo": 0,
+      "colorEstadoCatalogo": "#8d8d8d"
+    }
+  ]
+}

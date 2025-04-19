@@ -1,21 +1,52 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-// type Props 
-
-// Acceder a los datos de locals
-const title = Astro.locals.title;
-const alterTitle = Astro.locals.getAlterTitle;
-
+import SidebarLayout from '../layouts/SidebarLayout.astro';
+import Indextable from '../components/table/index.astro';
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
-	<hr />
-	<h2>Datos desde server.js (Astro.locals):</h2>
-	<p>Título: {title}</p>
-	<p>Título Alternativo: {alterTitle}</p>
-</Layout>
+<SidebarLayout title="Mi Aplicación" activeConfig="A">
+	<div slot="logo">
+		<h1 class="logo-text">Logo</h1>
+	</div>
 
+	<div slot="login" class="login-container">
+
+	</div>
+
+	<div class="content">
+	
+    <Indextable />
+	</div>
+</SidebarLayout>
+
+
+
+<style>
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .login-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .login-button:hover {
+    background-color: #0056b3;
+  }
+
+  .content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>

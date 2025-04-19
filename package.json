@@ -13,8 +13,9 @@
   "dependencies": {
     "@astrojs/node": "^9.2.0",
     "astro": "^5.7.3",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
-    "mysql2": "^3.14.0",
-    "cors": "^2.8.5"
+    "lit": "^3.3.0",
+    "mysql2": "^3.14.0"
   }
 }
