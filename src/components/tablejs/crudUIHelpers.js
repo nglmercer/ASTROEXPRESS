@@ -118,8 +118,18 @@ export function setupModalEventListeners(modalEl, editorEl, onCancel = null) {
         modalEl.dataset.currentFormType = '';
      });
 }
-
 export function setupTableListeners(managerEl, openfn =  () => {}, afterfn = () => {}) {
+    if (typeof managerEl === "string") {
+        managerEl = document.querySelector(managerEl);
+    }
+    managerEl.addEventListener('internal-action', async (e) => {
+        console.log('Acción de tabla:', e.detail);
+    });
+    managerEl.addEventListener('menu', async (e) => { console.log('Acción de tabla:', e.detail); });
+    console.log("setupTableListeners",managerEl,openfn,afterfn);
+}
+
+export function setupTablemanagerListeners(managerEl, openfn =  () => {}, afterfn = () => {}) {
     if (typeof managerEl === "string") {
         managerEl = document.querySelector(managerEl);
     }

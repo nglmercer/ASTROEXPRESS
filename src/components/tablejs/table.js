@@ -186,14 +186,17 @@ class BaseLitElement extends LitElement {
             index: idx
         };
         try {
-            this.dispatchEvent(new CustomEvent('internal-action', { // Evento genérico
-                detail,
-                bubbles: true,
-                composed: true
-            }));
+            this._dispatchEv('internal-action', detail);
         } catch (e) { console.error(`${this.constructor.name}: Error dispatching event internal-action`, e); }
     }
-
+    _dispatchEv(name, detail) {
+        // ... (sin cambios)
+        this.dispatchEvent(new CustomEvent(name, {
+            detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
     _renderActionButtons(idx) {
         // ... (sin cambios lógicos, los estilos de botón ahora usan variables)
         let acts = [...this.actions];
@@ -265,33 +268,32 @@ class ObjectTableLit extends BaseLitElement {
             .acts-cell button { margin: 2px; }
         `
     ];
-    _handleRowClick(event) {
+    _handledobleClick(event) {
+        this._handleClick(event,"dblclick");
+    }
+    _handleClick(event, type) {
         event.preventDefault(); // Evitar el menú contextual del navegador en click derecho
 
-        const row = event.currentTarget;
+        const idx = this.verifyRow(event);
+        const item = this.data[idx];
+        if (!item) return; // Si no hay item, no hacemos nada
+        this._dispatchEv('row-activated', item);
+        this._dispatchEv('menu', {item, idx,type }); // Disparar el evento de menú con el item y su índice
+        // console.log(`Fila activada por ${event.type}:`, item, idx); // Opcional: para depurar
+    }
+    _handleMenuClick(event) {
+        this._handleClick(event, "contextmenu");
+    }
+    verifyRow(e){
+        const row = e.currentTarget;
         const idx = parseInt(row.dataset.idx, 10);
 
         if (isNaN(idx) || idx < 0 || idx >= this.data.length) {
             console.warn(`${this.constructor.name}: Invalid index ${idx} from row.`);
             return;
         }
-
-        const item = this.data[idx];
-
-        // Disparar un nuevo evento específico para la activación de fila
-        this.dispatchEvent(new CustomEvent('row-activated', {
-            detail: {
-                item: JSON.parse(JSON.stringify(item)),
-                index: idx,
-                originalEvent: event.type // Útil para saber si fue 'dblclick' o 'contextmenu'
-            },
-            bubbles: true,
-            composed: true
-        }));
-
-        // console.log(`Fila activada por ${event.type}:`, item, idx); // Opcional: para depurar
+        return idx;
     }
-
     render() {
         // ... (Render sin cambios lógicos)
         if (!this.data?.length) return html`<div class="no-data">No hay datos.</div>`;
@@ -310,8 +312,8 @@ class ObjectTableLit extends BaseLitElement {
                     ${this.data.map((item, idx) => html`
                         <tr
                             data-idx=${idx}
-                            @dblclick=${this._handleRowClick}  
-                            @contextmenu=${this._handleRowClick} 
+                            @dblclick=${this._handledobleClick}  
+                            @contextmenu=${this._handleMenuClick} 
                         >
                             ${this.keys.map(k => {
         const val = item[k];

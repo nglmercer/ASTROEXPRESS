@@ -1,5 +1,5 @@
 
-async function rendertables(array, elId="catalogos", displayKeysArray) {
+async function renderManagertables(array, elId="catalogos", displayKeysArray) {
 
     try {
         const managerEl = document.getElementById(elId);
@@ -17,4 +17,15 @@ async function rendertables(array, elId="catalogos", displayKeysArray) {
     }
     
 }
-export { rendertables };
+async function rendertables(array, elId="catalogos", displayKeysArray) {
+    try {
+        const tableEl = document.getElementById(elId);
+        if (!tableEl) throw new Error(`Elemento con ID "${elId}" no encontrado.`);
+        tableEl.data = array;
+        tableEl.keys = displayKeysArray;
+    } catch (error) {
+        console.error(`Error al renderizar tablas: ${error.message}`);
+        return;
+    }
+}
+export { rendertables,renderManagertables };
