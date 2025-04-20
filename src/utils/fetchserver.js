@@ -2,6 +2,14 @@ const baseApi = "productionUrl";
 const baseTestApi = "http://localhost:8080"; // Original test API
 const mockApi = "http://localhost:8081/mock-api"; // Mock API endpoint
 const actualBaseApi = mockApi; // Use mock API for development
+var localStorage  = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+  ? localStorage
+  : {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+    };
 const http = {
     get: (url, options = {}) => {
         return fetch(url, {
@@ -41,14 +49,6 @@ const http = {
 // catalogo post, envia un objeto para agregar un catalogo -- agregar
 // catalogo put, actualiza un catalogo --- actualizar
 // catalogo delete, elimina un catalogo --- eliminar
-export var localStorage  = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
-  ? localStorage
-  : {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-      clear: () => {},
-    };
 function safeParse(value) {
     try {
         // Si ya es un array u objeto, lo devolvemos tal cual
@@ -264,6 +264,7 @@ class FetchApi {
         headers: this._authHeaders()
     });
     }
+    // get catalogotemporadas /catalogo/${idCatalogo}/temporadas /catalogo/5069/temporadas
     getTemporadas(idCatalogo) {
         return this.http.get(`${this.host}/catalogo/${idCatalogo}/temporadas`, {
             

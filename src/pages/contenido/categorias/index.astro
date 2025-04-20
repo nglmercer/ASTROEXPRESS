@@ -1,6 +1,24 @@
 ---
 import SidebarLayout from '@layouts/SidebarLayout.astro';
-import Indextable from '@components/capitulo/capitulo.astro';
+import Indextable from '@components/catalogo/catalogo.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { id: '1' } },
+    { params: { id: '2' } },
+    { params: { id: '3' } }
+  ];
+}
+const { id } = Astro.params;
+console.log("ID:", id);
+/* import { getPost } from '../api';
+
+const post = await getPost(Astro.params.id);
+
+// No posts found with this ID
+if (!post) {
+  return Astro.redirect("/404")
+} */
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---

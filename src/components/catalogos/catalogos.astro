@@ -1,0 +1,46 @@
+---
+---
+<script src="/src/components/tablejs/modal.js"></script>
+<script src="/src/components/tablejs/table.js"></script>
+<script src="/src/components/tablejs/init.js"></script>
+<div class="MainInformation">
+  <h1>Catalogo</h1>
+  <p>Bienvenido al sistema de gestión de catálogos. Aquí puedes administrar los catálogos de tu aplicación.</p>
+  <p>Selecciona una opción del menú para comenzar.</p>
+
+</div>
+<div class="container">
+  <div class="button-group">
+    <button data-form-type="temporada" class="primary">Temporada</button>
+    <button data-form-type="user" class="primary">Usuario</button>
+    <button data-form-type="catalogo" class="primary">Catalogo</button>
+</div>
+
+<dlg-cont id="modal-container">
+    <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode>
+    </dyn-obj-disp>
+</dlg-cont>
+
+<object-table-lit id="catalogo" darkmode></object-table-lit>
+
+</div>
+
+<style>
+    button { padding: 0.6em 1.2em; cursor: pointer; margin: 5px; border-radius: 4px; border: 1px solid #555; background-color: #333; color: white; }
+        button.primary { background-color: #007bff; border-color: #007bff; }
+        button:hover { filter: brightness(1.2); }
+        #modal-container dyn-obj-disp { /* Estilo más general */
+            min-width: 400px;
+            display: block; /* Asegurar que toma espacio */
+            background-color: #222; /* Fondo para el contenido del modal */
+            border-radius: 8px;
+             /* obj-edit-form dentro no necesita borde/padding extra */
+        }
+         #modal-container dyn-obj-disp obj-edit-frm {
+             border: none;
+             padding: 0;
+             background: transparent;
+         }
+        .output { margin-top: 1rem; padding: 1rem; background-color: #1a1a1a; border: 1px solid #333; border-radius: 5px; white-space: pre-wrap; font-family: monospace; min-height: 50px;}
+        .loading { font-style: italic; color: #aaa; }
+</style>

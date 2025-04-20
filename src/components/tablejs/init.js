@@ -20,6 +20,7 @@ async function fetchcatalogos() {
     }
 
 }
+
 // funcion para obtener unicamente los keys de un objeto de una lista de objetos tambien añadir si devolver los primeros 10 o 20 elementos
 function getKeysFromArray(array, keyCount = 4) {
     if (!Array.isArray(array) || array.length === 0) return [];

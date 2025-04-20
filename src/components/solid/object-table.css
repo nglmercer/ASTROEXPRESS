@@ -1,0 +1,87 @@
+.ctr {
+  background-color: var(--bg-color-primary);
+  color: var(--text-color-primary);
+}
+
+.no-data {
+  padding: 15px;
+  text-align: center;
+  color: var(--text-color-secondary);
+  background-color: var(--bg-color-secondary);
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.95em;
+}
+
+th,
+td {
+  border: 1px solid var(--border-color-table);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+td.wrap {
+  white-space: normal;
+}
+
+th {
+  background-color: var(--bg-color-table-header);
+  font-weight: 600;
+  text-transform: capitalize;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+tr:nth-child(even) {
+  background-color: var(--bg-color-table-even-row);
+}
+
+tr:hover {
+  background-color: var(--bg-color-tertiary);
+}
+
+.acts-cell {
+  width: 1%;
+  text-align: center;
+  padding: 4px 8px;
+}
+
+.acts-cell button {
+  margin: 2px;
+}
+
+button {
+  cursor: pointer;
+  margin: 0 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color-secondary);
+  border-radius: 3px;
+  font-size: 0.9em;
+  background-color: var(--bg-color-button);
+  color: var(--text-color-primary);
+  transition: filter var(--transition-speed) var(--transition-ease), background-color var(--transition-speed) var(--transition-ease);
+}
+
+button:hover {
+  filter: brightness(var(--bg-color-button-hover-brightness));
+}
+
+.edit-btn {
+  background-color: var(--bg-color-edit);
+  border-color: var(--border-color-edit);
+  color: var(--text-color-info-on-light);
+}
+
+.delete-btn {
+  background-color: var(--bg-color-delete);
+  color: var(--text-color-danger-on-light);
+  border-color: var(--border-color-delete);
+}

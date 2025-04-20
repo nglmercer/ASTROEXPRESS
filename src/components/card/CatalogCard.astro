@@ -1,0 +1,61 @@
+---
+// Props
+const { titulo, descripcion, categorias, imagen } = Astro.props;
+---
+
+<style>
+  .card {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    background: linear-gradient(to bottom, #2e005d, #3d006b);
+    color: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    font-family: sans-serif;
+  }
+
+  .info {
+    padding: 1.5rem;
+    flex: 1;
+  }
+
+  .info h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.3rem;
+  }
+
+  .info p {
+    margin: 0.5rem 0;
+  }
+
+  .categorias {
+    color: #ccc;
+    font-size: 0.95rem;
+  }
+
+  .poster {
+    width: 200px;
+    object-fit: cover;
+  }
+
+  @media (max-width: 600px) {
+    .card {
+      flex-direction: column;
+    }
+
+    .poster {
+      width: 100%;
+      height: auto;
+    }
+  }
+</style>
+
+<div class="card">
+  <div class="info">
+    <h2>Catalogo: {titulo}</h2>
+    <p>Descripcion: {descripcion}</p>
+    <p class="categorias">Categorias: {categorias ? categorias.join(", ") : "N/A"}</p>
+  </div>
+  <img class="poster" src={imagen} alt={`Poster de ${titulo}`} />
+</div>

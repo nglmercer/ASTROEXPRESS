@@ -1,0 +1,36 @@
+---
+// Ruta: /dashboard/contenido/catalogos/[page]
+import SidebarLayout from '@layouts/SidebarLayout.astro';
+import Indextable from '@components/catalogo/catalogo.astro';
+interface pageParams {
+  page: number;
+}
+const { page } = Astro.params;
+const pageNum = Number(page) || 1; 
+
+---
+<SidebarLayout title="Mi Aplicación" activeConfig="A">
+  <div slot="logo">
+    <h1 class="logo-text">Logo</h1>
+  </div>
+
+  <div slot="login" class="login-container">
+
+  </div>
+
+  <div class="content" data-page-num={pageNum}>
+    <Indextable />
+  </div>
+  <script is:inline>
+  const pageNum = document.querySelector('.content').dataset.pageNum;
+  console.log("Page Number:", pageNum);
+  
+  </script>
+  <script define:vars={{ pageNum }}>
+    const rawdata = {
+      pageNum: pageNum
+    };
+    console.log("Page Number:", rawdata.pageNum);
+  </script>
+
+</SidebarLayout>

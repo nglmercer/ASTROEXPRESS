@@ -1,12 +1,57 @@
 ---
+import { fetchapi } from '@utils/fetchserver.js';
+import CatalogCard from '@components/card/CatalogCard.astro';
+import type { Signal } from 'solid-js';
+import ObjectTable from '@components/solid/ObjectTableSolid.tsx';
+const { page } = Astro.params;
+const post = await fetchapi.getInfoCatalogo(page);
+let Item;
+if (!post) {
+  return
+} else {
+  Item = Array.isArray(post) ? post[0] : post;
+  console.log("Catalogo data:", post);
+}
+const temporadas = await  fetchapi.getTemporadas(page);
+const temporadarray = Array.isArray(temporadas) ? temporadas : [temporadas];
+const keys = [
+  "nombreCatalogo",
+  "idTemporada",
+  "numeroTemporada",
+  "nombreTemporada",
+  "portadaTemporada",
+  "catalogoTemporada",
+  "nsfw",
+  "tipoCatalogo",
+  "trailerCatalogo",
+]
+const actions = [
+  { name: 'edit', icon: 'edit', label: 'Edit' },
+  { name: 'delete', icon: 'delete', label: 'Delete' },
+  { name: 'view', icon: 'view', label: 'View' },
+];
+const darkMode = true;
+const onRowActivatedcb = () => {
+  console.log("Row activated:");
+};
+const onMenucb = () => {
+  console.log("Menu action:",  "on row:");
+};
+const onInternalActioncb = () => {
+  console.log("Internal action:", "on row:");
+};
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
-<script src="/src/components/tablejs/init.js"></script>
-<div class="MainInformation">
-  <h1>Catalogo</h1>
-  <p>Bienvenido al sistema de gestión de catálogos. Aquí puedes administrar los catálogos de tu aplicación.</p>
-  <p>Selecciona una opción del menú para comenzar.</p>
+<script src="/src/components/catalogo/catalogo.js"></script>
+<div class="MainInformation" data-page-num={page}>
+
+  <CatalogCard
+  titulo={Item.nombreCatalogo}
+  descripcion={Item.descripcionCatalogo}
+  categorias={Item.categorias}
+  imagen={Item.imagenFondoCatalogo}
+  />
 
 </div>
 <div class="container">
@@ -21,8 +66,29 @@
     </dyn-obj-disp>
 </dlg-cont>
 
+<ObjectTable
+  data={temporadarray}
+  keys={keys}
+  actions={actions}
+  darkMode={darkMode}
+  onRowActivated={onRowActivatedcb}
+  onMenu={onMenucb}
+  onInternalAction={onInternalActioncb}
+/>
 <object-table-lit id="catalogo" darkmode></object-table-lit>
-
+<script define:vars={{ Item }}>
+    console.log("Catalogo data:", Item );
+</script>
+<script>
+  import { fetchapi } from '@utils/fetchserver.js';
+  document.addEventListener('DOMContentLoaded', async () => {
+/*     const element = document.querySelector('[data-page-num]');
+    const pageNum = Number(element?.dataset.pageNum) || 1;
+    console.log("Page Number:", pageNum);
+    const temporadas = await fetchapi.getTemporadas(pageNum);
+    console.log("Temporadas data:", temporadas); */
+  });
+</script>
 </div>
 
 <style>

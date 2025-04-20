@@ -40,7 +40,7 @@ const checkAuthOptional = (req, res, next) => {
 router.get('/catalogo/:idCatalogo', checkAuth, async (req, res) => {
     const { idCatalogo } = req.params;
     try {
-        const catalogo = await dbController.getById('catalogos', idCatalogo);
+        const catalogo = await dbController.queryWithFilters('catalogos', { idCatalogo: idCatalogo });
         if (catalogo) {
             res.json(catalogo);
         } else {
@@ -108,7 +108,7 @@ router.post('/catalogos/pagina/:pagina/exists', checkAuth, async (req, res) => {
 router.get('/catalogo/:idCatalogo/info', checkAuth, async (req, res) => {
     const { idCatalogo } = req.params;
     try {
-        const catalogo = await dbController.getById('catalogos', idCatalogo);
+        const catalogo = await dbController.queryWithFilters('catalogos', { idCatalogo: idCatalogo });
         if (catalogo) {
              // Aquí podrías agregar lógica para buscar temporadas y capítulos relacionados
              // usando queryWithFilters o getRecords si fuera necesario, pero requeriría
@@ -126,7 +126,22 @@ router.get('/catalogo/:idCatalogo/info', checkAuth, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
-
+///catalogo/4990/temporadas
+router.get('/catalogo/:idCatalogo/temporadas/', checkAuth, async (req, res) => {
+    try {
+        const { idCatalogo } = req.params;
+        // Obtener temporadas asociadas al catálogo
+        const temporadas = await dbController.queryWithFilters('temporadas', { catalogoTemporada: idCatalogo });
+        if (temporadas) {
+            res.json(temporadas); // Devuelve la información de la temporada
+        } else {
+            res.status(404).json({ message: 'Temporada no encontrada' });
+        }
+    } catch (error) {
+        console.error('Error al obtener información de la temporada:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
 // GET /catalogos/estados (Requiere Auth) - Obtener todos los estados de catálogos
 router.get('/catalogos/estados', checkAuth, async (req, res) => {
     try {
