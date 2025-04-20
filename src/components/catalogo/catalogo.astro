@@ -2,44 +2,31 @@
 import { fetchapi } from '@utils/fetchserver.js';
 import CatalogCard from '@components/card/CatalogCard.astro';
 import type { Signal } from 'solid-js';
-import ObjectTable from '@components/solid/ObjectTableSolid.tsx';
+import ObjectTable from '@components/solid/ObjectTableSolid.jsx';
 const { page } = Astro.params;
 const post = await fetchapi.getInfoCatalogo(page);
 let Item;
+
+const temporadas = await  fetchapi.getTemporadas(page);
+const temporadarray = Array.isArray(temporadas) ? temporadas : [temporadas];
 if (!post) {
   return
 } else {
   Item = Array.isArray(post) ? post[0] : post;
-  console.log("Catalogo data:", post);
 }
-const temporadas = await  fetchapi.getTemporadas(page);
-const temporadarray = Array.isArray(temporadas) ? temporadas : [temporadas];
 const keys = [
-  "nombreCatalogo",
+  "nombreTemporada",
   "idTemporada",
   "numeroTemporada",
-  "nombreTemporada",
   "portadaTemporada",
   "catalogoTemporada",
   "nsfw",
-  "tipoCatalogo",
-  "trailerCatalogo",
 ]
 const actions = [
   { name: 'edit', icon: 'edit', label: 'Edit' },
   { name: 'delete', icon: 'delete', label: 'Delete' },
   { name: 'view', icon: 'view', label: 'View' },
 ];
-const darkMode = true;
-const onRowActivatedcb = () => {
-  console.log("Row activated:");
-};
-const onMenucb = () => {
-  console.log("Menu action:",  "on row:");
-};
-const onInternalActioncb = () => {
-  console.log("Internal action:", "on row:");
-};
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
@@ -67,17 +54,12 @@ const onInternalActioncb = () => {
 </dlg-cont>
 
 <ObjectTable
-  data={temporadarray}
-  keys={keys}
-  actions={actions}
-  darkMode={darkMode}
-  onRowActivated={onRowActivatedcb}
-  onMenu={onMenucb}
-  onInternalAction={onInternalActioncb}
-/>
+ data={temporadarray} keys={keys} actions={actions} client:only  />
 <object-table-lit id="catalogo" darkmode></object-table-lit>
-<script define:vars={{ Item }}>
+<script define:vars={{ Item, temporadarray }}>
     console.log("Catalogo data:", Item );
+    console.log("Temporadas data:", temporadarray);
+
 </script>
 <script>
   import { fetchapi } from '@utils/fetchserver.js';
@@ -85,8 +67,7 @@ const onInternalActioncb = () => {
 /*     const element = document.querySelector('[data-page-num]');
     const pageNum = Number(element?.dataset.pageNum) || 1;
     console.log("Page Number:", pageNum);
-    const temporadas = await fetchapi.getTemporadas(pageNum);
-    console.log("Temporadas data:", temporadas); */
+ */
   });
 </script>
 </div>

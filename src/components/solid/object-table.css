@@ -1,7 +1,125 @@
+/* ObjectTableSolid.css */
 .ctr {
+  /* --- Paleta de Colores (Modo Claro por defecto) --- */
+  --text-color-primary: #212529;
+  --text-color-secondary: #6c757d;
+  --text-color-muted: #868e96;
+  --text-color-link: #007bff;
+  --text-color-success: #198754;
+  --text-color-danger: #dc3545;
+  --text-color-info-on-light: #004085; /* Texto azul sobre fondo claro */
+  --text-color-danger-on-light: #721c24; /* Texto rojo oscuro sobre fondo claro */
+  --text-color-light: #f8f9fa; /* Texto claro sobre fondo oscuro */
+
+  --bg-color-primary: #ffffff;
+  --bg-color-secondary: #f8f9fa;
+  --bg-color-tertiary: #e9ecef;
+  --bg-color-table-header: #f2f2f2;
+  --bg-color-table-even-row: #f9f9f9;
+  --bg-color-button: #ffffff;
+  --bg-color-button-hover-brightness: 0.95;
+  --bg-color-button-alt: #f0f0f0;
+  --bg-color-button-alt-hover: #e0e0e0;
+  --bg-color-edit: #e7f3ff;
+  --bg-color-delete: #f8d7da;
+
+  --border-color-primary: #dee2e6;
+  --border-color-secondary: #ced4da;
+  --border-color-table: #ddd;
+  --border-color-edit: #b8daff;
+  --border-color-delete: #f5c6cb;
+
+  --shadow-color-soft: rgba(0, 0, 0, 0.08);
+  --shadow-color-medium: rgba(0, 0, 0, 0.12);
+
+  /* Transiciones comunes */
+  --transition-speed: 0.2s;
+  --transition-ease: ease-out;
+
+  /* Component base styles */
+  display: block; /* Mimic LitElement's :host display */
+  border: 1px solid var(--border-color-primary);
+  padding: 10px;
+  border-radius: 5px;
   background-color: var(--bg-color-primary);
   color: var(--text-color-primary);
 }
+
+/* --- Paleta de Colores (Modo Oscuro) --- */
+.ctr.dark-mode { /* Use a class on the container */
+  --text-color-primary: #e9ecef;
+  --text-color-secondary: #adb5bd;
+  --text-color-muted: #868e96;
+  --text-color-link: #64b5f6;
+  --text-color-success: #81c784;
+  --text-color-danger: #ef9a9a;
+  --text-color-info-on-light: #ffffff;
+  --text-color-danger-on-light: #ffffff;
+  --text-color-light: #e9ecef;
+
+  --bg-color-primary: #212529;
+  --bg-color-secondary: #343a40;
+  --bg-color-tertiary: #495057;
+  --bg-color-table-header: #343a40;
+  --bg-color-table-even-row: #2c3034;
+  --bg-color-button: #495057;
+  --bg-color-button-hover-brightness: 1.1;
+  --bg-color-button-alt: #5a6268;
+  --bg-color-button-alt-hover: #6c757d;
+  --bg-color-edit: #0056b3;
+  --bg-color-delete: #c82333;
+
+  --border-color-primary: #495057;
+  --border-color-secondary: #6c757d;
+  --border-color-table: #454d55;
+  --border-color-edit: #004085;
+  --border-color-delete: #a71d2a;
+
+  --shadow-color-soft: rgba(255, 255, 255, 0.05);
+  --shadow-color-medium: rgba(255, 255, 255, 0.08);
+}
+
+
+/* Estilos base que usan las variables */
+.table-container {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.95em;
+  overflow: auto;
+}
+th, td {
+  border: 1px solid var(--border-color-table);
+  padding: 8px 10px;
+  text-align: left;
+  overflow: auto;
+  color: var(--text-color-primary);
+}
+td.wrap { white-space: normal; }
+th {
+  background-color: var(--bg-color-table-header);
+  font-weight: 600;
+  text-transform: capitalize;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--text-color-primary);
+}
+tr:nth-child(even) {
+  background-color: var(--bg-color-table-even-row);
+}
+tr:hover {
+  background-color: var(--bg-color-tertiary);
+}
+.acts-cell {
+  width: 1%;
+  text-align: center;
+  padding: 4px 8px;
+}
+.acts-cell button { margin: 2px; }
 
 .no-data {
   padding: 15px;
@@ -10,54 +128,6 @@
   background-color: var(--bg-color-secondary);
   border-radius: 4px;
 }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 0.95em;
-}
-
-th,
-td {
-  border: 1px solid var(--border-color-table);
-  padding: 8px 10px;
-  text-align: left;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-td.wrap {
-  white-space: normal;
-}
-
-th {
-  background-color: var(--bg-color-table-header);
-  font-weight: 600;
-  text-transform: capitalize;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-tr:nth-child(even) {
-  background-color: var(--bg-color-table-even-row);
-}
-
-tr:hover {
-  background-color: var(--bg-color-tertiary);
-}
-
-.acts-cell {
-  width: 1%;
-  text-align: center;
-  padding: 4px 8px;
-}
-
-.acts-cell button {
-  margin: 2px;
-}
-
 button {
   cursor: pointer;
   margin: 0 4px;
@@ -69,17 +139,14 @@ button {
   color: var(--text-color-primary);
   transition: filter var(--transition-speed) var(--transition-ease), background-color var(--transition-speed) var(--transition-ease);
 }
-
 button:hover {
   filter: brightness(var(--bg-color-button-hover-brightness));
 }
-
 .edit-btn {
   background-color: var(--bg-color-edit);
   border-color: var(--border-color-edit);
   color: var(--text-color-info-on-light);
 }
-
 .delete-btn {
   background-color: var(--bg-color-delete);
   color: var(--text-color-danger-on-light);
