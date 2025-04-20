@@ -1,7 +1,52 @@
 ---
-// Props
-const { titulo, descripcion, categorias, imagen } = Astro.props;
+const { data } = Astro.props;
+
+let parsedData = null;
+
+if (data && typeof data === 'object') {
+  const isCatalogoFormat = 'nombreCatalogo' in data;
+
+  if (isCatalogoFormat) {
+    // Formato "Catalogo"
+    const {
+      nombreCatalogo = "Sin título",
+      descripcionCatalogo = "Sin descripción",
+      imagenPortadaCatalogo = "https://via.placeholder.com/200x300?text=Sin+imagen",
+      categorias = [],
+    } = data;
+
+    parsedData = {
+      titulo: nombreCatalogo,
+      descripcion: descripcionCatalogo,
+      categorias,
+      imagen: imagenPortadaCatalogo,
+    };
+  } else {
+    // Formato genérico
+    const {
+      titulo = "Sin título",
+      descripcion = "Sin descripción",
+      categorias = [],
+      imagen = "https://via.placeholder.com/200x300?text=Sin+imagen",
+    } = data;
+
+    parsedData = { titulo, descripcion, categorias, imagen };
+  }
+}
 ---
+
+{parsedData && (
+  <div class="card">
+    <div class="info">
+      <h2>Catálogo: {parsedData.titulo}</h2>
+      <p>Descripción: {parsedData.descripcion}</p>
+      <p class="categorias">
+        Categorías: {parsedData.categorias.length ? parsedData.categorias.join(", ") : "N/A"}
+      </p>
+    </div>
+    <img class="poster" src={parsedData.imagen} alt={`Póster de ${parsedData.titulo}`} />
+  </div>
+)}
 
 <style>
   .card {
@@ -51,11 +96,3 @@ const { titulo, descripcion, categorias, imagen } = Astro.props;
   }
 </style>
 
-<div class="card">
-  <div class="info">
-    <h2>Catalogo: {titulo}</h2>
-    <p>Descripcion: {descripcion}</p>
-    <p class="categorias">Categorias: {categorias ? categorias.join(", ") : "N/A"}</p>
-  </div>
-  <img class="poster" src={imagen} alt={`Poster de ${titulo}`} />
-</div>

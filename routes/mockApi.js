@@ -142,6 +142,21 @@ router.get('/catalogo/:idCatalogo/temporadas/', checkAuth, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
+//GET/catalogo/5070/temporada/179/capitulos
+router.get('/catalogo/:idCatalogo/temporada/:idTemporada/capitulos', checkAuth, async (req, res) => {
+    try {
+        const { idCatalogo, idTemporada } = req.params;
+        const capitulos = await dbController.queryWithFilters('capitulos', { catalogoCapitulo: idCatalogo, temporadaCapitulo: idTemporada });
+        if (capitulos) {
+            res.json(capitulos); // Devuelve la información de los capítulos
+        } else {
+            res.status(404).json({ message: 'Capítulos no encontrados' });
+        }
+    } catch (error) {
+        console.error('Error al obtener información de los capítulos:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+} );
 // GET /catalogos/estados (Requiere Auth) - Obtener todos los estados de catálogos
 router.get('/catalogos/estados', checkAuth, async (req, res) => {
     try {

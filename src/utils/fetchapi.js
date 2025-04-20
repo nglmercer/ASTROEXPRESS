@@ -270,6 +270,13 @@ class FetchApi {
             headers: this._authHeaders()
         });
     }
+    //GET/catalogo/5070/temporada/179/capitulos
+    getCapitulos(idCatalogo, idTemporada) {
+        return this.http.get(`${this.host}/catalogo/${idCatalogo}/temporada/${idTemporada}/capitulos`, {
+            
+            headers: this._authHeaders()
+        });
+    }
 }
 
 const fetchapi = new FetchApi(actualBaseApi);

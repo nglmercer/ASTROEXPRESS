@@ -1,16 +1,8 @@
 ---
 import SidebarLayout from '@layouts/SidebarLayout.astro';
-import Indextable from '@components/capitulo/capitulo.astro';
+import Indextable from '@components/temporada/temporada.astro';
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
-/* import { getPost } from '../api';
-
-const post = await getPost(Astro.params.id);
-
-// No posts found with this ID
-if (!post) {
-  return Astro.redirect("/404")
-} */
 ---
 
 <SidebarLayout title="Mi Aplicación" activeConfig="A">
@@ -23,7 +15,6 @@ if (!post) {
 	</div>
 
 	<div class="content">
-	
     <Indextable />
 	</div>
 </SidebarLayout>

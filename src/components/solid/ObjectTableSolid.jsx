@@ -1,4 +1,5 @@
-import { createSignal, createMemo, Show, For } from 'solid-js';
+import { createSignal, createEffect ,
+     createMemo, Show, For } from 'solid-js';
 import { classList } from 'solid-js/web'; // Import classList from solid-js/web
 
 // ================================================
@@ -61,18 +62,15 @@ function ObjectTableSolid(props) {
         if (type === 'dblclick') {
             // Update the exported rowActivatedSignal
             rowActivatedSignal[1]({ item, index: idx }); // [1] is the setter
-            console.log(`Row double-clicked signal set:`, { item, index: idx }); // For demonstration
         } else if (type === 'contextmenu') {
             // Update the exported rowContextMenuSignal
             rowContextMenuSignal[1]({ item, index: idx, type }); // [1] is the setter
-            console.log(`Row context menu signal set:`, { item, index: idx, type }); // For demonstration
         }
     };
 
     const handleActionClick = (actionName, item, index) => {
          // Update the exported actionSignal
          actionSignal[1]({ name: actionName, item, index }); // [1] is the setter
-         console.log(`Action signal set:`, { name: actionName, item, index }); // For demonstration
     };
 
     // Helper function to render action buttons for a row
@@ -93,12 +91,8 @@ function ObjectTableSolid(props) {
              <For each={actionsToRender}>
                  {(act) => (
                      <button
-                         // classList helps manage multiple classes conditionally
-                         class={classList({
-                             [act.className || '']: true, // Custom class if provided
-                             'edit-btn': act.name === 'edit', // Specific class for edit
-                             'delete-btn': act.name === 'delete', // Specific class for delete
-                         })}
+                         // Corrección: Usar className en lugar de class y eliminar classList
+                         className={`${act.className || ''} ${act.name === 'edit' ? 'edit-btn' : ''} ${act.name === 'delete' ? 'delete-btn' : ''}`}
                          // Attach the click handler that updates the signal
                          onClick={() => handleActionClick(act.name, item, idx)}
                      >
@@ -110,16 +104,16 @@ function ObjectTableSolid(props) {
     };
 
     return (
-        // Apply the 'ctr' class and conditionally add 'dark-mode' class
-        <div class={classList({ 'ctr': true, 'dark-mode': props.darkMode ?? false })}>
+        // Corrección: Usar className en lugar de class y eliminar classList
+        <div className={`ctr ${props.darkMode ? 'dark-mode' : ''}`}>
             {/* Use <Show> for conditional rendering based on data/keys */}
             <Show when={!isDataEmpty() && !isKeysEmpty()} fallback={
-                <div class="no-data">
+                <div className="no-data">
                     <Show when={isDataEmpty()}>No hay datos.</Show>
                     <Show when={!isDataEmpty() && isKeysEmpty()}>No hay claves.</Show>
                 </div>
             }>
-                <div class="table-container"> {/* Container for horizontal scroll */}
+                <div className="table-container"> {/* Container for horizontal scroll */}
                     <table>
                         <thead>
                             <tr>
@@ -151,14 +145,15 @@ function ObjectTableSolid(props) {
 
                                                 return (
                                                     <td
-                                                         class={classList({ 'wrap': typeof val === 'string' && val.length > 50 })}
+                                                         // Corrección: Usar className en lugar de class y simplificar
+                                                         className={typeof val === 'string' && val.length > 50 ? 'wrap' : ''}
                                                     >
                                                          {dVal}
                                                     </td>
                                                 );
                                             }}
                                         </For>
-                                        <td class="acts-cell">
+                                        <td className="acts-cell">
                                             {/* Call helper to render action buttons */}
                                             {renderActionButtons(item, idx())} {/* Pass item and actual index value */}
                                         </td>
@@ -172,5 +167,35 @@ function ObjectTableSolid(props) {
         </div>
     );
 }
-
-export default ObjectTableSolid; // Export the component
+function SignalBridge() {
+    createEffect(() => {
+      const action = actionSignal[0]();
+      if (action) {
+        console.log('Action signal recibido:', action);
+        // Ejemplo: Lanza un CustomEvent para que el DOM lo reciba
+        window.dispatchEvent(new CustomEvent('action-signal', { detail: action }));
+        actionSignal[1](null); // limpiar después de usar
+      }
+    });
+  
+    createEffect(() => {
+      const row = rowActivatedSignal[0]();
+      if (row) {
+        console.log('Double-click signal recibido:', row);
+        window.dispatchEvent(new CustomEvent('row-activated', { detail: row }));
+        rowActivatedSignal[1](null);
+      }
+    });
+  
+    createEffect(() => {
+      const ctx = rowContextMenuSignal[0]();
+      if (ctx) {
+        console.log('ContextMenu signal recibido:', ctx);
+        window.dispatchEvent(new CustomEvent('row-contextmenu', { detail: ctx }));
+        rowContextMenuSignal[1](null);
+      }
+    });
+  
+    return null; // Este componente no renderiza nada
+  }
+export { ObjectTableSolid, SignalBridge };
