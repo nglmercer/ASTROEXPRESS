@@ -1,5 +1,4 @@
 import { fetchapi, getParams } from '@utils/fetchapi';
-import { getKeysFromArray} from '@components/tablejs/init1.js';
 import {rendertables} from '@components/tablejs/inittable.js'
 async function fetchCapitulos(idCatalogo, idTemporada) {
     try {
@@ -25,8 +24,7 @@ u(document).on('DOMContentLoaded',async function () {
     console.log("params: ", params);
     const response = await fetchCapitulos(params[3], params[5]);
     console.log("response: ", response);
-    const keys = getKeysFromArray(response);
-    rendertables(response, "catalogo", keys);
+
 
     // this is the breadcrumb element
     customElements.whenDefined('nav-breadcrumb').then(() => {

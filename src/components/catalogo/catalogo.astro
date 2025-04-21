@@ -1,19 +1,13 @@
 ---
 import { fetchapi } from '@utils/fetchserver.js';
 import CatalogCard from '@components/card/CatalogCard.astro';
-import {ObjectTableSolid,SignalBridge}from '@components/solid/ObjectTableSolid.jsx';
 const { params } = Astro;
 const idCatalogo = params.idCatalogo;
 const post = await fetchapi.getInfoCatalogo(idCatalogo);
-let Item;
 
 const temporadas = await  fetchapi.getTemporadas(idCatalogo);
 const temporadarray = Array.isArray(temporadas) ? temporadas : [temporadas];
-if (!post || post.length === 0 || temporadarray.length === 0) {
-  return  Astro.redirect("/404")
-} else {
-  Item = Array.isArray(post) ? post[0] : post;
-}
+
 const keys = [
   "nombreTemporada",
   "idTemporada",
@@ -22,11 +16,6 @@ const keys = [
   "catalogoTemporada",
   "nsfw",
 ]
-const actions = [
-  { name: 'edit', icon: 'edit', label: 'Edit' },
-  { name: 'delete', icon: 'delete', label: 'Delete' },
-  { name: 'view', icon: 'view', label: 'View' },
-];
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
@@ -34,7 +23,7 @@ const actions = [
 <div class="MainInformation" data-page-num={idCatalogo}>
 
   <CatalogCard
-   data={Item}
+   data={post}
   />
 
 </div>
@@ -46,50 +35,24 @@ const actions = [
 </div>
 
 <dlg-cont id="modal-container">
-    <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode>
+    <dyn-obj-disp id="dynamic-editor" mode="edit" 
+    darkmode>
     </dyn-obj-disp>
 </dlg-cont>
 
-<ObjectTableSolid
- data={temporadarray} keys={keys} actions={actions} darkMode={true} 
- id="catalogo"
-  client:only  />
-<SignalBridge client:only />
-<object-table-lit id="catalogo" darkmode></object-table-lit>
-<script define:vars={{ Item, temporadarray }}>
-    console.log("Catalogo data:", Item );
-    console.log("Temporadas data:", temporadarray);
+<object-table-lit id="catalogo" darkmode
+ ></object-table-lit>
 
-</script>
-<!-- <script>
-  import { fetchapi } from '@utils/fetchserver.js';
-  document.addEventListener('DOMContentLoaded', async () => {
-/*     const element = document.querySelector('[data-page-num]');
-    const pageNum = Number(element?.dataset.pageNum) || 1;
-    console.log("Page Number:", pageNum);
- */
-  });
-  window.addEventListener('action-signal', (e) => {
-    const { name, item, index } = e.detail;
-    console.log(`Acción ${name} en fila ${index}`, item);
-
-
-  });
-
-  window.addEventListener('row-activated', (e) => {
-    const { item, index } = e.detail;
-    console.log('Double-click en', item);
-    // lógica similar
-  });
-
-  window.addEventListener('row-contextmenu', (e) => {
-    const { item, index, type } = e.detail;
-    console.log('Click derecho en', item);
-    // puedes mostrar un menú contextual aquí
-  });
-</script> -->
 </div>
-
+<script define:vars={{post,keys,temporadarray}}>
+  document.addEventListener("DOMContentLoaded",async function() {
+      const element = document.getElementById("catalogo")
+      const itemsisarray = Array.isArray(temporadarray) ? temporadarray : [temporadarray];
+      element.data = itemsisarray;
+      element.keys = keys
+      console.log(element, temporadarray, keys)
+  })
+</script>
 <style>
     button { padding: 0.6em 1.2em; cursor: pointer; margin: 5px; border-radius: 4px; border: 1px solid #555; background-color: #333; color: white; }
         button.primary { background-color: #007bff; border-color: #007bff; }

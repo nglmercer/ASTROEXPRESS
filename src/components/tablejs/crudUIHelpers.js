@@ -1,3 +1,4 @@
+const baseURL = "/contenido/"
 export async function openDynamicModal(modalEl, editorEl, formType, formConfigs, data = null, onBeforeOpen = null, onAfterConfig = null) {
     const configGenerator = formConfigs[formType];
     if (!configGenerator) {
@@ -171,7 +172,15 @@ export function setupTableListeners(managerEl, openfn =  () => {}, afterfn = () 
     managerEl.addEventListener('internal-action', async (e) => {
         console.log('Acción de tabla:', e.detail);
     });
-    managerEl.addEventListener('menu', async (e) => { console.log('Acción de tabla:', e.detail); });
+    managerEl.addEventListener('menu', async (e) => { 
+        console.log('Acción de tabla:', e.detail,getURLPATH(e.detail.item));
+        const urlredirect = getURLPATH(e.detail.item);
+        if (urlredirect) {
+            redirectTo(urlredirect);
+        } else {
+            console.error("Redirección fallida: ruta no válida.");
+        }
+    });
     console.log("setupTableListeners",managerEl,openfn,afterfn);
 }
 
@@ -207,6 +216,57 @@ export function setupTablemanagerListeners(managerEl, openfn =  () => {}, afterf
         }
     });
 }
+function getURLPATH(data){
+    let finalPath = {
+
+    }
+    console.log("getURLPATH",data,window.location.pathname);
+    if (!data) return finalPath;
+    const catalogoid = data.catalogoid || data.id || data.catalogoId || data.idCatalogo || data.catalogoid || data.catalogoId || data.idCatalogo;
+    const temporadaid = data.temporadaid || data.id || data.temporadaId || data.idTemporada || data.temporadaid || data.temporadaId || data.idTemporada;
+    const episodiod = data.episodiod || data.id || data.episodioId || data.idEpisodio || data.episodiod || data.episodioId || data.idEpisodio;
+    if (catalogoid) {
+        finalPath.catalogoid = catalogoid;
+        return baseURL + "catalogo/" + catalogoid;
+    }
+    if (temporadaid && catalogoid) {
+        finalPath.temporadaid = temporadaid;
+        return baseURL + "catalogo/" + catalogoid + "/temporada/" + temporadaid;
+    }
+    if (episodiod) {
+        finalPath.episodiod = episodiod;
+        return baseURL + "catalogo/" + catalogoid + "/temporada/" + temporadaid + "/episodio/" + episodiod;
+    }
+    return finalPath;
+}
+export function redirectTo(path, options = {}) {
+    // Validar que la ruta sea una cadena no vacía
+    if (!path || typeof path !== 'string') {
+      console.error('Redirección fallida: la ruta no es válida.');
+      return;
+    }
+  
+    // Opciones por defecto
+    const { replace = false, triggerPopstate = false, redirect = true } = options;
+  
+    try {
+      // Usar replaceState en lugar de pushState si replace es true
+      if (replace) {
+        window.history.replaceState({}, '', path);
+      } else if (redirect) {
+        window.location.href = path; // Redirigir a la nueva URL
+      } else {
+        window.history.pushState({}, '', path);
+      }
+  
+      // Disparar evento popstate si está habilitado
+      if (triggerPopstate) {
+        window.dispatchEvent(new Event('popstate'));
+      }
+    } catch (error) {
+      console.error('Error al redirigir:', error);
+    }
+  }
 function isArray(evalue , cb = () => {}) {
     const { value, defaultvalue } = evalue;
     let result = [];
