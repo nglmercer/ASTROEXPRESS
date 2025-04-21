@@ -27,4 +27,11 @@ u(document).on('DOMContentLoaded',async function () {
     console.log("response: ", response);
     const keys = getKeysFromArray(response);
     rendertables(response, "catalogo", keys);
+
+    // this is the breadcrumb element
+    customElements.whenDefined('nav-breadcrumb').then(() => {
+      const element = breadcrumb.nodes[0];
+      element.paramNames = ['1', '2', '3', '4', '5'];
+      
+    });
 });

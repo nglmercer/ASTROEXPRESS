@@ -5,16 +5,17 @@ const { idCatalogo, idTemporada } = params;
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
 <script src="/src/components/navbars/navlistener.js"></script>
-
+<script src="/src/components/navbars/navlit.js"></script>
+<script src="/src/components/navbars/navpages.js"></script>
 <div class="MainInformation">
   
 </div>
 <div class="container">
+  <nav-breadcrumb id="mainBreadcrumb"></nav-breadcrumb>
   <div class="button-group">
     <button data-form-type="temporada" class="primary">Temporada</button>
     <button data-form-type="user" class="primary">Usuario</button>
     <button data-form-type="catalogo" class="primary">Catalogo</button>
-    <nav-breadcrumb ></nav-breadcrumb>
 </div>
 
 <dlg-cont id="modal-container">

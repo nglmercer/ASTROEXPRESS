@@ -187,6 +187,7 @@ export class NavBreadcrumb extends LitElement {
                             @click=${(e) => { // Add a click handler to prevent default and use pushState
                                 e.preventDefault(); // Prevent full page reload
                                 window.history.pushState({}, '', segmentPath);
+                                window.location.href = segmentPath; // Navigate to the new URL
                                 // Manually trigger segment update after history change
                                 this._updateSegments();
                             }}
