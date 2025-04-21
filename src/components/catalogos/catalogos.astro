@@ -4,8 +4,7 @@ const page = params.page || 1;
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
-<script src="/src/components/tablejs/init.js"></script>
-<script src="/src/components/tablejs/navlistener.js"></script>
+<script src="/src/components/navbars/navlistener.js"></script>
 
 <div class="MainInformation">
   <h1>Catalogo {page}</h1>
@@ -24,12 +23,13 @@ const page = params.page || 1;
     <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode>
     </dyn-obj-disp>
 </dlg-cont>
-<pagination-nav class="navelement" totalPages={page}></pagination-nav>
+<nav-breadcrumb id="mainBreadcrumb"></nav-breadcrumb>
+<pagination-nav class="navelement" totalPages={page}  currentPage={page}></pagination-nav>
 
 <object-table-lit id="catalogo" darkmode></object-table-lit>
 
 </div>
-
+  <script src="/src/components/catalogos/catalogos.js"></script>
 <style>
     button { padding: 0.6em 1.2em; cursor: pointer; margin: 5px; border-radius: 4px; border: 1px solid #555; background-color: #333; color: white; }
         button.primary { background-color: #007bff; border-color: #007bff; }

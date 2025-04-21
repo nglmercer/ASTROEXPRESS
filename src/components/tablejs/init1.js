@@ -1,5 +1,4 @@
 // /src/pages/events/events.js (o tu ruta)
-import {rendertables} from '/src/components/tablejs/inittable.js'
 import {
     openDynamicModal,
     setupTableListeners,
@@ -9,9 +8,9 @@ import {estadoscatalogos} from '/src/config/estadoscatalogos.json';
 import {tiposcatalogos} from '/src/config/tiposcatalogos.json';
 import createSelectOptions from '/src/utils/selectmap.js';
 import { fetchapi } from '/src/utils/fetchapi.js'; // Ajusta ruta
-async function fetchcatalogos() {
+async function fetchcatalogos(page) {
     try {
-        const response = await fetchapi.obtenerCatalogosRecientes(); // Asegúrate de que esta función esté definida y exportada correctamente
+        const response = await fetchapi.obtenerDirectorio(page); // Asegúrate de que esta función esté definida y exportada correctamente
         console.log('Respuesta de la API:', response);
         return response; // Retorna la respuesta de la API
     } catch (error) {
@@ -20,6 +19,7 @@ async function fetchcatalogos() {
     }
 
 }
+
 
 // funcion para obtener unicamente los keys de un objeto de una lista de objetos tambien añadir si devolver los primeros 10 o 20 elementos
 function getKeysFromArray(array, keyCount = 4) {
@@ -173,3 +173,4 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTableListeners(managerEl, openModal,(...args) => {console.log("setupTableListeners",args)});
     setupModalEventListeners(modalEl, editorEl, refreshTable, null);
 });
+export { fetchcatalogos, getKeysFromArray}

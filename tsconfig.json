@@ -26,6 +26,11 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "experimentalDecorators": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "plugins": [
+      {
+        "name": "ts-lit-plugin"
+      }
+    ]
   }
 }
