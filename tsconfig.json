@@ -24,6 +24,8 @@
       ]
     },
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "solid-js",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
   }
 }
