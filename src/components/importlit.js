@@ -1,2 +1,2 @@
 import "@components/navbars/navlit"
-import "@components/navbars/navpages"
+import "@components/navbars/navpages.js"

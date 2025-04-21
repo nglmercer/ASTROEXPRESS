@@ -153,24 +153,9 @@ function openModal(type, data = null) {
     openDynamicModal(modalEl, editorEl, type, formConfigurations, data);
 }
 
-function refreshTable(compId) {
-
-}
-
-// Listener para botones "Añadir" específicos por tipo
-document.body.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-form-type]');
-    if (button && pageConfig.eventTypes.includes(button.dataset.formType)) {
-        openModal(button.dataset.formType);
-    }
-});
-
-
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
     setupTableListeners(managerEl, openModal,(...args) => {console.log("setupTableListeners",args)});
-    setupModalEventListeners(modalEl, editorEl, refreshTable, null);
 });
 export { fetchcatalogos, getKeysFromArray}

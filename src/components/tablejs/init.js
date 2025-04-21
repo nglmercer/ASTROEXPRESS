@@ -154,7 +154,6 @@ const managerEl = document.getElementById(pageConfig.managerId);
 
 if (!modalEl || !editorEl || !managerEl) {
     console.error("Error: Elementos UI necesarios no encontrados.","modalEl",modalEl,"editorEl",editorEl,"managerEl",managerEl);
-    // Podrías detener aquí o mostrar un error visual
 }
 
 

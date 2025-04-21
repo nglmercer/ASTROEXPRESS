@@ -43,7 +43,53 @@ export async function openDynamicModal(modalEl, editorEl, formType, formConfigs,
         // Considera modalEl.hide();
     }
 }
+export async function openDynamicModalDirect(modalEl, editorEl, formType, formConfig, data = null, onBeforeOpen = null, onAfterConfig = null) {
+    // No lookup needed, formConfig is provided directly
+    // We might still want a check like:
+    // if (!formConfig || typeof formConfig.getFieldConfig !== 'function' || typeof formConfig.getInitialData !== 'function') {
+    //     console.error(`Invalid formConfig provided for type: ${formType}`);
+    //     return;
+    // }
+    // Let's keep it simple as requested, assuming the user provides a valid config object.
 
+    modalEl.dataset.currentFormType = formType; // Still useful to know the type
+    editorEl.itm = {};
+    editorEl.fCfg = {};
+
+    if (onBeforeOpen) onBeforeOpen(formType, data);
+    modalEl.show();
+
+    try {
+        const [fCfg, initialData] = await Promise.all([
+            formConfig.getFieldConfig(), // Use provided formConfig
+            Promise.resolve(formConfig.getInitialData()) // Use provided formConfig
+        ]);
+
+        const itemData = data || initialData;
+        console.log(`Configurando modal para ${formType} (Direct Config):`, { config: fCfg, data: itemData }); // Add a note for direct config
+
+        editorEl.fCfg = fCfg;
+        editorEl.itm = itemData;
+        editorEl.hdrKey = formConfig.title || `Configurar ${formType}`; // Use provided formConfig title
+        editorEl.mode = 'edit';
+
+        if (editorEl.addAct) {
+             editorEl.addAct('save', 'Guardar', 'fas fa-save');
+             editorEl.addAct('cancel', 'Cancelar', 'fas fa-times');
+             if (data && data.id && editorEl.addAct) {
+                 editorEl.addAct('delete', 'Eliminar', 'fas fa-trash-alt');
+             } else if (editorEl.hideAct) {
+                 editorEl.hideAct('delete');
+             }
+        }
+
+        if (onAfterConfig) onAfterConfig(formType, itemData, fCfg);
+
+    } catch (error) {
+        console.error(`Error al cargar configuración (Direct Config) para ${formType}:`, error); // Add note for direct config
+        // Consider modalEl.hide();
+    }
+}
 export async function initializeTables(managerEl, tableConfigs, getAllDataFn, displayKeysArray) {
     if (!managerEl) {
         console.error('Elemento Grid Manager no proporcionado.');
