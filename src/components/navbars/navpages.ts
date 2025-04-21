@@ -179,13 +179,13 @@ export class NavBreadcrumb extends LitElement {
     return html`
       <div class="breadcrumb">
         ${this._segments.map((segment, index) => html`
-          ${index > 0 ? html`<span class="separator">></span>` : ''}
+          ${index > 0 ? html`<span class="separator"></span>` : ''}
           <span
             class="segment ${index < this._segments.length - 1 ? 'clickable' : ''}"
             @click="${() => this._handleSegmentClick(segment, index)}"
              aria-label="Navigate to ${segment.name}: ${segment.value}"
              role="link"
-             ?tabindex="${index < this._segments.length - 1 ? 0 : -1}" <!-- Make clickable segments focusable -->
+             ?tabindex="${index < this._segments.length - 1 ? 0 : -1}"
           >
             ${segment.value}
           </span>

@@ -1,38 +1,16 @@
 ---
-import { fetchapi } from '@utils/fetchserver.js';
-import {ObjectTableSolid,SignalBridge}from '@components/solid/ObjectTableSolid.jsx';
 const { params } = Astro;
-const idCatalogo = params.idCatalogo;
-const idTemporada = params.idTemporada;
-
-const post = await fetchapi.getCapitulos(idCatalogo, idTemporada);
-
-let Item;
-if (!post || post.length === 0) {
-  return  Astro.redirect("/404")
-} else {
-  Item = Array.isArray(post) ? post : [post];
-}
-
-const keys = [
-  "catalogoCapitulo",
-  "idCapitulo",
-  "imagenCapitulo",
-  "temporadaCapitulo"
-]
-const actions = [
-  { name: 'edit', icon: 'edit', label: 'Edit' },
-  { name: 'delete', icon: 'delete', label: 'Delete' },
-  { name: 'view', icon: 'view', label: 'View' },
-]; 
+const { idCatalogo, idTemporada } = params;
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
-<div class="MainInformation" data-page-num={idTemporada}>
+<script src="/src/components/navbars/navlistener.js"></script>
 
-
-  <h1>Catálogo: {idCatalogo}</h1>
-  <h2>Temporada: {idTemporada}</h2>
+<div class="MainInformation">
+  <p>Bienvenido al sistema de gestión de catálogos. Aquí puedes administrar los catálogos de tu aplicación.</p>
+  <p>Selecciona una opción del menú para comenzar.</p>
+  
+  <nav-breadcrumb id="mainBreadcrumb" param1={idCatalogo} param2={idTemporada}></nav-breadcrumb>
 </div>
 <div class="container">
   <div class="button-group">
@@ -45,44 +23,10 @@ const actions = [
     <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode>
     </dyn-obj-disp>
 </dlg-cont>
-
-<ObjectTableSolid
- data={Item} keys={keys} actions={actions} darkMode={true} 
- id="catalogo"
-  client:only  />
-<SignalBridge client:only />
 <object-table-lit id="catalogo" darkmode></object-table-lit>
 
-<script type="module">
-  document.addEventListener('DOMContentLoaded', async () => {
-/*     const element = document.querySelector('[data-page-num]');
-    const pageNum = Number(element?.dataset.pageNum) || 1;
-    console.log("Page Number:", pageNum);
- */
-
-  });
-  window.addEventListener('action-signal', (e) => {
-    const { name, item, index } = e.detail;
-    console.log(`Acción ${name} en fila ${index}`, item);
-
-
-  });
-
-  window.addEventListener('row-activated', (e) => {
-    const { item, index } = e.detail;
-    console.log('Double-click en', item);
-    // lógica similar
-  });
-
-  window.addEventListener('row-contextmenu', (e) => {
-    const { item, index, type } = e.detail;
-    console.log('Click derecho en', item);
-    // puedes mostrar un menú contextual aquí
-  });
-
-</script>
 </div>
-
+  <script src="/src/components/temporada/temporada.js"></script>
 <style>
     button { padding: 0.6em 1.2em; cursor: pointer; margin: 5px; border-radius: 4px; border: 1px solid #555; background-color: #333; color: white; }
         button.primary { background-color: #007bff; border-color: #007bff; }

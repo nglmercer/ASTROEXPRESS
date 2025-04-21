@@ -49,6 +49,25 @@ export var localStorage  = typeof window !== 'undefined' && typeof localStorage 
       removeItem: () => {},
       clear: () => {},
     };
+function getParams(paramNames = []) {
+    const urlParams = new URLSearchParams(window.location.search);
+    let paramsObject = Object.fromEntries(urlParams.entries());
+
+    if (Object.keys(paramsObject).length === 0) {
+    const path = window.location.pathname;
+    const parts = path.split('/').filter(Boolean); // ["contenido", "catalogos", "2"]
+
+    if (parts.length >= paramNames.length) {
+        paramsObject = {};
+        for (let i = 0; i < paramNames.length; i++) {
+        paramsObject[paramNames[i]] = parts[i];
+        }
+    }
+    }
+
+    return paramsObject;
+}
+      
 function safeParse(value) {
     try {
         // Si ya es un array u objeto, lo devolvemos tal cual
@@ -489,5 +508,6 @@ export {
     fetchapi,
     categoriafetch,
     usuariosfetch,
-    rolesfetch
+    rolesfetch,
+    getParams
 }

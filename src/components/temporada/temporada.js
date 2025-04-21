@@ -1,31 +1,30 @@
-import { fetchapi } from '/src/utils/fetchapi.js'; // Ajusta ruta
-
-async function fetchcatalogobyid(id) {
+import { fetchapi, getParams } from '@utils/fetchapi';
+import { getKeysFromArray} from '@components/tablejs/init1.js';
+import {rendertables} from '@components/tablejs/inittable.js'
+async function fetchCapitulos(idCatalogo, idTemporada) {
     try {
-        const response = await fetchapi.obtenerInformacionCatalogo(id);
+        const response = await fetchapi.getCapitulos(idCatalogo, idTemporada); // Asegúrate de que esta función esté definida y exportada correctamente
         console.log('Respuesta de la API:', response);
         return response; // Retorna la respuesta de la API
     } catch (error) {
         console.error('Error en la solicitud:', error);
-        return null; // Retorna null en caso de error
-    }
-    
-}
-/* fetchcatalogobyid(4990).then(data => {
-    console.log('Catálogo obtenido:', data);
-}).catch(error => {
-    console.error('Error al obtener el catálogo:', error);
-} ); */
-document.addEventListener('DOMContentLoaded', async () => {
-/*     const catalogoId = 4990; // Cambia esto por el ID que necesites
-    const catalogoData = await fetchcatalogobyid(catalogoId);
-    console.log('Datos del catálogo:', catalogoData); */
-
-    // Aquí puedes usar catalogoData para lo que necesites
-    const pageNum = document.querySelector('.content').dataset.pageNum;
-    if (pageNum){
-        console.log("Page Number:", pageNum, typeof pageNum);
-
+        return []; // Retorna un arreglo vacío en caso de error
     }
 }
-);
+import u from 'umbrellajs';
+u(document).on('DOMContentLoaded',async function () {
+  const navelement = u('pagination-nav');
+  const page = navelement.nodes[0]?.currentPage || 1; 
+  console.log("render data for page: ", page,navelement);
+/*   const arrayresponse = await fetchcatalogos(page);
+  const keys = getKeysFromArray(arrayresponse.data);
+  rendertables(arrayresponse.data, "catalogo", keys); */
+    const breadcrumb = u('nav-breadcrumb');
+    const element = breadcrumb.nodes[0];
+    const params = getParams(["1","2","3","4","5"]);
+    console.log("params: ", params);
+    const response = await fetchCapitulos(params[3], params[5]);
+    console.log("response: ", response);
+    const keys = getKeysFromArray(response);
+    rendertables(response, "catalogo", keys);
+});
