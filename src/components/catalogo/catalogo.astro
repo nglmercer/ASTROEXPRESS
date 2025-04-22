@@ -3,10 +3,31 @@ import { fetchapi } from '@utils/fetchserver.js';
 import CatalogCard from '@components/card/CatalogCard.astro';
 const { params } = Astro;
 const idCatalogo = params.idCatalogo;
+function toSingle<T>(value: T | T[], defaultValue?: T): T {
+  if (value == null) {
+    throw new Error("Input cannot be null or undefined");
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      if (defaultValue === undefined) {
+        throw new Error("Cannot convert empty array to single value");
+      }
+      return defaultValue;
+    }
+    return value[0];
+  }
+  return value;
+}
+function toArray<T>(value: T | T[]): T[] {
+  if (value == null) {
+    throw new Error("Input cannot be null or undefined");
+  }
+  return Array.isArray(value) ? value : [value];
+}
 const post = await fetchapi.getInfoCatalogo(idCatalogo);
-
+const objpost = toSingle(post)
 const temporadas = await  fetchapi.getTemporadas(idCatalogo);
-const temporadarray = Array.isArray(temporadas) ? temporadas : [temporadas];
+const temporadarray = toArray(temporadas);
 
 const keys = [
   "nombreTemporada",
@@ -16,6 +37,7 @@ const keys = [
   "catalogoTemporada",
   "nsfw",
 ]
+
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
@@ -23,7 +45,7 @@ const keys = [
 <div class="MainInformation" data-page-num={idCatalogo}>
 
   <CatalogCard
-   data={post}
+   data={objpost}
   />
 
 </div>
@@ -44,13 +66,13 @@ const keys = [
  ></object-table-lit>
 
 </div>
-<script define:vars={{post,keys,temporadarray}}>
+<script define:vars={{objpost,keys,temporadarray}}>
   document.addEventListener("DOMContentLoaded",async function() {
       const element = document.getElementById("catalogo")
       const itemsisarray = Array.isArray(temporadarray) ? temporadarray : [temporadarray];
       element.data = itemsisarray;
       element.keys = keys
-      console.log(element, temporadarray, keys)
+      console.log(element, temporadarray, keys,objpost)
   })
 </script>
 <style>
