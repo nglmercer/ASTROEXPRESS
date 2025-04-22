@@ -200,6 +200,129 @@ class DatabaseController {
       });
     });
   }
+
+  /**
+   * Guarda un nuevo registro con auto-incremento de IDs específicos
+   * @param {string} tableName - Nombre de la tabla
+   * @param {Object} data - Datos a insertar
+   * @param {Array} idFields - Campos ID a auto-incrementar
+   * @returns {Promise<Object>} Registro guardado
+   */
+  async guardarRegistro(tableName, data, idFields = ["idCatalogo"]) {
+    if (!await this.tableExists(tableName)) {
+      throw new Error(`La tabla ${tableName} no existe`);
+    }
+
+    const columns = await this.getTableColumns(tableName);
+    const validFields = columns.map(c => c.name);
+
+    // Generar nuevos IDs para campos especificados
+    const newData = {...data};
+    for (const idField of idFields) {
+      if (newData[idField] === 0 || !newData.hasOwnProperty(idField)) {
+        const maxId = await this._getMaxId(tableName, idField);
+        newData[idField] = maxId + 1;
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READWRITE);
+      const fields = Object.keys(newData).filter(f => validFields.includes(f));
+      const placeholders = fields.map(() => '?').join(', ');
+      const sql = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
+
+      db.run(sql, fields.map(f => newData[f]), function(err) {
+        db.close();
+        if (err) return reject(err);
+        resolve({...newData, rowid: this.lastID});
+      });
+    });
+  }
+
+  /**
+   * Actualiza un registro existente
+   * @param {string} tableName - Nombre de la tabla
+   * @param {Object} data - Datos a actualizar (debe contener al menos un ID)
+   * @returns {Promise<Object>} Registro actualizado
+   */
+  async actualizarRegistro(tableName, data, idFields = ["idCatalogo"]) {
+    if (!await this.tableExists(tableName)) {
+      throw new Error(`La tabla ${tableName} no existe`);
+    }
+
+    const columns = await this.getTableColumns(tableName);
+    const validFields = columns.map(c => c.name);
+
+    // Verificar IDs existentes
+    const hasValidId = idFields.some(f => data[f] && data[f] !== 0);
+    if (!hasValidId) throw new Error('Se requiere al menos un ID válido para actualizar');
+
+    return new Promise((resolve, reject) => {
+        const db = this._open(sqlite3.OPEN_READWRITE);
+        
+        // Separar campos de actualización y valores
+        const updateFields = Object.keys(data)
+            .filter(f => validFields.includes(f) && !idFields.includes(f));
+            
+        const updates = updateFields.map(f => `${f} = ?`).join(', ');
+        const where = idFields.map(f => `${f} = ?`).join(' AND ');
+        
+        // Obtener valores en el orden correcto: primero updates, luego WHERE
+        const updateValues = updateFields.map(f => data[f]);
+        const whereValues = idFields.map(f => data[f]);
+        
+        const sql = `UPDATE ${tableName} SET ${updates} WHERE ${where}`;
+        
+        db.run(sql, [...updateValues, ...whereValues], function(err) {
+            db.close();
+            if (err) return reject(err);
+            resolve({...data, changes: this.changes});
+        });
+    });
+}
+
+  async _getMaxId(tableName, idField) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const sql = `SELECT MAX(${idField}) as maxId FROM ${tableName}`;
+      db.get(sql, [], (err, row) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(row?.maxId || 0);
+      });
+    });
+  }
+
+  /**
+   * Elimina un registro usando los campos ID especificados
+   * @param {string} tableName - Nombre de la tabla
+   * @param {Object} ids - Objeto con los IDs para identificar el registro
+   * @returns {Promise<Object>} Resultado de la eliminación
+   */
+  async eliminarRegistro(tableName, ids,idFields = ["idCatalogo"]) {
+    if (!await this.tableExists(tableName)) {
+      throw new Error(`La tabla ${tableName} no existe`);
+    }
+
+    const validIds = Object.entries(ids)
+      .filter(([key, value]) => idFields.includes(key) && value !== 0);
+
+    if (validIds.length === 0) {
+      throw new Error('Se requiere al menos un ID válido para eliminar');
+    }
+
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READWRITE);
+      const whereClause = validIds.map(([key]) => `${key} = ?`).join(' AND ');
+      const sql = `DELETE FROM ${tableName} WHERE ${whereClause}`;
+
+      db.run(sql, validIds.map(([, value]) => value), function(err) {
+        db.close();
+        if (err) return reject(err);
+        resolve({ changes: this.changes });
+      });
+    });
+  }
 }
 
 // Export singleton instance
@@ -219,7 +342,7 @@ export const dbController = new DatabaseController();
   
     */
      const tablas = await dbController.listTables();
-    console.log('Tablas en la BD:', tablas);
+//    console.log('Tablas en la BD:', tablas);
     // implementar un metodo para buscar en una tabla queryWithFilters si algun elemento incluye una subcadena de texto o contienen un elemento 
     
     // Ejemplo de uso del nuevo método
@@ -234,3 +357,42 @@ export const dbController = new DatabaseController();
       console.log('Full text search results:', fullTextResults);
     }
   })();
+
+// Ejemplo de uso
+/* (async () => {
+  const ejemploData = {
+    idCatalogo: 0,
+    nombreCatalogo: 'Ejemplo',
+    tipoCatalogo: 1,
+    estadoCatalogo: 1
+  };
+
+  try {
+    // Guardar nuevo registro
+    const guardado = await dbController.guardarRegistro('catalogos', ejemploData,["idCatalogo"]);
+    console.log('Registro guardado:', guardado);
+
+    // Actualizar registro
+    // Debería actualizar solo el nombreCatalogo manteniendo el idCatalogo como condición WHERE
+    const actualizado = await dbController.actualizarRegistro('catalogos', {
+      idCatalogo: guardado.idCatalogo, // <- Este va al WHERE
+      nombreCatalogo: 'Nuevo nombre'   // <- Este va al SET
+    }, ["idCatalogo"]);
+    console.log('Registro actualizado:', actualizado);
+    // LUEGO LO ELIMINAMOS
+    const eliminado = await dbController.eliminarRegistro('catalogos', {
+      idCatalogo: guardado.idCatalogo
+    });
+    await dbController.eliminarRegistro('catalogos', {
+      idCatalogo: 5072
+    });
+    await dbController.eliminarRegistro('catalogos', {
+      idCatalogo: 5073
+    });
+    await dbController.eliminarRegistro('catalogos', {
+      idCatalogo: 5074
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})(); */

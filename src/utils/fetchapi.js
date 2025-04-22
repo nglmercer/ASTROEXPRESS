@@ -126,20 +126,15 @@ class FetchApi {
     }
 
     agregar(formulario) {
-        return this._interceptor(fetch(`${this.host}/catalogo`, {
-            method: 'POST',
-            headers: this._authHeaders(null),
-            body: formulario
-        }).then(res => res.json()));
+        return this._interceptor(http.post(`${this.host}/catalogo`, formulario, {
+            headers: this._authHeaders()
+        }));
     }
 
     actualizar(formulario) {
-        const id = formulario.get("idCatalogo");
-        return this._interceptor(fetch(`${this.host}/catalogo/${id}`, {
-            method: 'POST',
-            headers: this._authHeaders(null),
-            body: formulario
-        }).then(res => res.json()));
+        return this._interceptor(http.post(`${this.host}/catalogo/${formulario.get("idCatalogo")}`, formulario, {
+            headers: this._authHeaders()
+        }));
     }
 
     eliminar(modalUpdate) {

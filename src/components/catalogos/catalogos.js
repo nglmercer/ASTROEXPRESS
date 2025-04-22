@@ -125,6 +125,8 @@ function tableListeners(){
 const callbacks = {
   'item-upd': async (data) => {
     console.log("catalogo:upd",data);
+    const response = await fetchapi.agregar(data);
+    console.log("response: ", response);
   },
   'del-item': async (data) => {
     console.log("catalogo:del",data);
