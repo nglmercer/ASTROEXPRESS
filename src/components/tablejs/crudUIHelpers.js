@@ -186,36 +186,6 @@ export function setupModalEventListeners(modalEl, editorEl, onCancel = null) {
         modalEl.dataset.currentFormType = '';
      });
 }
-export function setupTableListeners(managerEl, openfn =  () => {}, afterfn = () => {}) {
-    if (typeof managerEl === "string") {
-        managerEl = document.querySelector(managerEl);
-    }
-    managerEl.addEventListener('internal-action', async (e) => {
-        // switch edit or delete
-        const { originalAction, Item} = e.detail
-        console.log('Acción de tabla:', e.detail);
-        switch (originalAction){
-            case 'edit':
-            break
-            case 'delete':
-            break
-            default:
-                console.log("originact", originalAction)
-        }
-            
-    });
-    managerEl.addEventListener('menu', async (e) => { 
-        console.log('Acción de tabla:', e.detail,getURLPATH(e.detail.item));
-        const urlredirect = getURLPATH(e.detail.item);
-        console.log(urlredirect,"urlredirect")
-        if (urlredirect) {
-           redirectTo(urlredirect.path);
-        } else {
-            console.error("Redirección fallida: ruta no válida.");
-        }
-    });
-    console.log("setupTableListeners",managerEl,openfn,afterfn);
-}
 
 export function setupTablemanagerListeners(managerEl, openfn =  () => {}, afterfn = () => {}) {
     if (typeof managerEl === "string") {
@@ -249,100 +219,7 @@ export function setupTablemanagerListeners(managerEl, openfn =  () => {}, afterf
         }
     });
 }
-function getURLPATH(data) {
-    const PathOBJ = {};
-    let finalPath = '';
-    const baseURL = '/contenido/'; // Asegúrate de definir baseURL o usar window.baseURL || 
 
-    if (!data) return { path: finalPath, params: PathOBJ };
-
-    const urlparams = getParams(['a','b','catalogoid','c','temporadaid','d', 'episodio']);
-
-    const catalogoid = data.catalogoid || data.catalogoId || data.idCatalogo || data.id;
-    const temporadaid = data.temporadaid || data.temporadaId || data.idTemporada || data.id;
-    const episodio = data.episodio || data.episodioId || data.idEpisodio || data.id;
-    console.log("urlparams",urlparams)
-    if (catalogoid) {
-        PathOBJ.catalogoid = catalogoid;
-        finalPath = `${baseURL}catalogo/${catalogoid}`;
-    } else {
-        PathOBJ.catalogoid = urlparams.catalogoid || '';
-    }
-
-    if (temporadaid) {
-        PathOBJ.temporadaid = temporadaid;
-        finalPath = `${baseURL}catalogo/${PathOBJ.catalogoid}/temporada/${temporadaid}`;
-    } else {
-        PathOBJ.temporadaid = urlparams.temporadaid || '';
-    }
-
-    if (episodio) {
-        PathOBJ.episodio = episodio;
-        finalPath = `${baseURL}catalogo/${PathOBJ.catalogoid}/temporada/${PathOBJ.temporadaid}/episodio/${episodio}`;
-    } else {
-        PathOBJ.episodio = urlparams.episodio || '';
-    }
-
-    console.log("getURLPATH", { PathOBJ, urlparams,finalPath });
-
-    return { path: finalPath, params: PathOBJ };
-}
-
-function getParams(paramNames = []) {
-    if (typeof window === 'undefined') {
-        console.error("getParams: window is not defined");
-        return {};
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    let paramsObject = Object.fromEntries(urlParams.entries());
-
-    // Si no hay parámetros en el query string, intenta extraer del pathname
-    if (Object.keys(paramsObject).length === 0) {
-        const path = window.location.pathname;
-        const parts = path.split('/').filter(Boolean); // Divide la URL en segmentos
-
-        // Asigna valores a los parámetros según los segmentos disponibles
-        paramsObject = {};
-        for (let i = 0; i < paramNames.length && i < parts.length; i++) {
-            paramsObject[paramNames[i]] = parts[i] || '';
-        }
-
-        if (parts.length < paramNames.length) {
-            console.warn(`getParams: insufficient path parts (got ${parts.length}, expected up to ${paramNames.length})`);
-        }
-    }
-
-    return paramsObject;
-}
-export function redirectTo(path, options = {}) {
-    // Validar que la ruta sea una cadena no vacía
-    if (!path || typeof path !== 'string') {
-      console.error('Redirección fallida: la ruta no es válida.',);
-      return;
-    }
-  
-    // Opciones por defecto
-    const { replace = false, triggerPopstate = false, redirect = true } = options;
-  
-    try {
-      // Usar replaceState en lugar de pushState si replace es true
-      if (replace) {
-        window.history.replaceState({}, '', path);
-      } else if (redirect) {
-        window.location.href = path; // Redirigir a la nueva URL
-      } else {
-        window.history.pushState({}, '', path);
-      }
-  
-      // Disparar evento popstate si está habilitado
-      if (triggerPopstate) {
-        window.dispatchEvent(new Event('popstate'));
-      }
-    } catch (error) {
-      console.error('Error al redirigir:', error);
-    }
-  }
 function isArray(evalue , cb = () => {}) {
     const { value, defaultvalue } = evalue;
     let result = [];

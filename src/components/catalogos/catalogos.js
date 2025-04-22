@@ -3,10 +3,7 @@ import {estadoscatalogos} from '/src/config/estadoscatalogos.json';
 import createSelectOptions from '/src/utils/selectmap.js';
 import {getURLPATH, redirectTo} from '/src/utils/redirect'
 import { fetchapi } from '@utils/fetchapi';
-import {
-  openDynamicModalDirect,
-  setupModalListeners
-} from '/src/components/tablejs/crudUIHelpers.js'; // Ajusta ruta
+import { openDynamicModalDirect, setupModalListeners} from '/src/components/tablejs/crudUIHelpers.js'; 
 import {rendertablewithE} from '@components/tablejs/inittable.js'
 import u from 'umbrellajs';
 function getKeysFromArray(array, keyCount = 4) {

@@ -1,36 +1,14 @@
 ---
-import { fetchapi } from '@utils/fetchserver.js';
-import CatalogCard from '@components/card/CatalogCard.astro';
+import Infocard from "@components/infocard.astro"
 const { params } = Astro;
 const idCatalogo = params.idCatalogo;
-function toSingle<T>(value: T | T[], defaultValue?: T): T {
-  if (value == null) {
-    throw new Error("Input cannot be null or undefined");
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      if (defaultValue === undefined) {
-        throw new Error("Cannot convert empty array to single value");
-      }
-      return defaultValue;
-    }
-    return value[0];
-  }
-  return value;
-}
-
-const post = await fetchapi.getInfoCatalogo(idCatalogo);
-const objpost = toSingle(post)
-
-
 ---
 <script src="/src/components/tablejs/modal.js"></script>
 <script src="/src/components/tablejs/table.js"></script>
 <script src="/src/components/catalogo/catalogo.js"></script>
 <div class="MainInformation" data-page-num={idCatalogo}>
 
-  <CatalogCard
-   data={objpost}
+  <Infocard
   />
 
 </div>

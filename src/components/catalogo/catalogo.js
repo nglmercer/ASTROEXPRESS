@@ -4,27 +4,10 @@ import createSelectOptions from '/src/utils/selectmap.js';
 import { fetchapi, getParams  } from '@utils/fetchapi';
 import {   toSingle,  toArray} from '/src/utils/arrayOBJ'; 
 import {getURLPATH, redirectTo} from '/src/utils/redirect'
-import {
-  openDynamicModalDirect,
-} from '/src/components/tablejs/crudUIHelpers.js'; // Ajusta ruta
+import { openDynamicModalDirect, setupModalListeners} from '/src/components/tablejs/crudUIHelpers.js'; 
 import u from 'umbrellajs';
-{/* <script define:vars={{objpost,keys,temporadarray}}>
-  document.addEventListener("DOMContentLoaded",async function() {
-      const element = document.getElementById("TemporadasTable")
-      const itemsisarray = Array.isArray(temporadarray) ? temporadarray : [temporadarray];
-      element.data = itemsisarray;
-      element.keys = keys
-      console.log(element, temporadarray, keys,objpost)
-  })
-</script> */}
 /*
-catalogoTemporada
-descripcionTemporada
-idTemporada
-nombreTemporada
-nsfw
-numeroTemporada
-portadaTemporada
+
 export interface Temporada {
     idTemporada: number;
     numeroTemporada: number;
@@ -89,8 +72,26 @@ if (!modalEl || !editorEl || !managerEl) {
 }
 
 function openModal(type, data = null) {
-  //(modalEl, editorEl, formType, formConfig, data = null,
   openDynamicModalDirect(modalEl, editorEl, type,formTemporadas, data, null, null)
+}
+const callbacks = {
+  'item-upd': async (data) => {
+    console.log("catalogo:upd",data);
+        modalEl.hide();
+
+  },
+  'del-item': async (data) => {
+    console.log("catalogo:del",data);
+  },
+  'cancel': async (data) => {
+    console.log("catalogo:cancel",data);
+    modalEl.hide();
+
+  },
+  'delete': async (data) => {
+    //no se utiliza pero esta como referencia
+    console.log("delete",data);
+  }
 }
 async function setTabledata(array,keys) {
   const element = u(`#${pageConfig.managerId}`);
@@ -115,29 +116,7 @@ async function setTabledata(array,keys) {
     }
   });
 }
-function setupModalEventListeners(onCancel = null) {
-  const Editelement = u(`#${pageConfig.editorId}`);
-  
-  Editelement.on('item-upd', async (e) => {
-      const savedData = e.detail;
-      
-  });
 
-   Editelement.on('del-item', async (e) => {
-      const itemToDelete = e.detail;
-  });
-
-  Editelement.on('cancel', () => {
-      console.log("Edición cancelada.");
-      modalEl.hide();
-      if (onCancel) onCancel();
-  });
-
-   modalEl.addEventListener('close', () => {
-      console.log("Modal cerrado.");
-      modalEl.dataset.currentFormType = '';
-   });
-}
 u(document).on('click', 'button', function (e) {
   const btn = u(this);
   if (btn.attr('data-form-type') !== null) {
@@ -146,7 +125,7 @@ u(document).on('click', 'button', function (e) {
 });
 u(document).on('DOMContentLoaded',async function () {
   getandset()
-  setupModalEventListeners()
+  setupModalListeners(modalEl, editorEl, callbacks)
   const breadcrumb = u('nav-breadcrumb');
   customElements.whenDefined('nav-breadcrumb').then(() => {
     const element = breadcrumb.nodes[0];

@@ -1,4 +1,5 @@
 ---
+import Infocard from "@components/infocard.astro"
 const { params } = Astro;
 const { idCatalogo, idTemporada } = params;
 ---
@@ -8,21 +9,20 @@ const { idCatalogo, idTemporada } = params;
 <script src="/src/components/navbars/navlit.js"></script>
 <script src="/src/components/navbars/navpages.js"></script>
 <div class="MainInformation">
-  
+  <Infocard
+  />
 </div>
 <div class="container">
   <nav-breadcrumb id="mainBreadcrumb"></nav-breadcrumb>
   <div class="button-group">
     <button data-form-type="temporada" class="primary">Temporada</button>
-    <button data-form-type="user" class="primary">Usuario</button>
-    <button data-form-type="catalogo" class="primary">Catalogo</button>
 </div>
 
 <dlg-cont id="modal-container">
     <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode>
     </dyn-obj-disp>
 </dlg-cont>
-<object-table-lit id="catalogo" darkmode></object-table-lit>
+<object-table-lit id="TemporadaTable" darkmode></object-table-lit>
 
 </div>
   <script src="/src/components/capitulo/capitulo.js"></script>

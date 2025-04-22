@@ -5,12 +5,11 @@ function getURLPATH(data) {
 
     if (!data) return { path: finalPath, params: PathOBJ };
 
-    const urlparams = getParams(['a', 'b', 'catalogoid', 'c', 'temporadaid', 'd', 'episodio']);
+    const urlparams = getParams(['a', 'b', 'catalogoid', 'c', 'temporadaid', 'd', 'capitulo']);
 
-    const catalogoid = data.catalogoid || data.catalogoId || data.idCatalogo || data.id;
-    const temporadaid = data.temporadaid || data.temporadaId || data.idTemporada || data.id;
-    const episodio = data.episodio || data.episodioId || data.idEpisodio || data.id;
-    console.log("urlparams", urlparams)
+    const catalogoid = data.catalogoid || data.catalogoId || data.idCatalogo 
+    const temporadaid = data.temporadaid || data.temporadaId || data.idTemporada 
+    const capitulo = data.capitulo || data.capituloId || data.idcapitulo || data.idCapitulo
     if (catalogoid) {
         PathOBJ.catalogoid = catalogoid;
         finalPath = `${baseURL}catalogo/${catalogoid}`;
@@ -25,11 +24,11 @@ function getURLPATH(data) {
         PathOBJ.temporadaid = urlparams.temporadaid || '';
     }
 
-    if (episodio) {
-        PathOBJ.episodio = episodio;
-        finalPath = `${baseURL}catalogo/${PathOBJ.catalogoid}/temporada/${PathOBJ.temporadaid}/episodio/${episodio}`;
+    if (capitulo) {
+        PathOBJ.capitulo = capitulo;
+        finalPath = `${baseURL}catalogo/${PathOBJ.catalogoid}/temporada/${PathOBJ.temporadaid}/capitulo/${capitulo}`;
     } else {
-        PathOBJ.episodio = urlparams.episodio || '';
+        PathOBJ.capitulo = urlparams.capitulo || '';
     }
 
     console.log("getURLPATH", { PathOBJ, urlparams, finalPath });
