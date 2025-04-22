@@ -63,9 +63,8 @@ u(document).on('click', 'button', function (e) {
   }
 });
 u(document).on('DOMContentLoaded',async function () {
-  const navelement = u('pagination-nav');
-  const page = navelement.nodes[0]?.currentPage || 1; 
-  console.log("render data for page: ", page,navelement);
+  const page = initializepagesbar()
+  console.log("render data for page: ", page);
   const arrayresponse = await fetchcatalogos(page);
   const keys = getKeysFromArray(arrayresponse.data);
   rendertables(arrayresponse.data, "catalogo", keys);
@@ -73,6 +72,21 @@ u(document).on('DOMContentLoaded',async function () {
   customElements.whenDefined('nav-breadcrumb').then(() => {
     const element = breadcrumb.nodes[0];
     element.paramNames = ['section', 'category', 'itemId'];
-    
   });
 });
+function initializepagesbar() {
+  const varel = u('pagination-nav')
+  if(!varel) return;
+  console.log("varel",varel)
+  varel.on('action', async (event) => {
+      console.log('Evento de acción recibido:', event.detail.page);
+      changepagenumber(event.detail)
+  });
+  const page = varel.first().currentPage || 1;
+  return page
+}
+function changepagenumber(number){
+  const currentPath = window.location.pathname;
+  const newPath = currentPath.replace(/\/(\d+)$/, `/${number.page}`);
+  window.location.replace(newPath);
+}

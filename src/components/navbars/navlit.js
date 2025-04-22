@@ -74,7 +74,7 @@ export class PaginationNav extends LitElement {
   }
 
   async handleBackward() {
-    if (this.canGoBackward) {
+    if (this.canGoBackward || !this.totalPages) {
       const newPage = this.currentPage - 1;
       this.dispatch("action", {
         typeEvent: 'backward', page: newPage
@@ -83,7 +83,7 @@ export class PaginationNav extends LitElement {
   }
 
   async handleForward() {
-    if (this.canGoForward) {
+    if (this.canGoForward || !this.totalPages) {
       const newPage = this.currentPage + 1;
       this.dispatch("action", {
         typeEvent: 'forward', page: newPage
