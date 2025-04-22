@@ -28,4 +28,13 @@ async function rendertables(array, elId="catalogos", displayKeysArray) {
         return;
     }
 }
-export { rendertables,renderManagertables };
+async function rendertablewithE({
+    element,
+    array,
+    keys
+}) {
+    if (!element) return 
+    element.data = array;
+    element.keys = keys
+}
+export { rendertables,renderManagertables, rendertablewithE};

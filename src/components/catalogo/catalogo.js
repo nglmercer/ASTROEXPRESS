@@ -97,7 +97,7 @@ async function setTabledata(array,keys) {
   element.first().data = array;
   element.first().keys = keys;
   
-  element.on('internal-action', async (e) => {
+  element.on('action', async (e) => {
     const {originalAction, item} = e.detail
     if (!originalAction) return;
     if (originalAction === "edit"){

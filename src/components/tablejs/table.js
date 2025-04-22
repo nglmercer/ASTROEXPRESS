@@ -187,6 +187,7 @@ class BaseLitElement extends LitElement {
         };
         try {
             this._dispatchEv('internal-action', detail);
+            this._dispatchEv('action', detail);
         } catch (e) { console.error(`${this.constructor.name}: Error dispatching event internal-action`, e); }
     }
     _dispatchEv(name, detail) {
