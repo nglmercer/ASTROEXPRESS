@@ -175,8 +175,9 @@ export function setupTableListeners(managerEl, openfn =  () => {}, afterfn = () 
     managerEl.addEventListener('menu', async (e) => { 
         console.log('Acción de tabla:', e.detail,getURLPATH(e.detail.item));
         const urlredirect = getURLPATH(e.detail.item);
+        console.log(urlredirect,"urlredirect")
         if (urlredirect) {
-            redirectTo(urlredirect);
+           redirectTo(urlredirect.path);
         } else {
             console.error("Redirección fallida: ruta no válida.");
         }
@@ -216,33 +217,76 @@ export function setupTablemanagerListeners(managerEl, openfn =  () => {}, afterf
         }
     });
 }
-function getURLPATH(data){
-    let finalPath = {
+function getURLPATH(data) {
+    const PathOBJ = {};
+    let finalPath = '';
+    const baseURL = '/contenido/'; // Asegúrate de definir baseURL o usar window.baseURL || 
 
-    }
-    console.log("getURLPATH",data,window.location.pathname);
-    if (!data) return finalPath;
-    const catalogoid = data.catalogoid || data.id || data.catalogoId || data.idCatalogo || data.catalogoid || data.catalogoId || data.idCatalogo;
-    const temporadaid = data.temporadaid || data.id || data.temporadaId || data.idTemporada || data.temporadaid || data.temporadaId || data.idTemporada;
-    const episodiod = data.episodiod || data.id || data.episodioId || data.idEpisodio || data.episodiod || data.episodioId || data.idEpisodio;
+    if (!data) return { path: finalPath, params: PathOBJ };
+
+    const urlparams = getParams(['a','b','catalogoid','c','temporadaid','d', 'episodio']);
+
+    const catalogoid = data.catalogoid || data.catalogoId || data.idCatalogo || data.id;
+    const temporadaid = data.temporadaid || data.temporadaId || data.idTemporada || data.id;
+    const episodio = data.episodio || data.episodioId || data.idEpisodio || data.id;
+    console.log("urlparams",urlparams)
     if (catalogoid) {
-        finalPath.catalogoid = catalogoid;
-        return baseURL + "catalogo/" + catalogoid;
+        PathOBJ.catalogoid = catalogoid;
+        finalPath = `${baseURL}catalogo/${catalogoid}`;
+    } else {
+        PathOBJ.catalogoid = urlparams.catalogoid || '';
     }
-    if (temporadaid && catalogoid) {
-        finalPath.temporadaid = temporadaid;
-        return baseURL + "catalogo/" + catalogoid + "/temporada/" + temporadaid;
+
+    if (temporadaid) {
+        PathOBJ.temporadaid = temporadaid;
+        finalPath = `${baseURL}catalogo/${PathOBJ.catalogoid}/temporada/${temporadaid}`;
+    } else {
+        PathOBJ.temporadaid = urlparams.temporadaid || '';
     }
-    if (episodiod) {
-        finalPath.episodiod = episodiod;
-        return baseURL + "catalogo/" + catalogoid + "/temporada/" + temporadaid + "/episodio/" + episodiod;
+
+    if (episodio) {
+        PathOBJ.episodio = episodio;
+        finalPath = `${baseURL}catalogo/${PathOBJ.catalogoid}/temporada/${PathOBJ.temporadaid}/episodio/${episodio}`;
+    } else {
+        PathOBJ.episodio = urlparams.episodio || '';
     }
-    return finalPath;
+
+    console.log("getURLPATH", { PathOBJ, urlparams,finalPath });
+
+    return { path: finalPath, params: PathOBJ };
+}
+
+function getParams(paramNames = []) {
+    if (typeof window === 'undefined') {
+        console.error("getParams: window is not defined");
+        return {};
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let paramsObject = Object.fromEntries(urlParams.entries());
+
+    // Si no hay parámetros en el query string, intenta extraer del pathname
+    if (Object.keys(paramsObject).length === 0) {
+        const path = window.location.pathname;
+        const parts = path.split('/').filter(Boolean); // Divide la URL en segmentos
+
+        // Asigna valores a los parámetros según los segmentos disponibles
+        paramsObject = {};
+        for (let i = 0; i < paramNames.length && i < parts.length; i++) {
+            paramsObject[paramNames[i]] = parts[i] || '';
+        }
+
+        if (parts.length < paramNames.length) {
+            console.warn(`getParams: insufficient path parts (got ${parts.length}, expected up to ${paramNames.length})`);
+        }
+    }
+
+    return paramsObject;
 }
 export function redirectTo(path, options = {}) {
     // Validar que la ruta sea una cadena no vacía
     if (!path || typeof path !== 'string') {
-      console.error('Redirección fallida: la ruta no es válida.');
+      console.error('Redirección fallida: la ruta no es válida.',);
       return;
     }
   
