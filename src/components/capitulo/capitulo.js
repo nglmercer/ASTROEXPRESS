@@ -101,13 +101,10 @@ async function setTabledata(array,keys) {
   const element = u(`#${pageConfig.managerId}`);
   element.first().data = array;
   element.first().keys = keys;
-  
+  element.first().hideAction('edit');
   element.on('action', async (e) => {
     const {originalAction, item} = e.detail
     if (!originalAction) return;
-    if (originalAction === "edit"){
-      openModal(originalAction,item)
-    }
   });
   
   element.on('menu', async (e) => {
@@ -159,17 +156,22 @@ u(document).on('DOMContentLoaded',async function () {
   rendertablewithE({
     element: audiosEl,
     keys:defaultkeys,
-    array:audios
+    array:audios,
+    hiddenKeys: ["edit","edit-btn"]
   });
   rendertablewithE({
     element: subtitulosEl,
     keys:defaultkeys,
-    array:subtitulos
+    array:subtitulos,
+    hiddenKeys: ["edit","edit-btn"]
+
   });
   rendertablewithE({
     element: resolucionesEl,
     keys:returnfirstKeys(resoluciones),
-    array:resoluciones
+    array:resoluciones,
+    hiddenKeys: ["edit","edit-btn"]
+
   });
     // this is the breadcrumb element
     customElements.whenDefined('nav-breadcrumb').then(() => {

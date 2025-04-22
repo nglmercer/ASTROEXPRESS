@@ -31,10 +31,17 @@ async function rendertables(array, elId="catalogos", displayKeysArray) {
 async function rendertablewithE({
     element,
     array,
-    keys
+    keys,
+    hiddenKeys = [],
 }) {
     if (!element) return 
     element.data = array;
-    element.keys = keys
+    element.keys = keys;
+    if (hiddenKeys && Array.isArray(hiddenKeys)) {
+        hiddenKeys.forEach((key) => {
+            element.hideAction(key);
+            console.log(element,key);
+        });
+    }
 }
 export { rendertables,renderManagertables, rendertablewithE};

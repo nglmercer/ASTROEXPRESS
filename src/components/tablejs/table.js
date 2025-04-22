@@ -199,11 +199,12 @@ class BaseLitElement extends LitElement {
         }));
     }
     _renderActionButtons(idx) {
-        // ... (sin cambios lógicos, los estilos de botón ahora usan variables)
         let acts = [...this.actions];
         if (this.data.length > 0 || this.keys.length > 0) {
-            if (!acts.some(a => a.name === 'edit')) acts.unshift({ name: 'edit', label: 'Editar', className: 'edit-btn' });
-            if (!acts.some(a => a.name === 'delete')) acts.push({ name: 'delete', label: 'Eliminar', className: 'delete-btn' });
+            if (!this._isActionHidden('edit') && !acts.some(a => a.name === 'edit')) 
+                acts.unshift({ name: 'edit', label: 'Editar', className: 'edit-btn' });
+            if (!this._isActionHidden('delete') && !acts.some(a => a.name === 'delete')) 
+                acts.push({ name: 'delete', label: 'Eliminar', className: 'delete-btn' });
         }
         return acts.map(act => html`
             <button
@@ -221,6 +222,10 @@ class BaseLitElement extends LitElement {
 // Componente ObjectTableLit (Actualizado para usar variables CSS)
 // ================================================
 class ObjectTableLit extends BaseLitElement {
+    static properties = {
+        darkMode: { type: Boolean, reflect: true, attribute: 'darkmode' },
+    };
+
     static styles = [
         BaseLitElement.styles, // Hereda estilos base Y variables
         css`
@@ -332,7 +337,31 @@ class ObjectTableLit extends BaseLitElement {
             </div>
         `;
     }
-    // _emitEv ya está en BaseLitElement y dispara 'internal-action'
+    _hiddenActions = new Set();
+
+    _isActionHidden(actionName) {
+        return this._hiddenActions.has(actionName);
+    }
+
+    hideAction(actionName) {
+        if (typeof actionName !== 'string') {
+            console.error(`${this.constructor.name}: actionName must be a string.`);
+            return;
+        }
+        this._hiddenActions.add(actionName);
+        this.actions = this.actions.filter(a => a.name !== actionName);
+        this.requestUpdate();
+    }
+
+    showAction(actionName, label, className = '') {
+        if (typeof actionName !== 'string' || typeof label !== 'string') {
+            console.error(`${this.constructor.name}: actionName and label must be strings.`);
+            return;
+        }
+        this._hiddenActions.delete(actionName);
+        this.addAction(actionName, label, className);
+        this.requestUpdate();
+    }
 }
 customElements.define('object-table-lit', ObjectTableLit);
 
