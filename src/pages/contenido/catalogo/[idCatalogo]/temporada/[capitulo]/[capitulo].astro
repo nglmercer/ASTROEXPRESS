@@ -1,0 +1,51 @@
+---
+import SidebarLayout from '@layouts/SidebarLayout.astro';
+import Indextable from '@components/capitulo/capitulo.astro';
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<SidebarLayout title="Mi Aplicación" activeConfig="A">
+	<div slot="logo">
+		<h1 class="logo-text">Logo</h1>
+	</div>
+
+	<div slot="login" class="login-container">
+
+	</div>
+
+	<div class="content">
+    <Indextable />
+	</div>
+</SidebarLayout>
+
+
+
+<style>
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .login-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .login-button:hover {
+    background-color: #0056b3;
+  }
+
+  .content {
+    width: 100%;
+    margin: 0 auto;
+  }
+</style>

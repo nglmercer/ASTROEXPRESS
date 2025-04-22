@@ -7,17 +7,22 @@ export class PaginationNav extends LitElement {
       align-items: center;
       gap: 10px;
       font-family: Arial, sans-serif;
+      --button-bg: var(--dark-mode, #f0f0f0);
+      --button-border: var(--dark-mode, #ccc);
+      --button-hover: var(--dark-mode, #e0e0e0);
+      --text-color: var(--dark-mode, #000);
     }
     button {
-      background: #f0f0f0;
-      border: 1px solid #ccc;
+      background: var(--button-bg);
+      border: 1px solid var(--button-border);
       border-radius: 4px;
       padding: 5px 10px;
       cursor: pointer;
       transition: background 0.2s;
+      color: var(--text-color);
     }
     button:hover {
-      background: #e0e0e0;
+      background: var(--button-hover);
     }
     button:disabled {
       opacity: 0.5;
@@ -26,6 +31,7 @@ export class PaginationNav extends LitElement {
     .indicator {
       min-width: 50px;
       text-align: center;
+      color: var(--text-color);
     }
   `;
 
@@ -33,62 +39,59 @@ export class PaginationNav extends LitElement {
     /**
      * The current page number (1-indexed).
      */
-    currentPage: { type: Number, default: 1 }, // Use default instead of class field
+    currentPage: { type: Number, default: 1 },
 
     /**
      * The total number of pages. Use 0 or null if unknown.
      */
-    totalPages: { type: Number, default: 0 }, // Use default instead of class field
+    totalPages: { type: Number, default: 0 },
 
     /**
      * Indicates if navigating to the previous page is possible.
      */
-    canGoBackward: { type: Boolean, default: false }, // Use default instead of class field
+    canGoBackward: { type: Boolean, default: false },
 
     /**
      * Indicates if navigating to the next page is possible.
      */
-    canGoForward: { type: Boolean, default: true }, // Use default instead of class field
-  };
+    canGoForward: { type: Boolean, default: true },
 
-  // Remove the class field declarations that shadowed Lit's accessors:
-  // currentPage = 1;       <-- REMOVE
-  // totalPages = 0;        <-- REMOVE
-  // canGoBackward = false; <-- REMOVE
-  // canGoForward = true;   <-- REMOVE
+    darkMode: { type: Boolean, default: false }
+  };
 
   constructor() {
     super();
-    // Properties with defaults are initialized by Lit before the constructor runs.
-    // If you had state properties ({ state: true }) without defaults,
-    // you would initialize them here:
-    // this._myInternalState = [];
+    this.updateStyles();
   }
 
-  // Fix typo: dipatch -> dispatch
+  updateStyles() {
+    this.style.setProperty('--dark-mode', this.darkMode ? '#2d2d2d,#444,#3d3d3d,#fff' : '#f0f0f0,#ccc,#e0e0e0,#000');
+  }
+
+  toggleDarkMode() {
+    this.darkMode = !this.darkMode;
+    this.updateStyles();
+  }
+
   async handleBackward() {
-    // Access properties using 'this'. They are now reactive via Lit.
     if (this.canGoBackward) {
       const newPage = this.currentPage - 1;
-      this.dispatch("action", { // Corrected method name
+      this.dispatch("action", {
         typeEvent: 'backward', page: newPage
       });
     }
   }
 
-  // Fix typo: dipatch -> dispatch
   async handleForward() {
-    // Access properties using 'this'. They are now reactive via Lit.
     if (this.canGoForward) {
       const newPage = this.currentPage + 1;
-      this.dispatch("action", { // Corrected method name
+      this.dispatch("action", {
         typeEvent: 'forward', page: newPage
       });
     }
   }
 
-  // Fix typo: dipatch -> dispatch
-  dispatch(evname, evdata) { // Corrected method name
+  dispatch(evname, evdata) {
     this.dispatchEvent(
       new CustomEvent(evname, {
         detail: evdata,
@@ -99,27 +102,20 @@ export class PaginationNav extends LitElement {
   }
 
   render() {
-    // Access properties using 'this'. They are now reactive via Lit.
     return html`
-      <button
-        @click=${this.handleBackward}
-        ?disabled=${!this.canGoBackward}>
+      <button @click=${this.handleBackward}>
         ←
       </button>
       <span class="indicator">
         ${this.currentPage} / ${this.totalPages || '?'}
       </span>
-      <button
-        @click=${this.handleForward}
-        ?disabled=${!this.canGoForward}>
+      <button @click=${this.handleForward}>
         →
       </button>
     `;
   }
 }
 
-// Register the custom element
-// Using the conditional check from the previous example is good practice
 if (window.customElements.get('pagination-nav') === undefined) {
   customElements.define('pagination-nav', PaginationNav);
 }

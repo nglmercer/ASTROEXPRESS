@@ -1,5 +1,42 @@
 import { fetchapi, getParams } from '@utils/fetchapi';
 import {rendertables} from '@components/tablejs/inittable.js'
+import u from 'umbrellajs';
+/*
+    "idTemporada",
+    "numeroTemporada", 
+    "nombreTemporada",
+    "portadaTemporada",
+    "catalogoTemporada",
+    "nsfw"
+
+    // capitulo
+    export interface IChapterInformation {
+      idCapitulo: number;
+      numeroCapitulo: number;
+      imagenCapitulo: string;
+      catalogoCapitulo: number;
+      meGustasCapitulo: number;
+      noMeGustasCapitulo: number;
+      reproduccionesCapitulo: number;
+      descripcionCapitulo: string | null;
+      tituloCapitulo: string | null;
+      pathCapitulo: string | null;
+      tiempoCapitulo: number;
+      temporadaCapitulo: number;
+    }
+
+*/
+const CapitulosKeys = [
+  "idCapitulo",
+  "numeroCapitulo",
+  "imagenCapitulo", 
+  "catalogoCapitulo",
+  "meGustasCapitulo",
+  "noMeGustasCapitulo", 
+  "reproduccionesCapitulo",
+  "tiempoCapitulo",
+  "temporadaCapitulo"
+]
 async function fetchCapitulos(idCatalogo, idTemporada) {
     try {
         const response = await fetchapi.getCapitulos(idCatalogo, idTemporada); // Asegúrate de que esta función esté definida y exportada correctamente
@@ -10,20 +47,13 @@ async function fetchCapitulos(idCatalogo, idTemporada) {
         return []; // Retorna un arreglo vacío en caso de error
     }
 }
-import u from 'umbrellajs';
 u(document).on('DOMContentLoaded',async function () {
-  const navelement = u('pagination-nav');
-  const page = navelement.nodes[0]?.currentPage || 1; 
-  console.log("render data for page: ", page,navelement);
-/*   const arrayresponse = await fetchcatalogos(page);
-  const keys = getKeysFromArray(arrayresponse.data);
-  rendertables(arrayresponse.data, "catalogo", keys); */
-    const breadcrumb = u('nav-breadcrumb');
-    const element = breadcrumb.nodes[0];
-    const params = getParams(["1","2","3","4","5"]);
-    console.log("params: ", params);
-    const response = await fetchCapitulos(params[3], params[5]);
-    console.log("response: ", response);
+  const breadcrumb = u('nav-breadcrumb');
+  const params = getParams(["1","2","3","4","5"]);
+  console.log("params: ", params);
+  const response = await fetchCapitulos(params[3], params[5]);
+  console.log("response: ", response);
+  rendertables(response, "catalogo", CapitulosKeys); 
 
 
     // this is the breadcrumb element

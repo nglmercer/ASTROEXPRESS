@@ -170,7 +170,18 @@ export function setupTableListeners(managerEl, openfn =  () => {}, afterfn = () 
         managerEl = document.querySelector(managerEl);
     }
     managerEl.addEventListener('internal-action', async (e) => {
+        // switch edit or delete
+        const { originalAction, Item} = e.detail
         console.log('Acción de tabla:', e.detail);
+        switch (originalAction){
+            case 'edit':
+            break
+            case 'delete':
+            break
+            default:
+                console.log("originact", originalAction)
+        }
+            
     });
     managerEl.addEventListener('menu', async (e) => { 
         console.log('Acción de tabla:', e.detail,getURLPATH(e.detail.item));

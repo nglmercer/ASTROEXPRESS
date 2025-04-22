@@ -18,25 +18,10 @@ function toSingle<T>(value: T | T[], defaultValue?: T): T {
   }
   return value;
 }
-function toArray<T>(value: T | T[]): T[] {
-  if (value == null) {
-    throw new Error("Input cannot be null or undefined");
-  }
-  return Array.isArray(value) ? value : [value];
-}
+
 const post = await fetchapi.getInfoCatalogo(idCatalogo);
 const objpost = toSingle(post)
-const temporadas = await  fetchapi.getTemporadas(idCatalogo);
-const temporadarray = toArray(temporadas);
 
-const keys = [
-  "nombreTemporada",
-  "idTemporada",
-  "numeroTemporada",
-  "portadaTemporada",
-  "catalogoTemporada",
-  "nsfw",
-]
 
 ---
 <script src="/src/components/tablejs/modal.js"></script>
@@ -51,9 +36,7 @@ const keys = [
 </div>
 <div class="container">
   <div class="button-group">
-    <button data-form-type="temporada" class="primary">Temporada</button>
-    <button data-form-type="user" class="primary">Usuario</button>
-    <button data-form-type="catalogo" class="primary">Catalogo</button>
+    <button data-form-type="Temporadas" class="primary">Añadir temporadas</button>
 </div>
 
 <dlg-cont id="modal-container">
@@ -62,19 +45,11 @@ const keys = [
     </dyn-obj-disp>
 </dlg-cont>
 
-<object-table-lit id="catalogo" darkmode
+<object-table-lit id="TemporadasTable" darkmode
  ></object-table-lit>
 
 </div>
-<script define:vars={{objpost,keys,temporadarray}}>
-  document.addEventListener("DOMContentLoaded",async function() {
-      const element = document.getElementById("catalogo")
-      const itemsisarray = Array.isArray(temporadarray) ? temporadarray : [temporadarray];
-      element.data = itemsisarray;
-      element.keys = keys
-      console.log(element, temporadarray, keys,objpost)
-  })
-</script>
+
 <style>
     button { padding: 0.6em 1.2em; cursor: pointer; margin: 5px; border-radius: 4px; border: 1px solid #555; background-color: #333; color: white; }
         button.primary { background-color: #007bff; border-color: #007bff; }

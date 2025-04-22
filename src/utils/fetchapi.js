@@ -105,7 +105,7 @@ class FetchApi {
         this.user = safeParse(info.user || safeParse(localStorage.getItem("user"))) || {};
     }
 
-    _authHeaders(contentType = 'application/json') { // contentType por defecto es application/json SI PASA NULL ES OBJETO EMPTY
+    _authHeaders(contentType = 'application/json') {
         const defaultHeaders = {
             'Authorization': `${this.token}`
         };
@@ -115,186 +115,170 @@ class FetchApi {
         return defaultHeaders;
     }
 
+    async _interceptor(promise) {
+        try {
+            const response = await promise;
+            return response;
+        } catch (error) {
+            console.error('Error en la llamada a la API:', error);
+            throw error;
+        }
+    }
+
     agregar(formulario) {
-        return fetch(`${this.host}/catalogo`, {
+        return this._interceptor(fetch(`${this.host}/catalogo`, {
             method: 'POST',
-            
             headers: this._authHeaders(null),
             body: formulario
-        }).then(res => res.json());
+        }).then(res => res.json()));
     }
 
     actualizar(formulario) {
         const id = formulario.get("idCatalogo");
-        return fetch(`${this.host}/catalogo/${id}`, {
+        return this._interceptor(fetch(`${this.host}/catalogo/${id}`, {
             method: 'POST',
-            
             headers: this._authHeaders(null),
             body: formulario
-        }).then(res => res.json());
+        }).then(res => res.json()));
     }
 
     eliminar(modalUpdate) {
-        return fetch(`${this.host}/catalogo/${modalUpdate.idCatalogo}`, {
+        return this._interceptor(fetch(`${this.host}/catalogo/${modalUpdate.idCatalogo}`, {
             method: 'DELETE',
-            
             headers: this._authHeaders()
-        }).then(res => res.json());
+        }).then(res => res.json()));
     }
 
     obtenerFavoritos() {
-        return this.http.get(`${this.host}/usuario/${this.user.idUsuario}/favoritos`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/usuario/${this.user.idUsuario}/favoritos`, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     agregarFavorito(catalogo) {
-        return this.http.post(`${this.host}/usuario/${this.user.idUsuario}/catalogo/${catalogo}/favorito`, {}, {
-            
+        return this._interceptor(this.http.post(`${this.host}/usuario/${this.user.idUsuario}/catalogo/${catalogo}/favorito`, {}, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     verificarFavorito(catalogo) {
-        return this.http.get(`${this.host}/usuario/${this.user.idUsuario}/catalogo/${catalogo}/favorito`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/usuario/${this.user.idUsuario}/catalogo/${catalogo}/favorito`, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     obtenerCatalogosRecientes() {
-        return this.http.get(`${this.host}/catalogos/recientes`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogos/recientes`, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     obtenerInformacionCatalogo(idCatalogo) {
-        return this.http.get(`${this.host}/catalogo/${idCatalogo}`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogo/${idCatalogo}`, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     obtenerDirectorio(pagina, data) {
-        return this.http.post(`${this.host}/catalogos/pagina/${pagina}`, data, {
-            
+        return this._interceptor(this.http.post(`${this.host}/catalogos/pagina/${pagina}`, data, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     obtenerExistenciaDirectorio(pagina, data) {
-        return this.http.post(`${this.host}/catalogos/pagina/${pagina}/exists`, data, {
-            
+        return this._interceptor(this.http.post(`${this.host}/catalogos/pagina/${pagina}/exists`, data, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     obtenerTodoCatalogo(idCatalogo) {
-        return this.http.get(`${this.host}/catalogo/${idCatalogo}/info`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogo/${idCatalogo}/info`, {
             headers: this._authHeaders()
-        });
+        }));
     }
 
     buscarCatalogo(data) {
-        return this.http.post(`${this.host}/catalogos/buscar`, data, {
-            
+        return this._interceptor(this.http.post(`${this.host}/catalogos/buscar`, data, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    //catalogos/estados
+
     getEstados() {
-        return this.http.get(`${this.host}/catalogos/estados`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogos/estados`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    //catalogos/tipos
+
     getTipos() {
-        return this.http.get(`${this.host}/catalogos/tipos`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogos/tipos`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    //catalogos/categorias
+
     getCategorias() {
-        return this.http.get(`${this.host}/catalogos/categorias`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogos/categorias`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    // /catalogo/recomendado GET
+
     getRecomendado() {
-        return this.http.get(`${this.host}/catalogo/recomendado`, {
+        return this._interceptor(this.http.get(`${this.host}/catalogo/recomendado`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    // /capitulos/por/estados
+
     getCapitulosPorEstados() {
-        return this.http.get(`${this.host}/capitulos/por/estados`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/capitulos/por/estados`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    // /catalogo/aleatorio
+
     getRandomCatalogo() {
-        return this.http.get(`${this.host}/catalogo/aleatorio`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogo/aleatorio`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    ///catalogo/${id}/info`; GET
+
     getInfoCatalogo(id) {
-        return this.http.get(`${this.host}/catalogo/${id}/info`, {
-
+        return this._interceptor(this.http.get(`${this.host}/catalogo/${id}/info`, {
             headers: this._authHeaders()
-       
-        });
+        }));
     }
-    ///capitulo/${id}`; GET
+
     getCapitulo(id) {
-        return this.http.get(`${this.host}/capitulo/${id}`, {
-
+        return this._interceptor(this.http.get(`${this.host}/capitulo/${id}`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    ///usuario/${id}/historial`;
+
     getHistorial(id) {
-        return this.http.get(`${this.host}/usuario/${id}/historial`, {
-
+        return this._interceptor(this.http.get(`${this.host}/usuario/${id}/historial`, {
             headers: this._authHeaders("application/json")
-        });
+        }));
     }
-    ///usuario/${id}/favoritos`;
+
     getFavoritos(id) {
-        return this.http.get(`${this.host}/usuario/${id}/favoritos`, {
-
+        return this._interceptor(this.http.get(`${this.host}/usuario/${id}/favoritos`, {
             headers: this._authHeaders("application/json")
-        });
+        }));
     }
-// /* /catalogo/5069/temporada/177/capitulo/64829/siguienteOAnterior*/
+
     obtenerSiguienteOAnterior(idCatalogo, numeroTemporada, numeroCapitulo) {
-        //var headers = this.headersVariable.set('Authorization', this.token);
-    //  return this.http.get(this.host+"/catalogo/"+idCatalogo+"/temporada/"+numeroTemporada+"/capitulo/"+numeroCapitulo+"/siguienteOAnterior",{
-    return this.http.get(`${this.host}/catalogo/${idCatalogo}/temporada/${numeroTemporada}/capitulo/${numeroCapitulo}/siguienteOAnterior`, {
-        
-        headers: this._authHeaders()
-    });
+        return this._interceptor(this.http.get(`${this.host}/catalogo/${idCatalogo}/temporada/${numeroTemporada}/capitulo/${numeroCapitulo}/siguienteOAnterior`, {
+            headers: this._authHeaders()
+        }));
     }
+
     getTemporadas(idCatalogo) {
-        return this.http.get(`${this.host}/catalogo/${idCatalogo}/temporadas`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogo/${idCatalogo}/temporadas`, {
             headers: this._authHeaders()
-        });
+        }));
     }
-    //GET/catalogo/5070/temporada/179/capitulos
+
     getCapitulos(idCatalogo, idTemporada) {
-        return this.http.get(`${this.host}/catalogo/${idCatalogo}/temporada/${idTemporada}/capitulos`, {
-            
+        return this._interceptor(this.http.get(`${this.host}/catalogo/${idCatalogo}/temporada/${idTemporada}/capitulos`, {
             headers: this._authHeaders()
-        });
+        }));
     }
 }
 
@@ -504,6 +488,7 @@ class RolesService {
 const categoriafetch = new CategoriasService(actualBaseApi);
 const usuariosfetch = new UsuariosService(actualBaseApi);
 const rolesfetch = new RolesService(actualBaseApi);
+
 export {
     fetchapi,
     categoriafetch,

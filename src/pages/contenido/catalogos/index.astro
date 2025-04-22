@@ -1,0 +1,11 @@
+---
+// Redirect to page 1 by default
+export const getStaticPaths = () => {
+  return [
+    { params: { page: "1" } }
+  ];
+};
+
+// Redirect to [page].astro with page=1
+return Astro.redirect('/contenido/catalogos/1');
+---
