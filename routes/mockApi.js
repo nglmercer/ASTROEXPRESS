@@ -1,6 +1,11 @@
 import express from 'express';
 import { dbController } from './backupdb.js'; // Importa el controlador de base de datos
-
+import { AudiosModel } from './AudiosModel.js';
+import { ResolucionesModel } from './ResolucionesModel.js';
+import { SubtitulosModel } from './SubtitulosModel.js';
+const audiosModel = new AudiosModel();
+const resolucionesModel = new ResolucionesModel();
+const subtitulosModel = new SubtitulosModel();
 const router = express.Router();
 
 // Middleware para parsear JSON
@@ -702,7 +707,23 @@ router.delete('/rol/:idRol', checkAuth, (req, res) => {
      // Implementación real necesitaría dbController.delete('roles', idRol)
     res.json({ success: true, message: `Rol ${idRol} eliminado (simulado)` });
 });
-
+router.get('/res/recursos/:idCapitulo', async (req, res) => {
+    const { idCapitulo } = req.params;
+    
+    try {
+        const audios = await audiosModel.getAllByIdCapitulo(idCapitulo, true);
+        const resoluciones = await resolucionesModel.getAllByIdCapitulo(idCapitulo, true);
+        const subtitulos = await subtitulosModel.getAllByIdCapitulo(idCapitulo, true);
+        
+        res.json({
+            audios,
+            resoluciones,
+            subtitulos
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Exportar el router
 export default router;
