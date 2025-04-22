@@ -5,6 +5,7 @@ import {getURLPATH, redirectTo} from '/src/utils/redirect'
 import { fetchapi } from '@utils/fetchapi';
 import {
   openDynamicModalDirect,
+  setupModalListeners
 } from '/src/components/tablejs/crudUIHelpers.js'; // Ajusta ruta
 import {rendertablewithE} from '@components/tablejs/inittable.js'
 import u from 'umbrellajs';
@@ -84,7 +85,7 @@ if (!modalEl || !editorEl || !managerEl) {
 
 function openModal(type, data = null) {
   //(modalEl, editorEl, formType, formConfig, data = null,
-  openDynamicModalDirect(modalEl, editorEl, type,formCatalogo, data, null, null)
+  openDynamicModalDirect(modalEl, editorEl, type,formCatalogo, data)
 }
 
 function initializepagesbar() {
@@ -124,7 +125,21 @@ function tableListeners(){
       }
     });
 }
-
+const callbacks = {
+  'item-upd': async (data) => {
+    console.log("catalogo:upd",data);
+  },
+  'del-item': async (data) => {
+    console.log("catalogo:del",data);
+  },
+  'cancel': async (data) => {
+    console.log("catalogo:cancel",data);
+  },
+  'delete': async (data) => {
+    //no se utiliza pero esta como referencia
+    console.log("delete",data);
+  }
+}
 
 
 u(document).on('click', 'button', function (e) {
@@ -135,6 +150,7 @@ u(document).on('click', 'button', function (e) {
 });
 u(document).on('DOMContentLoaded',async function () {
   const page = initializepagesbar()
+  setupModalListeners(modalEl, editorEl, callbacks)
   console.log("render data for page: ", page);
   const response = await fetchapi.obtenerDirectorio(page)
   const keys = getKeysFromArray(response.data);

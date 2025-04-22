@@ -311,9 +311,12 @@ export class DlgCont extends LitElement {
     if (e.target === e.currentTarget && !this.required) {
       console.log("Overlay click event:", e.target === e.currentTarget,this.required);
       this.hide();
+      this.emitClose();
     }
   }
-
+  emitClose() {
+    this.dispatchEvent(new CustomEvent('close'));
+  }
   show() {
     this.visible = true;
   }
@@ -596,7 +599,6 @@ export class CInp extends LitElement {
           </label>`;
 
       case 'select':
-        console.log(this.multiple, this._internalValue);
         return html`
       <select
         class=${commonInputClass}

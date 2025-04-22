@@ -1,3 +1,4 @@
+import u from 'umbrellajs';
 const baseURL = "/contenido/"
 export async function openDynamicModal(modalEl, editorEl, formType, formConfigs, data = null, onBeforeOpen = null, onAfterConfig = null) {
     const configGenerator = formConfigs[formType];
@@ -91,6 +92,26 @@ export async function openDynamicModalDirect(modalEl, editorEl, formType, formCo
         // Consider modalEl.hide();
     }
 }
+export async function setupModalListeners(modalEl, editorEl,callbacks){
+    u(modalEl).on('close', () => {
+        console.log("Modal cerrado.");
+        modalEl.dataset.currentFormType = '';
+    });
+    const allevents = ['item-upd', 'del-item', 'cancel'];
+    allevents.forEach(event => {
+        u(editorEl).on(event, async (e) => {
+            console.log('Acción de tabla:', e.detail);
+            const item = e.detail;
+            console.log("type",event)
+            if (!item) return;
+            if (callbacks[event]){
+                callbacks[event](item)
+            }
+        });
+    });
+}
+    
+
 export async function initializeTables(managerEl, tableConfigs, getAllDataFn, displayKeysArray) {
     if (!managerEl) {
         console.error('Elemento Grid Manager no proporcionado.');
