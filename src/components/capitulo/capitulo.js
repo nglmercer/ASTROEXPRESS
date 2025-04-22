@@ -1,98 +1,98 @@
 import { fetchapi, getParams } from '@utils/fetchapi';
-import {getURLPATH, redirectTo} from '/src/utils/redirect'
 import { openDynamicModalDirect, setupModalListeners} from '/src/components/tablejs/crudUIHelpers.js'; 
+import {rendertablewithE} from '@components/tablejs/inittable.js'
+
 import u from 'umbrellajs';
-/*
-    "idTemporada",
-    "numeroTemporada", 
-    "nombreTemporada",
-    "portadaTemporada",
-    "catalogoTemporada",
-    "nsfw"
 
-    // capitulo
-    export interface IChapterInformation {
-      idCapitulo: number;
-      numeroCapitulo: number;
-      imagenCapitulo: string;
-      catalogoCapitulo: number;
-      meGustasCapitulo: number;
-      noMeGustasCapitulo: number;
-      reproduccionesCapitulo: number;
-      descripcionCapitulo: string | null;
-      tituloCapitulo: string | null;
-      pathCapitulo: string | null;
-      tiempoCapitulo: number;
-      temporadaCapitulo: number;
-    }
-
-}
-*/
-const formTemporadaItems = {
-  title: 'Temporada',  
-  getInitialData: () => ({
-    idCapitulo: 0,
-    numeroCapitulo: 0,
-    imagenCapitulo: '',
-    catalogoCapitulo: 0,
-    meGustasCapitulo: 0,
-    noMeGustasCapitulo: 0,
-    reproduccionesCapitulo: 0,
-    descripcionCapitulo: '',
-    tituloCapitulo: '',
-    pathCapitulo: '',
-    tiempoCapitulo: 0,
-    temporadaCapitulo: 0,
-  }),
-  getFieldConfig: async () => ({
-    idCapitulo: { label: 'ID Capítulo', type: 'number', hidden: true },
-    numeroCapitulo: { label: 'Número', type: 'number', required: true },
-    imagenCapitulo: { label: 'Imagen', type: 'text', required: true },
-    catalogoCapitulo: { label: 'ID Catálogo', type: 'number', hidden: true },
-    meGustasCapitulo: { label: 'Me gusta', type: 'number', required: true },
-    noMeGustasCapitulo: { label: 'No me gusta', type: 'number', required: true },
-    reproduccionesCapitulo: { label: 'Reproducciones', type: 'number', required: true },
-    descripcionCapitulo: { label: 'Descripción', type: 'text' },
-    tituloCapitulo: { label: 'Título', type: 'text' },
-    pathCapitulo: { label: 'Path', type: 'text' },
-    tiempoCapitulo: { label: 'Tiempo', type: 'number', required: true },
-    temporadaCapitulo: { label: 'ID Temporada', type: 'number', hidden: true },
-  })
+const formCapituloItems = {
+  audios: {
+    title: 'Audio',
+    getInitialData: () => ({
+      id: 0,
+      nombre: '',
+      lenguaje: '',
+      estado: 0,
+      idCapitulo: 0,
+      ruta: ''
+    }),
+    getFieldConfig: async () => ({
+      id: { label: 'ID', type: 'number', hidden: true },
+      nombre: { label: 'Nombre', type: 'text', required: true },
+      lenguaje: { label: 'Lenguaje', type: 'text', required: true },
+      estado: { label: 'Estado', type: 'number', required: true },
+      idCapitulo: { label: 'ID Capítulo', type: 'number', hidden: true },
+      ruta: { label: 'Ruta', type: 'text', required: true }
+    })
+  },
+  resoluciones: {
+    title: 'Resolución',
+    getInitialData: () => ({
+      id: 0,
+      anchoDeBanda: '',
+      promedioAnchoDeBanda: '',
+      estado: 0,
+      idCapitulo: 0,
+      resolucion: '',
+      ruta: ''
+    }),
+    getFieldConfig: async () => ({
+      id: { label: 'ID', type: 'number', hidden: true },
+      anchoDeBanda: { label: 'Ancho de Banda', type: 'text', required: true },
+      promedioAnchoDeBanda: { label: 'Promedio Ancho de Banda', type: 'text', required: true },
+      estado: { label: 'Estado', type: 'number', required: true },
+      idCapitulo: { label: 'ID Capítulo', type: 'number', hidden: true },
+      resolucion: { label: 'Resolución', type: 'text', required: true },
+      ruta: { label: 'Ruta', type: 'text', required: true }
+    })
+  },
+  subtitulos: {
+    title: 'Subtítulo',
+    getInitialData: () => ({
+      id: 0,
+      nombre: '',
+      lenguaje: '',
+      lenguaje2: '',
+      estado: 0,
+      idCapitulo: 0,
+      ruta: '',
+      versiona: 0,
+      autoSeleccionado: false,
+      forzado: false,
+      porDefecto: false
+    }),
+    getFieldConfig: async () => ({
+      id: { label: 'ID', type: 'number', hidden: true },
+      nombre: { label: 'Nombre', type: 'text', required: true },
+      lenguaje: { label: 'Lenguaje', type: 'text', required: true },
+      lenguaje2: { label: 'Lenguaje 2', type: 'text' },
+      estado: { label: 'Estado', type: 'number', required: true },
+      idCapitulo: { label: 'ID Capítulo', type: 'number', hidden: true },
+      ruta: { label: 'Ruta', type: 'text', required: true },
+      versiona: { label: 'Versiona', type: 'number', required: true },
+      autoSeleccionado: { label: 'Auto Seleccionado', type: 'boolean' },
+      forzado: { label: 'Forzado', type: 'boolean' },
+      porDefecto: { label: 'Por Defecto', type: 'boolean' }
+    })
+  }
 }
 const pageConfig = {
   modalId: 'modal-container', 
   editorId: 'dynamic-editor',  
-  managerId: 'TemporadaTable',
-  eventTypes: 'temporada',
+  audio: 'audios-table',
+  subtitulos: 'subtitulos-table',
+  resoluciones: 'resoluciones-table',
 };
 const modalEl = document.getElementById(pageConfig.modalId);
 const editorEl = document.getElementById(pageConfig.editorId);
-const managerEl = document.getElementById(pageConfig.managerId);
+const audiosEl = document.getElementById(pageConfig.audio);
+const subtitulosEl = document.getElementById(pageConfig.subtitulos);
+const resolucionesEl = document.getElementById(pageConfig.resoluciones);
 
-if (!modalEl || !editorEl || !managerEl) {
-    console.error("Error: Elementos UI necesarios no encontrados.","modalEl",modalEl,"editorEl",editorEl,"managerEl",managerEl);
+if (!modalEl || !editorEl || !audiosEl ||!subtitulosEl ||!resolucionesEl) {
+    console.error("Error: Elementos UI necesarios no encontrados.",{modalEl,editorEl,audiosEl,subtitulosEl,resolucionesEl});
 }
-const CapitulosKeys = [
-  "idCapitulo",
-  "numeroCapitulo",
-  "imagenCapitulo", 
-  "catalogoCapitulo",
-  "meGustasCapitulo",
-  "noMeGustasCapitulo", 
-  "reproduccionesCapitulo",
-  "tiempoCapitulo",
-  "temporadaCapitulo"
-]
-async function fetchCapitulos(idCatalogo, idTemporada) {
-    try {
-        const response = await fetchapi.getCapitulos(idCatalogo, idTemporada); // Asegúrate de que esta función esté definida y exportada correctamente
-        console.log('Respuesta de la API:', response);
-        return response; // Retorna la respuesta de la API
-    } catch (error) {
-        console.error('Error en la solicitud:', error);
-        return []; // Retorna un arreglo vacío en caso de error
-    }
-}
+
+
 
 function openModal(type, data = null) {
   openDynamicModalDirect(modalEl, editorEl, type,formTemporadaItems, data, null, null)
@@ -139,6 +139,14 @@ const callbacks = {
     console.log("delete",data);
   }
 }
+function returnfirstKeys(array) {
+  // default 
+  // return ["id","nombre","lenguaje","estado"]
+  if (!Array.isArray(array) || array.length === 0) return [];
+  const keys = Object.keys(array[0]); // Obtener las claves del primer objeto
+  const keysToDisplay = keys.slice(0, 6); // Limitar a las primeras N claves
+  return keysToDisplay
+}
 u(document).on('DOMContentLoaded',async function () {
   const breadcrumb = u('nav-breadcrumb');
   const params = getParams(["1","2","3","4","5","6","7"]);
@@ -146,6 +154,23 @@ u(document).on('DOMContentLoaded',async function () {
   setupModalListeners(modalEl, editorEl, callbacks)
   const response = await fetchapi.getRecursos( params[7]);
   console.log("response: ", response);
+  const {audios,subtitulos,resoluciones} = response;
+  const defaultkeys = ["id","nombre","lenguaje","estado"]
+  rendertablewithE({
+    element: audiosEl,
+    keys:defaultkeys,
+    array:audios
+  });
+  rendertablewithE({
+    element: subtitulosEl,
+    keys:defaultkeys,
+    array:subtitulos
+  });
+  rendertablewithE({
+    element: resolucionesEl,
+    keys:returnfirstKeys(resoluciones),
+    array:resoluciones
+  });
     // this is the breadcrumb element
     customElements.whenDefined('nav-breadcrumb').then(() => {
       const element = breadcrumb.nodes[0];

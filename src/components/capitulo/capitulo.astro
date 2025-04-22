@@ -15,14 +15,18 @@ const { idCatalogo, idTemporada } = params;
 <div class="container">
   <nav-breadcrumb id="mainBreadcrumb"></nav-breadcrumb>
   <div class="button-group">
-    <button data-form-type="temporada" class="primary">Temporada</button>
+    <button data-form-type="subtitulos" class="primary">Agregar subtitulo</button>
+    <button data-form-type="audios" class="primary">Agregar audio</button>
+    <button data-form-type="resoluciones" class="primary">Agregar resolucion</button>
 </div>
 
 <dlg-cont id="modal-container">
     <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode>
     </dyn-obj-disp>
 </dlg-cont>
-<object-table-lit id="TemporadaTable" darkmode></object-table-lit>
+<object-table-lit id="audios-table" darkmode></object-table-lit>
+<object-table-lit id="subtitulos-table" darkmode></object-table-lit>
+<object-table-lit id="resoluciones-table" darkmode></object-table-lit>
 
 </div>
   <script src="/src/components/capitulo/capitulo.js"></script>
