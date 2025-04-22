@@ -280,6 +280,11 @@ class FetchApi {
             headers: this._authHeaders()
         }));
     }
+    getRecursos(idCapitulo) {
+        return this._interceptor(this.http.get(`${this.host}/res/recursos/${idCapitulo}`, {
+            headers: this._authHeaders()
+        }));
+    }
 }
 
 const fetchapi = new FetchApi(actualBaseApi);

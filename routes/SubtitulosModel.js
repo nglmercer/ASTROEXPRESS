@@ -9,7 +9,7 @@ export class SubtitulosModel {
       lenguaje2: `%${lenguaje2}%`,
       estado: ['!=', 6]
     };
-    return await dbController.queryWithFilters('Subtitulos', filters);
+    return await dbController.queryWithFilters('subtitulos', filters);
   }
 
   async getAllByIdCapitulo(idCapitulo, ignoreEstado = false) {
@@ -17,7 +17,10 @@ export class SubtitulosModel {
     if (!ignoreEstado) {
       filters.estado = 1;
     }
-    return await dbController.queryWithFilters('Subtitulos', filters);
+    const existSubtitulo = await dbController.tableExists('subtitulos');
+    const results = await dbController.queryWithFilters('subtitulos', filters);
+    console.log("existSubtitulo",existSubtitulo,"results",results, filters);
+    return results;
   }
 
   async getAllByIdCapituloV2(idCapitulo, ignoreEstado = false) {
@@ -28,7 +31,7 @@ export class SubtitulosModel {
     if (!ignoreEstado) {
       filters.estado = 1;
     }
-    return await dbController.queryWithFilters('Subtitulos', filters);
+    return await dbController.queryWithFilters('subtitulos', filters);
   }
 
   async updateById(id, nombre, porDefecto, autoSeleccionado, forzado, lenguaje, lenguaje2, ruta, estado, idCapitulo, version) {
@@ -36,11 +39,11 @@ export class SubtitulosModel {
   }
 
   async deleteById(id) {
-    return await dbController.queryWithFilters('Subtitulos', { id });
+    return await dbController.queryWithFilters('subtitulos', { id });
   }
 
   async getById(id) {
-    return await dbController.getById('Subtitulos', id);
+    return await dbController.getById('subtitulos', id);
   }
 
   async add(nombre, porDefecto, autoSeleccionado, forzado, lenguaje, lenguaje2, ruta, estado, idCapitulo, version) {

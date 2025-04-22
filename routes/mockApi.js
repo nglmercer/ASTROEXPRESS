@@ -709,11 +709,12 @@ router.delete('/rol/:idRol', checkAuth, (req, res) => {
 });
 router.get('/res/recursos/:idCapitulo', async (req, res) => {
     const { idCapitulo } = req.params;
-    
+    // typar o cambiar idCapitulo si es string o no es number
+    const idCapituloInt = parseInt(idCapitulo, 10);
     try {
-        const audios = await audiosModel.getAllByIdCapitulo(idCapitulo, true);
-        const resoluciones = await resolucionesModel.getAllByIdCapitulo(idCapitulo, true);
-        const subtitulos = await subtitulosModel.getAllByIdCapitulo(idCapitulo, true);
+        const audios = await audiosModel.getAllByIdCapitulo(idCapituloInt, true);
+        const resoluciones = await resolucionesModel.getAllByIdCapitulo(idCapituloInt, true);
+        const subtitulos = await subtitulosModel.getAllByIdCapitulo(idCapituloInt, true);
         
         res.json({
             audios,

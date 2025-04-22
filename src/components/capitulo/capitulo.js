@@ -116,7 +116,6 @@ async function setTabledata(array,keys) {
     console.log("type",type)
     if (!type) return
     if (type === 'dblclick'){
-      redirectTo(getURLPATH(item).path)
     }
   });
 }
@@ -142,13 +141,11 @@ const callbacks = {
 }
 u(document).on('DOMContentLoaded',async function () {
   const breadcrumb = u('nav-breadcrumb');
-  const params = getParams(["1","2","3","4","5"]);
+  const params = getParams(["1","2","3","4","5","6","7"]);
   console.log("params: ", params);
   setupModalListeners(modalEl, editorEl, callbacks)
-  const response = await fetchCapitulos(params[3], params[5]);
+  const response = await fetchapi.getRecursos( params[7]);
   console.log("response: ", response);
-  setTabledata(response, CapitulosKeys);
-
     // this is the breadcrumb element
     customElements.whenDefined('nav-breadcrumb').then(() => {
       const element = breadcrumb.nodes[0];

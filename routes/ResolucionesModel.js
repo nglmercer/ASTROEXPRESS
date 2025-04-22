@@ -8,7 +8,10 @@ export class ResolucionesModel {
     if (!ignoreEstado) {
       filters.estado = 1;
     }
-    return await dbController.queryWithFilters('Resoluciones', filters);
+    const existResolucion = await dbController.tableExists('resoluciones');
+    const results = await dbController.queryWithFilters('resoluciones', filters);
+    console.log("existResolucion",existResolucion,"results",results, filters);
+    return results;
   }
 
   async getByCapituloAndResolution(idCapitulo, resolution) {
@@ -17,7 +20,7 @@ export class ResolucionesModel {
       resolucion: `%${resolution}%`,
       estado: ['!=', 6]
     };
-    return await dbController.queryWithFilters('Resoluciones', filters);
+    return await dbController.queryWithFilters('resoluciones', filters);
   }
 
   async updateById(id, anchoDeBanda, promedioAnchoDeBanda, resolucion, ruta, estado, idCapitulo) {
@@ -34,7 +37,7 @@ export class ResolucionesModel {
   }
 
   async deleteById(id) {
-    return await dbController.queryWithFilters('Resoluciones', { id });
+    return await dbController.queryWithFilters('resoluciones', { id });
   }
 
   async add(anchoDeBanda, promedioAnchoDeBanda, resolucion, ruta, estado, idCapitulo) {
@@ -42,6 +45,6 @@ export class ResolucionesModel {
   }
 
   async getById(id) {
-    return await dbController.getById('Resoluciones', id);
+    return await dbController.getById('resoluciones', id);
   }
 }
