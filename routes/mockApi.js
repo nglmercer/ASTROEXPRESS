@@ -424,16 +424,11 @@ router.get('/catalogos/recientes', checkAuth, async (req, res) => {
 
 
 // POST /catalogos/buscar (Requiere Auth) - Simula buscar (el controlador queryWithFilters solo hace igualdad, no LIKE)
-router.post('/catalogos/buscar', checkAuth, (req, res) => {
-    const { searchTerm } = req.body; // Asumiendo que el término de búsqueda viene en el body
-    console.log(`SIMULADO: POST /catalogos/buscar - Término: "${searchTerm}"`);
-     // Implementación real necesitaría una query con LIKE:
-     // SELECT * FROM catalogos WHERE nombreCatalogo LIKE ? OR descripcionCatalogo LIKE ?
-     // usando db.all(sql, [`%${searchTerm}%`, `%${searchTerm}%`], ...)
-    res.json([
-        { idCatalogo: 200, nombre: `Resultado 1 para "${searchTerm}"` },
-        { idCatalogo: 201, nombre: `Resultado 2 para "${searchTerm}"` }
-    ]);
+router.post('/catalogos/buscar', checkAuth, async (req, res) => {
+    const { categoriasCatalogo, estadosCatalogo, tiposCatalogo, nombreCatalogo } = req.body; // Asumiendo que el término de búsqueda viene en el body
+     const results = await dbController.searchAcrossAllColumns('catalogos',nombreCatalogo); 
+    console.log(`SIMULADO: POST /catalogos/buscar - Término: "${nombreCatalogo}"`,req.body, results);
+    res.json(results);
 });
 
 

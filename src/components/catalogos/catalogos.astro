@@ -13,7 +13,10 @@ const page = params.page || 1;
   <h1>Catalogos  {page}</h1>
   <p>Bienvenido al sistema de gestión de catálogos. Aquí puedes administrar los catálogos de tu aplicación.</p>
   <p>Selecciona una opción del menú para comenzar.</p>
-
+  <form id="searchForm" class="searchcatalogo">
+    <input type="text" id="searchInput" placeholder="Buscar...">
+    <button type="submit">Buscar</button>
+  </form>
 </div>
 <div class="container">
   <div class="button-group">

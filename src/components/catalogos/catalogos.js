@@ -163,4 +163,28 @@ u(document).on('DOMContentLoaded',async function () {
     const element = breadcrumb.nodes[0];
     element.paramNames = ['section', 'category', 'itemId'];
   });
+  SearchCatalogos()
 });
+async function SearchCatalogos(){
+  const searchForm = u('#searchForm');
+  const searchInput = u('#searchInput');
+  searchForm.on('submit', async (e) => {
+    e.preventDefault();
+    const searchTerm = searchInput.first().value;
+    console.log('Buscando:', searchTerm);
+    const defaultOptions = 
+      {
+        "nombreCatalogo":searchTerm,
+        "tiposCatalogo":"[]",
+        "estadosCatalogo":"[]"
+        ,"categoriasCatalogo":"[]"
+      }
+    const response = await fetchapi.buscarCatalogo(defaultOptions);
+    console.log("response: ", response);
+    rendertablewithE({
+      element: managerEl,
+      keys:getKeysFromArray(response),
+      array:response
+    })
+  })
+}

@@ -26,6 +26,12 @@ class DatabaseController {
    * Query database table with multiple filters
    */
   async queryWithFilters(tableName, filters = {}) {
+    // verificar con el metodo tableExists
+    if (!await this.tableExists(tableName)) {
+      return new Promise((resolve, reject) => {
+        reject(new Error(`Table ${tableName} does not exist`));
+      });
+    }
     return new Promise((resolve, reject) => {
       const db = this._open(sqlite3.OPEN_READWRITE);
       const entries = Object.entries(filters);
@@ -135,6 +141,65 @@ class DatabaseController {
       });
     });
   }
+
+  /**
+   * Busca registros que contengan una subcadena en una columna específica
+   * @param {string} tableName - Nombre de la tabla
+   * @param {string} column - Columna donde buscar
+   * @param {string} substring - Subcadena a buscar
+   * @returns {Promise<Array>}
+   */
+  async searchBySubstring(tableName, column, substring) {
+    if (!await this.tableExists(tableName)) {
+      throw new Error(`La tabla ${tableName} no existe`);
+    }
+
+    const columns = await this.getTableColumns(tableName);
+    const validColumn = columns.some(col => col.name === column);
+    
+    if (!validColumn) {
+      throw new Error(`La columna ${column} no existe en la tabla ${tableName}`);
+    }
+
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const sql = `SELECT * FROM ${tableName} WHERE ${column} LIKE ?`;
+      const searchTerm = `%${substring}%`;
+      
+      db.all(sql, [searchTerm], (err, rows) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(rows);
+      });
+    });
+  }
+
+  /**
+   * Search across all columns in a table for records containing a substring
+   * @param {string} tableName - Name of the table to search
+   * @param {string} substring - Substring to look for
+   * @returns {Promise<Array>} Matching records
+   */
+  async searchAcrossAllColumns(tableName, substring) {
+    if (!await this.tableExists(tableName)) {
+      throw new Error(`Table ${tableName} does not exist`);
+    }
+
+    const columns = await this.getTableColumns(tableName);
+    const searchTerm = `%${substring}%`;
+    
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const conditions = columns.map(col => `${col.name} LIKE ?`).join(' OR ');
+      const sql = `SELECT * FROM ${tableName} WHERE ${conditions}`;
+      
+      db.all(sql, columns.map(() => searchTerm), (err, rows) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(rows);
+      });
+    });
+  }
 }
 
 // Export singleton instance
@@ -155,4 +220,17 @@ export const dbController = new DatabaseController();
     */
      const tablas = await dbController.listTables();
     console.log('Tablas en la BD:', tablas);
+    // implementar un metodo para buscar en una tabla queryWithFilters si algun elemento incluye una subcadena de texto o contienen un elemento 
+    
+    // Ejemplo de uso del nuevo método
+    if (exists) {
+      const resultados = await dbController.searchBySubstring('audios', 'nombre', 'sonido');
+      console.log('Resultados de búsqueda:', resultados);
+    }
+    // implementar si en una tabla existe un elemento que incluye un elemento y devolver todos las columnas o filas que contienen el elemento
+    // Example usage of the new method
+    if (exists) {
+      const fullTextResults = await dbController.searchAcrossAllColumns('audios', 'sonido');
+      console.log('Full text search results:', fullTextResults);
+    }
   })();

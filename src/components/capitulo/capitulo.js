@@ -97,14 +97,12 @@ if (!modalEl || !editorEl || !audiosEl ||!subtitulosEl ||!resolucionesEl) {
 function openModal(type, data = null) {
   openDynamicModalDirect(modalEl, editorEl, type,formTemporadaItems, data, null, null)
 }
-async function setTabledata(array,keys) {
-  const element = u(`#${pageConfig.managerId}`);
-  element.first().data = array;
-  element.first().keys = keys;
-  element.first().hideAction('edit');
+async function setTableListeners(event,elementname) {
+  const element = u(`#${elementname}`);
   element.on('action', async (e) => {
     const {originalAction, item} = e.detail
     if (!originalAction) return;
+    console.log("originalAction",originalAction,"item",item,"event",event)
   });
   
   element.on('menu', async (e) => {
@@ -145,10 +143,14 @@ function returnfirstKeys(array) {
   return keysToDisplay
 }
 u(document).on('DOMContentLoaded',async function () {
+
   const breadcrumb = u('nav-breadcrumb');
   const params = getParams(["1","2","3","4","5","6","7"]);
-  console.log("params: ", params);
   setupModalListeners(modalEl, editorEl, callbacks)
+  setTableListeners("audios","audios-table")
+  setTableListeners("subtitulos","subtitulos-table")
+  setTableListeners("resoluciones","resoluciones-table")
+  console.log("params: ", params);
   const response = await fetchapi.getRecursos( params[7]);
   console.log("response: ", response);
   const {audios,subtitulos,resoluciones} = response;
