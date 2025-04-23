@@ -67,3 +67,25 @@ app.get('/api/datos', (req, res) => {
   res.json({ datos: 'Información personalizada' });
 });
 ```
+### Uso de la API 
+
+```javascript
+import express from "express";
+import mockApiRouter from "./routes/mockApi.js"; // Importar el enrutador simulado
+import cors from "cors";
+
+const PORT = 8081;
+const app = express();
+app.use(cors({
+    origin: '*'
+}));
+app.use(express.json()); // Middleware para parsear JSON
+app.use("/mock-api", mockApiRouter); // Montar el enrutador simulado en /mock-api
+
+
+
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+```
