@@ -117,6 +117,11 @@ async function setTabledata(array,keys) {
     if (originalAction === "edit"){
       openModal(originalAction,item)
     }
+    if (originalAction === "delete"){
+        const response = await capituloservice.eliminar(item);
+        console.log("response: ", response);
+
+    }
   });
   
   element.on('menu', async (e) => {
