@@ -310,11 +310,28 @@ class TemporadaService {
             throw error;
         }
     }
-    
-}
+    agregar(formulario) {
+        return this._interceptor(http.post(`${this.host}/temporada`, formulario, {
+            headers: this._authHeaders()
+        }));
+    }
 
+    actualizar(formulario) {
+        return this._interceptor(http.put(`${this.host}/temporada/`, formulario, {
+            headers: this._authHeaders()
+        }));
+    }
+
+    eliminar(modalUpdate) {
+        return this._interceptor(http.delete(`${this.host}/temporada/${modalUpdate.idCatalogo}`, {
+            headers: this._authHeaders()
+        }));
+    }
+}
+const temporadaservice = new TemporadaService(actualBaseApi);
 
 export {
+    temporadaservice,
     fetchapi,
     getParams
 }

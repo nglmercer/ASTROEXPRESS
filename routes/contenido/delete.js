@@ -28,6 +28,14 @@ router.delete('/catalogo/:id', checkAuth,async (req, res) => {
       })
     res.json({ success: true, message: `Catálogo ${id} eliminado`,data:result });
 });
+router.delete('/temporada/:id', checkAuth,async (req, res) => {
+    const { id } = req.params;
+    // Implementación real necesitaría dbController.delete('catalogos', id)
+    const result =     await dbController.eliminarRegistro('temporadas', {
+        idTemporada: id
+      })
+    res.json({ success: true, message: `Temporada ${id} eliminada`,data:result });
+});
 // DELETE /categoria/:idCategoria (Requiere Auth) - Simula eliminar categoría (el controlador actual no tiene DELETE)
 router.delete('/categoria/:idCategoria', checkAuth, (req, res) => {
     const { idCategoria } = req.params;

@@ -1,5 +1,7 @@
 import express from 'express';
 import { dbController } from '../backupdb.js';
+import { filterRequiredFields, validateFields } from '../verifys.js';
+
 const router = express.Router();
 // Middleware para autenticación
 const checkAuth = (req, res, next) => {
@@ -66,6 +68,37 @@ router.put('/catalogo/', checkAuth,async (req, res) => {
         res.json({ success: true, message: 'Catálogo agregado (simulado)', data: updateItem });
     } catch (error) {
         console.error('Error al actualizar catálogo:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });
+    }
+});
+router.put('/temporada/', checkAuth,async (req, res) => {
+    console.log('SIMULADO: POST /temporada - Body:', req.body);
+    // Implementación real necesitaría dbController.insert('catalogos', data)
+    const { idTemporada, numeroTemporada, nombreTemporada, descripcionTemporada, portadaTemporada, catalogoTemporada, nsfw } = req.body;
+    // ES METODO PUT SOLO VALIDA LOS CAMPOS QUE SE MODIFICAN solo es necesario catalogoTemporada porque es un id de una tabla
+    const exampleFields ={
+        catalogoTemporada: (value) => value > 0
+    }
+    const options = {
+        //validators && types
+        validators: {
+            catalogoTemporada: (value) => value > 0
+        }
+    };
+    const isValid = validateFields({required: exampleFields, actualObj: req.body, options});
+    try {
+        const updateItem = await dbController.actualizarRegistro('temporadas', {
+            idTemporada,
+            numeroTemporada,
+            nombreTemporada,
+            descripcionTemporada,
+            portadaTemporada,
+            catalogoTemporada,
+            nsfw
+        },['idTemporada']);
+        res.json({ success: true, message: 'Temporada agregado isValid', data: {raw:updateItem,data: isValid} });
+    } catch (error) {
+        console.error('Error al actualizar temporada:', error);
         res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });
     }
 });

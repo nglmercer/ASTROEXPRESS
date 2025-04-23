@@ -3,6 +3,7 @@ import { dbController } from '../backupdb.js';
 import { AudiosModel } from '../models/AudiosModel.js';
 import { ResolucionesModel } from '../models/ResolucionesModel.js';
 import { SubtitulosModel } from '../models/SubtitulosModel.js';
+import { filterRequiredFields, validateFields } from '../verifys.js';
 const audiosModel = new AudiosModel();
 const resolucionesModel = new ResolucionesModel();
 const subtitulosModel = new SubtitulosModel();
@@ -34,7 +35,7 @@ const checkAuthOptional = (req, res, next) => {
 
 // Rutas POST existentes
 router.post('/catalogo', checkAuth, async (req, res) => {
-    console.log('SIMULADO: POST /catalogo - Body:', req.body);
+    console.log('agregando: POST /catalogo - Body:', req.body);
     // Implementación real necesitaría dbController.insert('catalogos', data)
     const { idCatalogo, nombreCatalogo, tipoCatalogo, estadoCatalogo, imagenPortadaCatalogo, imagenFondoCatalogo,descripcionCatalogo, nsfwCatalogo, recomendacionCatalogo, trailerCatalogo } = req.body;
     try {
@@ -111,6 +112,48 @@ router.post('/catalogos/pagina/:pagina/exists', checkAuth, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor al verificar existencia' });
     }
 });
+// Nuevas rutas POST desde mockApi.js
+router.post('/catalogos/buscar', checkAuth, async (req, res) => {
+    const { categoriasCatalogo, estadosCatalogo, tiposCatalogo, nombreCatalogo } = req.body;
+    const results = await dbController.searchAcrossAllColumns('catalogos', nombreCatalogo);
+    res.json(results);
+});
+
+router.post('/temporada', checkAuth, async (req, res) => {
+    console.log('Agregando: POST /temporada - Body:', req.body);
+    const { idTemporada, numeroTemporada, nombreTemporada, descripcionTemporada, portadaTemporada, catalogoTemporada, nsfw } = req.body;
+       const exampleFields ={
+           idTemporada: 0,// autoassigned
+           numeroTemporada: 0,
+           nombreTemporada: '',
+           descripcionTemporada: '',
+           portadaTemporada: '',
+           catalogoTemporada: 1,// nunca deberia ser 0 ya que es un id de una tabla
+           nsfw: false,// number // boolean
+        }
+      const options = {
+        //validators && types
+        validators: {
+            catalogoTemporada: (value) => value > 0
+        }
+      };
+      const isValid = validateFields({required: exampleFields, actualObj: req.body, options});
+      try {
+          const addItem = await dbController.guardarRegistro('temporadas', {
+              idTemporada,
+              numeroTemporada,
+              nombreTemporada,
+              descripcionTemporada,
+              portadaTemporada,
+              catalogoTemporada,
+              nsfw
+          },['idTemporada']);
+          res.json({ success: true, message: 'Temporada agregada isValid', data: {raw:addItem,data: isValid} });
+      } catch (error) {
+          console.error('Error al agregar temporada:', error);
+          res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });
+      }
+})
 
 router.post('/usuario/:idUsuario/catalogo/:catalogo/favorito', checkAuth, async (req, res) => {
     const { idUsuario, catalogo } = req.params;
@@ -121,12 +164,7 @@ router.post('/usuario/:idUsuario/catalogo/:catalogo/favorito', checkAuth, async 
     res.json({ success: true, message: `Toggle favorito para Catálogo ${catalogo} de ${idUsuario} (simulado)` });
 });
 
-// Nuevas rutas POST desde mockApi.js
-router.post('/catalogos/buscar', checkAuth, async (req, res) => {
-    const { categoriasCatalogo, estadosCatalogo, tiposCatalogo, nombreCatalogo } = req.body;
-    const results = await dbController.searchAcrossAllColumns('catalogos', nombreCatalogo);
-    res.json(results);
-});
+
 
 router.post('/usuario/registro', (req, res) => {
     const { nombres, correoUsuario, claveUsuario } = req.body;

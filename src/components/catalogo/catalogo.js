@@ -1,7 +1,7 @@
 import {tiposcatalogos} from '/src/config/tiposcatalogos.json';
 import {estadoscatalogos} from '/src/config/estadoscatalogos.json';
 import createSelectOptions from '/src/utils/selectmap.js';
-import { fetchapi, getParams  } from '@utils/fetchapi';
+import { fetchapi, getParams,temporadaservice  } from '@utils/fetchapi';
 import {   toSingle,  toArray} from '/src/utils/arrayOBJ'; 
 import {getURLPATH, redirectTo} from '/src/utils/redirect'
 import { openDynamicModalDirect, setupModalListeners} from '/src/components/tablejs/crudUIHelpers.js'; 
@@ -44,7 +44,7 @@ const formTemporadas = {
         nombreTemporada: "",
         descripcionTemporada: "",
         portadaTemporada: "",
-        catalogoTemporada: 0,
+        catalogoTemporada: Number(getParams([1,2,3])[3]),
         nsfw: 0
     }),
     getFieldConfig: async () => ({
@@ -78,7 +78,13 @@ const callbacks = {
   'item-upd': async (data) => {
     console.log("catalogo:upd",data);
         modalEl.hide();
-
+    if (data.idTemporada === 0){
+      const response = await temporadaservice.agregar(data);
+      console.log("response: ", response);
+    } else {
+      const response = await temporadaservice.actualizar(data);
+      console.log("response: ", response);
+    }
   },
   'del-item': async (data) => {
     console.log("catalogo:del",data);
