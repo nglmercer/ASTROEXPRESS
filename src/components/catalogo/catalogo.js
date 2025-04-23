@@ -110,6 +110,11 @@ async function setTabledata(array,keys) {
     if (originalAction === "edit"){
       openModal(originalAction,item)
     }
+    if (originalAction === "delete"){
+      console.log("delete",item)
+      const response = await temporadaservice.eliminar(item);
+      console.log("response: ", response);
+    }
   });
   
   element.on('menu', async (e) => {

@@ -155,6 +155,43 @@ router.post('/temporada', checkAuth, async (req, res) => {
       }
 })
 
+router.post('/capitulo', checkAuth, async (req, res) => {
+    console.log('Agregando: POST /capitulo - Body:', req.body);
+    const { idTemporada, numeroCapitulo, imagenCapitulo, catalogoCapitulo, meGustasCapitulo, noMeGustasCapitulo, reproduccionesCapitulo, tiempoCapitulo } = req.body;
+    const exampleFields ={
+        idCapitulo:	63508,
+        numeroCapitulo:	1,
+        imagenCapitulo: "",	
+        catalogoCapitulo:	4946,
+        meGustasCapitulo:	1,
+        noMeGustasCapitulo:	0,
+        reproduccionesCapitulo:	17,
+        descripcionCapitulo:	"",
+        tituloCapitulo:	"",
+        pathCapitulo:	"",
+        tiempoCapitulo:	20,
+        temporadaCapitulo:	20
+    }
+    const options = {
+        //validators && types
+        validators: {
+            catalogoCapitulo: (value) => value > 0
+        }
+    };
+    const isValid = validateFields({required: exampleFields, actualObj: req.body, options});
+    const objtosave = filterRequiredFields({
+        required: exampleFields,
+        actualObj: req.body,
+    });
+    try {
+        const addItem = await dbController.guardarRegistro('capitulos', objtosave,['idCapitulo']);
+        res.json({ success: true, message: 'Capítulo agregado isValid', data: {raw:addItem,data: isValid} });
+    } catch (error) {
+        console.error('Error al agregar capítulo:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });    
+    }
+});
+
 router.post('/usuario/:idUsuario/catalogo/:catalogo/favorito', checkAuth, async (req, res) => {
     const { idUsuario, catalogo } = req.params;
      console.log(`SIMULADO: POST /usuario/${idUsuario}/catalogo/${catalogo}/favorito - Body:`, req.body);

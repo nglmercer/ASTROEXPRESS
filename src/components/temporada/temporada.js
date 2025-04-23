@@ -1,6 +1,7 @@
-import { fetchapi, getParams } from '@utils/fetchapi';
+import { fetchapi, getParams, capituloservice } from '@utils/fetchapi';
 import {getURLPATH, redirectTo} from '/src/utils/redirect'
 import { openDynamicModalDirect, setupModalListeners} from '/src/components/tablejs/crudUIHelpers.js'; 
+import {   toSingle,  toArray} from '/src/utils/arrayOBJ'; 
 import u from 'umbrellajs';
 /*
     "idTemporada",
@@ -25,7 +26,18 @@ import u from 'umbrellajs';
       tiempoCapitulo: number;
       temporadaCapitulo: number;
     }
-
+    "idCapitulo",
+  "numeroCapitulo",
+  "imagenCapitulo",
+  "catalogoCapitulo",
+  "meGustasCapitulo",
+  "noMeGustasCapitulo",
+  "reproduccionesCapitulo",
+  "descripcionCapitulo",
+  "tituloCapitulo",
+  "pathCapitulo",
+  "tiempoCapitulo",
+  "temporadaCapitulo",	
 }
 */
 const formTemporadaItems = {
@@ -34,7 +46,7 @@ const formTemporadaItems = {
     idCapitulo: 0,
     numeroCapitulo: 0,
     imagenCapitulo: '',
-    catalogoCapitulo: 0,
+    catalogoCapitulo: Number(getParams([1,2,3])[3]),
     meGustasCapitulo: 0,
     noMeGustasCapitulo: 0,
     reproduccionesCapitulo: 0,
@@ -42,20 +54,20 @@ const formTemporadaItems = {
     tituloCapitulo: '',
     pathCapitulo: '',
     tiempoCapitulo: 0,
-    temporadaCapitulo: 0,
+    temporadaCapitulo: Number(getParams([1,2,3,4,5])[5]),
   }),
   getFieldConfig: async () => ({
+    tituloCapitulo: { label: 'Título', type: 'text',required: true },
+    descripcionCapitulo: { label: 'Descripción', type: 'text' },
     idCapitulo: { label: 'ID Capítulo', type: 'number', hidden: true },
     numeroCapitulo: { label: 'Número', type: 'number', required: true },
-    imagenCapitulo: { label: 'Imagen', type: 'text', required: true },
+    imagenCapitulo: { label: 'Imagen', type: 'text' },
     catalogoCapitulo: { label: 'ID Catálogo', type: 'number', hidden: true },
-    meGustasCapitulo: { label: 'Me gusta', type: 'number', required: true },
-    noMeGustasCapitulo: { label: 'No me gusta', type: 'number', required: true },
-    reproduccionesCapitulo: { label: 'Reproducciones', type: 'number', required: true },
-    descripcionCapitulo: { label: 'Descripción', type: 'text' },
-    tituloCapitulo: { label: 'Título', type: 'text' },
-    pathCapitulo: { label: 'Path', type: 'text' },
-    tiempoCapitulo: { label: 'Tiempo', type: 'number', required: true },
+    meGustasCapitulo: { label: 'Me gusta', type: 'number', hidden: true },
+    noMeGustasCapitulo: { label: 'No me gusta', type: 'number', hidden: true },
+    reproduccionesCapitulo: { label: 'Reproducciones', type: 'number', hidden: true },
+    pathCapitulo: { label: 'Path', type: 'text', hidden: true },
+    tiempoCapitulo: { label: 'Tiempo', type: 'number' },
     temporadaCapitulo: { label: 'ID Temporada', type: 'number', hidden: true },
   })
 }
@@ -63,7 +75,7 @@ const pageConfig = {
   modalId: 'modal-container', 
   editorId: 'dynamic-editor',  
   managerId: 'TemporadaTable',
-  eventTypes: 'temporada',
+  eventTypes: 'capitulo',
 };
 const modalEl = document.getElementById(pageConfig.modalId);
 const editorEl = document.getElementById(pageConfig.editorId);
@@ -77,9 +89,6 @@ const CapitulosKeys = [
   "numeroCapitulo",
   "imagenCapitulo", 
   "catalogoCapitulo",
-  "meGustasCapitulo",
-  "noMeGustasCapitulo", 
-  "reproduccionesCapitulo",
   "tiempoCapitulo",
   "temporadaCapitulo"
 ]
@@ -125,7 +134,13 @@ const callbacks = {
   'item-upd': async (data) => {
     console.log("catalogo:upd",data);
         modalEl.hide();
-
+      if (data.idCapitulo === 0){
+        const response = await capituloservice.agregar(data);
+        console.log("response: ", response);
+      } else {
+        const response = await capituloservice.actualizar(data);
+        console.log("response: ", response);
+      }
   },
   'del-item': async (data) => {
     console.log("catalogo:del",data);
@@ -140,14 +155,23 @@ const callbacks = {
     console.log("delete",data);
   }
 }
+
+u(document).on('click', 'button', function (e) {
+  const btn = u(this);
+  if (btn.attr('data-form-type') !== null) {
+    openModal(btn.attr('data-form-type'));
+  }
+});
 u(document).on('DOMContentLoaded',async function () {
   const breadcrumb = u('nav-breadcrumb');
   const params = getParams(["1","2","3","4","5"]);
   console.log("params: ", params);
   setupModalListeners(modalEl, editorEl, callbacks)
-  const response = await fetchCapitulos(params[3], params[5]);
-  console.log("response: ", response);
-  setTabledata(response, CapitulosKeys);
+  const response = await fetchCapitulos(params[3], params[5]); // response is array and object
+  const responsearray = toArray(response);
+  console.log("response: ", responsearray);
+
+  setTabledata(responsearray, CapitulosKeys);
 
     // this is the breadcrumb element
     customElements.whenDefined('nav-breadcrumb').then(() => {

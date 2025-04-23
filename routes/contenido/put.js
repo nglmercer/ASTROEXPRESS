@@ -102,4 +102,41 @@ router.put('/temporada/', checkAuth,async (req, res) => {
         res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });
     }
 });
+router.put('/capitulo', checkAuth, async (req, res) => {
+    console.log('Agregando: POST /capitulo - Body:', req.body);
+    const { idTemporada, numeroCapitulo, imagenCapitulo, catalogoCapitulo, meGustasCapitulo, noMeGustasCapitulo, reproduccionesCapitulo, tiempoCapitulo } = req.body;
+    const exampleFields ={
+        idCapitulo:	63508,
+        numeroCapitulo:	1,
+        imagenCapitulo: "",	
+        catalogoCapitulo:	4946,
+        meGustasCapitulo:	1,
+        noMeGustasCapitulo:	0,
+        reproduccionesCapitulo:	17,
+        descripcionCapitulo:	"",
+        tituloCapitulo:	"",
+        pathCapitulo:	"",
+        tiempoCapitulo:	20,
+        temporadaCapitulo:	20
+    }
+    const options = {
+        //validators && types
+        validators: {
+            catalogoCapitulo: (value) => value > 0,
+            temporadaCapitulo: (value) => value > 0
+        }
+    };
+    const isValid = validateFields({required: exampleFields, actualObj: req.body, options});
+    const objtoupdate = filterRequiredFields({
+        required: exampleFields,
+        actualObj: req.body,
+    });
+    try {
+        const addItem = await dbController.actualizarRegistro('capitulos', objtoupdate,['idCapitulo']);
+        res.json({ success: true, message: 'Capítulo agregado isValid', data: {raw:addItem,data: isValid} });
+    } catch (error) {
+        console.error('Error al agregar capítulo:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });    
+    }
+});
 export default router;

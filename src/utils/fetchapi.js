@@ -323,15 +323,60 @@ class TemporadaService {
     }
 
     eliminar(modalUpdate) {
-        return this._interceptor(http.delete(`${this.host}/temporada/${modalUpdate.idCatalogo}`, {
+        return this._interceptor(http.delete(`${this.host}/temporada/${modalUpdate.idTemporada}`, {
             headers: this._authHeaders()
         }));
     }
 }
 const temporadaservice = new TemporadaService(actualBaseApi);
+class CapituloService {
+    constructor(baseApi) {
+        this.host = baseApi;
+        this.http = http;
+        const info = safeParse(localStorage.getItem("info")) || {};
+        this.token = info.token || localStorage.getItem("token");
+        this.user = safeParse(info.user || safeParse(localStorage.getItem("user"))) || {};
+    }
+    _authHeaders(contentType = 'application/json') {
+        const defaultHeaders = {
+            'Authorization': `${this.token}`
+        };
+        if (contentType) {
+            defaultHeaders['Content-Type'] = contentType;
+        }
+        return defaultHeaders;
+    }
 
+    async _interceptor(promise) {
+        try {
+            const response = await promise;
+            return response;
+        } catch (error) {
+            console.error('Error en la llamada a la API:', error);
+            throw error;
+        }
+    }
+    agregar(formulario) {
+        return this._interceptor(http.post(`${this.host}/capitulo`, formulario, {
+            headers: this._authHeaders()
+        }));
+    }
+
+    actualizar(formulario) {
+        return this._interceptor(http.put(`${this.host}/capitulo/`, formulario, {
+            headers: this._authHeaders()
+        }));
+    }
+    eliminar(modalUpdate) {
+        return this._interceptor(http.delete(`${this.host}/capitulo/${modalUpdate.idCapitulo}`, {
+            headers: this._authHeaders()
+        }));
+    }
+}
+const capituloservice = new CapituloService(actualBaseApi);
 export {
     temporadaservice,
+    capituloservice,
     fetchapi,
     getParams
 }
