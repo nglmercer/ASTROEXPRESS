@@ -139,4 +139,15 @@ router.put('/capitulo', checkAuth, async (req, res) => {
         res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });    
     }
 });
+///usuario/5/capitulo/64627/reaccion/1 === "Me gusta
+// /usuario/5/capitulo/64627/reaccion/0 === "No me gusta"
+router.put('/usuario/:idUsuario/capitulo/:idCapitulo/reaccion/:tipoReaccion', checkAuthOptional, async (req, res) => {
+    const { idUsuario, idCapitulo, tipoReaccion } = req.params;
+    console.log(`SIMULADO: PUT /usuario/${idUsuario}/capitulo/${idCapitulo}/reaccion/${tipoReaccion} - Body:`, req.body);
+    const updateobj = tipoReaccion === 1 ? { meGustasCapitulo: 1 } : { noMeGustasCapitulo: 1 };
+    // Implementación real necesitaría dbController.update('capitulos', idCapitulo, updateobj)
+    const newState = Math.random() > 0.5; // Estado aleatorio para simulación
+    res.json({ success: true, nsfwEnabled: newState, message: `Usuario ${idUsuario} reaccion ${tipoReaccion} a ${idCapitulo} (simulado)` });
+})
+
 export default router;
