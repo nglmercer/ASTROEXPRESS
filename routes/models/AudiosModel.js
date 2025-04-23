@@ -1,4 +1,4 @@
-import { dbController } from './backupdb.js';
+import { dbController } from '../backupdb.js';
 
 export class AudiosModel {
   constructor() {}

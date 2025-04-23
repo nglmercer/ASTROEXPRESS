@@ -1,8 +1,8 @@
 /* const { initializeDatabase } = require('../utils/database');
 const { executeQuery } = require('../utils/queryHandler');
  */
-import { initializeDatabase } from '../utils/database.js';
-import { executeQuery } from '../utils/queryHandler.js';
+import { initializeDatabase } from '../../utils/database.js';
+import { executeQuery } from '../../utils/queryHandler.js';
 let db;
 
 const initializeRouter = async () => {

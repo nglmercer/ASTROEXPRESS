@@ -1,0 +1,25 @@
+import express from 'express';
+import { dbController } from '../backupdb.js';
+const router = express.Router();
+
+// DELETE /catalogo/:id (Requiere Auth) - Simula eliminar (el controlador actual no tiene DELETE)
+router.delete('/catalogo/:id', checkAuth, (req, res) => {
+    const { id } = req.params;
+    // Implementación real necesitaría dbController.delete('catalogos', id)
+    res.json({ success: true, message: `Catálogo ${id} eliminado (simulado)` });
+});
+// DELETE /categoria/:idCategoria (Requiere Auth) - Simula eliminar categoría (el controlador actual no tiene DELETE)
+router.delete('/categoria/:idCategoria', checkAuth, (req, res) => {
+    const { idCategoria } = req.params;
+     // Implementación real necesitaría dbController.delete('categorias', idCategoria)
+    res.json({ success: true, message: `Categoría ${idCategoria} eliminada (simulada)` });
+});
+
+router.delete('/rol/:idRol', checkAuth, (req, res) => {
+    const { idRol } = req.params;
+     // Implementación real necesitaría dbController.delete('roles', idRol)
+    res.json({ success: true, message: `Rol ${idRol} eliminado (simulado)` });
+});
+
+
+export default router;

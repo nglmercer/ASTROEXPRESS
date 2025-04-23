@@ -1,0 +1,31 @@
+import express from 'express';
+import { dbController } from '../backupdb.js';
+const router = express.Router();
+
+// Middleware para parsear JSON
+router.use(express.json());
+router.put('/usuario/:idUsuario/nsfw', checkAuth, (req, res) => {
+    const { idUsuario } = req.params;
+    // Asumimos que el body podría tener { nsfwEnabled: boolean } o no tener body para toggle
+    console.log(`SIMULADO: PUT /usuario/${idUsuario}/nsfw - Body:`, req.body);
+
+    // Implementación real necesitaría actualizar el campo 'nsfwUsuario' en la tabla 'usuarios'.
+    // const newState = req.body.hasOwnProperty('nsfwEnabled') ? req.body.nsfwEnabled : !currentUserNsfwState; // Lógica de toggle o set
+    // await dbController.update('usuarios', idUsuario, { nsfwUsuario: newState ? 1 : 0 });
+
+    const newState = Math.random() > 0.5; // Estado aleatorio para simulación
+    res.json({ success: true, nsfwEnabled: newState, message: `NSFW toggle para ${idUsuario} (simulado)` });
+});
+router.put('/categoria/:idCategoria', checkAuth, (req, res) => {
+    const { idCategoria } = req.params;
+    console.log(`SIMULADO: PUT /categoria/${idCategoria} - Body:`, req.body);
+    // Implementación real necesitaría dbController.update('categorias', idCategoria, data)
+    res.json({ success: true, message: `Categoría ${idCategoria} actualizada (simulada)` });
+});
+router.put('/rol/:idRol', checkAuth, (req, res) => {
+    const { idRol } = req.params;
+    console.log(`SIMULADO: PUT /rol/${idRol} - Body:`, req.body);
+     // Implementación real necesitaría dbController.update('roles', idRol, data)
+    res.json({ success: true, message: `Rol ${idRol} actualizado (simulado)` });
+});
+export default router;

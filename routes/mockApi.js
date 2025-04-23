@@ -1,8 +1,8 @@
 import express from 'express';
 import { dbController } from './backupdb.js'; // Importa el controlador de base de datos
-import { AudiosModel } from './AudiosModel.js';
-import { ResolucionesModel } from './ResolucionesModel.js';
-import { SubtitulosModel } from './SubtitulosModel.js';
+import { AudiosModel } from './models/AudiosModel.js';
+import { ResolucionesModel } from './models/ResolucionesModel.js';
+import { SubtitulosModel } from './models/SubtitulosModel.js';
 const audiosModel = new AudiosModel();
 const resolucionesModel = new ResolucionesModel();
 const subtitulosModel = new SubtitulosModel();
