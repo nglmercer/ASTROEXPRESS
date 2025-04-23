@@ -1,7 +1,25 @@
 import express from 'express';
 import { dbController } from '../backupdb.js';
 const router = express.Router();
+// Middleware para autenticación
+const checkAuth = (req, res, next) => {
+    const token = req.headers.authorization;
+    if (token) {
+        next();
+    } else {
+        res.status(401).json({ message: 'No autorizado: Token inválido o ausente.' });
+    }
+};
 
+// Middleware para autenticación opcional
+const checkAuthOptional = (req, res, next) => {
+    const token = req.headers.authorization;
+    if (token === '1234' || !token) {
+        next();
+    } else {
+        res.status(401).json({ message: 'No autorizado: Token inválido.' });
+    }
+};
 // Middleware para parsear JSON
 router.use(express.json());
 router.put('/usuario/:idUsuario/nsfw', checkAuth, (req, res) => {

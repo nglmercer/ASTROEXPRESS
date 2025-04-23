@@ -33,10 +33,23 @@ const checkAuthOptional = (req, res, next) => {
 };
 
 // Rutas POST existentes
-router.post('/catalogo', checkAuth, (req, res) => {
+router.post('/catalogo', checkAuth, async (req, res) => {
     console.log('SIMULADO: POST /catalogo - Body:', req.body);
     // Implementación real necesitaría dbController.insert('catalogos', data)
-    res.json({ success: true, message: 'Catálogo agregado (simulado)', id: Date.now() });
+    const { idCatalogo, nombreCatalogo, tipoCatalogo, estadoCatalogo, imagenPortadaCatalogo, imagenFondoCatalogo,descripcionCatalogo, nsfwCatalogo, recomendacionCatalogo, trailerCatalogo } = req.body;
+    const addItem = await dbController.guardarRegistro('catalogos', {
+        idCatalogo,
+        nombreCatalogo,
+        tipoCatalogo,
+        estadoCatalogo,
+        imagenPortadaCatalogo,
+        imagenFondoCatalogo,
+        descripcionCatalogo,
+        nsfwCatalogo,
+        recomendacionCatalogo,
+        trailerCatalogo
+    },['idCatalogo']);
+    res.json({ success: true, message: 'Catálogo agregado (simulado)', data: addItem });
 });
 
 // POST /catalogo/:id (Requiere Auth) - Simula actualizar (el controlador actual no tiene UPDATE)
