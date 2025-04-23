@@ -132,16 +132,15 @@ class FetchApi {
     }
 
     actualizar(formulario) {
-        return this._interceptor(http.post(`${this.host}/catalogo/${formulario.get("idCatalogo")}`, formulario, {
+        return this._interceptor(http.put(`${this.host}/catalogo/`, formulario, {
             headers: this._authHeaders()
         }));
     }
 
     eliminar(modalUpdate) {
-        return this._interceptor(fetch(`${this.host}/catalogo/${modalUpdate.idCatalogo}`, {
-            method: 'DELETE',
+        return this._interceptor(http.delete(`${this.host}/catalogo/${modalUpdate.idCatalogo}`, {
             headers: this._authHeaders()
-        }).then(res => res.json()));
+        }));
     }
 
     obtenerFavoritos() {
@@ -284,15 +283,15 @@ class FetchApi {
 
 const fetchapi = new FetchApi(actualBaseApi);
 
-class CategoriasService {
+class TemporadaService {
     constructor(baseApi) {
         this.host = baseApi;
+        this.http = http;
         const info = safeParse(localStorage.getItem("info")) || {};
         this.token = info.token || localStorage.getItem("token");
         this.user = safeParse(info.user || safeParse(localStorage.getItem("user"))) || {};
     }
-
-    _authHeaders(contentType = 'application/json') { // contentType por defecto es application/json SI PASA NULL ES OBJETO EMPTY
+    _authHeaders(contentType = 'application/json') {
         const defaultHeaders = {
             'Authorization': `${this.token}`
         };
@@ -302,197 +301,20 @@ class CategoriasService {
         return defaultHeaders;
     }
 
-    listar(pagina) {
-        return http.get(`${this.host}/categorias/pagina/${pagina}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    listarTodo() {
-        const options = this.token
-            ? { 
-                headers: this._authHeaders() }
-            : {};
-        return http.get(`${this.host}/catalogos/categorias`, options);
-    }
-
-    agregar(modelAdd) {
-        const options = this.token
-            ? { 
-                headers: this._authHeaders() }
-            : {};
-        return http.post(`${this.host}/categoria`, modelAdd, options);
-    }
-
-    actualizar(modelAdd) {
-        const options = this.token
-            ? { 
-                headers: this._authHeaders() }
-            : {};
-        return http.put(`${this.host}/categoria/${modelAdd.idCategoria}`, modelAdd, options);
-    }
-
-    eliminar(modelAdd) {
-        const options = this.token
-            ? { 
-                headers: this._authHeaders() }
-            : {};
-        return http.delete(`${this.host}/categoria/${modelAdd.idCategoria}`, options);
-    }
-}
-class UsuariosService {
-    constructor(baseApi) {
-        this.host = baseApi;
-        const info = safeParse(localStorage.getItem("info")) || {};
-        this.token = info.token || localStorage.getItem("token");
-        this.user = safeParse(info.user || safeParse(localStorage.getItem("user"))) || {};
-    }
-
-    _authHeaders(contentType = 'application/json') { // contentType por defecto es application/json SI PASA NULL ES OBJETO EMPTY
-        const defaultHeaders = {
-            'Authorization': `${this.token}`
-        };
-        if (contentType) {
-            defaultHeaders['Content-Type'] = contentType;
+    async _interceptor(promise) {
+        try {
+            const response = await promise;
+            return response;
+        } catch (error) {
+            console.error('Error en la llamada a la API:', error);
+            throw error;
         }
-        return defaultHeaders;
     }
-
-    obtenerDatosPov(idUsuario) {
-        return http.get(`${this.host}/usuario/pov/${idUsuario}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    buscar(pagina, model) {
-        return http.post(`${this.host}/usuarios/buscar/pagina/${pagina}`, model, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    sesion(model) {
-        return http.post(`${this.host}/usuario/sesion`, model);
-    }
-
-    update() {
-        return http.put(`${this.host}/token/actualizar`, {}, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    registrar(model) {
-        return http.post(`${this.host}/usuario/registro`, model);
-    }
-
-    listar(pagina) {
-        return http.get(`${this.host}/roles/pagina/${pagina}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    actualizar(modelAdd) {
-        return http.put(`${this.host}/rol/${modelAdd.idRol}`, modelAdd, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    eliminar(modelAdd) {
-        return http.delete(`${this.host}/rol/${modelAdd.idRol}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    integrarNotificacion(modelAdd) {
-        const userId = this.user?.idUsuario ?? 0;
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        if (this.token) headers.append('Authorization', this.token);
-
-        return http.post(`${this.host}/usuario/${userId}/notificacion`, modelAdd, {
-            headers
-        });
-    }
-
-    clear() {
-        this.token = null;
-        this.user = null;
-    }
-
-    obtenerDatosUsuario() {
-        return http.get(`${this.host}/usuario/${this.user.idUsuario}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    toggleNsfwUsuario() {
-        return http.put(`${this.host}/usuario/${this.user.idUsuario}/nsfw`, {}, {
-            
-            headers: this._authHeaders()
-        });
-    }
+    
 }
-class RolesService {
-    constructor(baseApi) {
-        this.host = baseApi;
-        const info = safeParse(localStorage.getItem("info")) || {};
-        this.token = info.token || localStorage.getItem("token");
-        this.user = safeParse(info.user || safeParse(localStorage.getItem("user"))) || {};
-    }
 
-    _authHeaders(contentType = 'application/json') { // contentType por defecto es application/json SI PASA NULL ES OBJETO EMPTY
-        const defaultHeaders = {
-            'Authorization': `${this.token}`
-        };
-        if (contentType) {
-            defaultHeaders['Content-Type'] = contentType;
-        }
-        return defaultHeaders;
-    }
-
-    listar(pagina) {
-        return http.get(`${this.host}/roles/pagina/${pagina}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    agregar(modelAdd) {
-        return http.post(`${this.host}/rol`, modelAdd, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    actualizar(modelAdd) {
-        return http.put(`${this.host}/rol/${modelAdd.idRol}`, modelAdd, {
-            
-            headers: this._authHeaders()
-        });
-    }
-
-    eliminar(modelAdd) {
-        return http.delete(`${this.host}/rol/${modelAdd.idRol}`, {
-            
-            headers: this._authHeaders()
-        });
-    }
-}
-const categoriafetch = new CategoriasService(actualBaseApi);
-const usuariosfetch = new UsuariosService(actualBaseApi);
-const rolesfetch = new RolesService(actualBaseApi);
 
 export {
     fetchapi,
-    categoriafetch,
-    usuariosfetch,
-    rolesfetch,
     getParams
 }

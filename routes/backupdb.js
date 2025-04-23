@@ -216,6 +216,16 @@ class DatabaseController {
     const columns = await this.getTableColumns(tableName);
     const validFields = columns.map(c => c.name);
 
+    // Verificar si los IDs proporcionados ya existen
+    for (const idField of idFields) {
+      if (data[idField] && data[idField] !== 0) {
+        const exists = await this._checkIdExists(tableName, idField, data[idField]);
+        if (exists) {
+          throw new Error(`El ID ${data[idField]} ya existe en la tabla ${tableName}`);
+        }
+      }
+    }
+    
     // Generar nuevos IDs para campos especificados
     const newData = {...data};
     for (const idField of idFields) {
@@ -238,7 +248,17 @@ class DatabaseController {
       });
     });
   }
-
+  async _checkIdExists(tableName, idField, idValue) {
+    return new Promise((resolve, reject) => {
+      const db = this._open(sqlite3.OPEN_READONLY);
+      const sql = `SELECT 1 FROM ${tableName} WHERE ${idField} = ? LIMIT 1`;
+      db.get(sql, [idValue], (err, row) => {
+        db.close();
+        if (err) return reject(err);
+        resolve(!!row);
+      });
+    });
+}
   /**
    * Actualiza un registro existente
    * @param {string} tableName - Nombre de la tabla
@@ -361,7 +381,7 @@ export const dbController = new DatabaseController();
 // Ejemplo de uso
 /* (async () => {
   const ejemploData = {
-    idCatalogo: 0,
+    idCatalogo: 5070, // cuando es 0 genera el id
     nombreCatalogo: 'Ejemplo',
     tipoCatalogo: 1,
     estadoCatalogo: 1
@@ -396,3 +416,4 @@ export const dbController = new DatabaseController();
     console.error('Error:', error);
   }
 })(); */
+

@@ -97,7 +97,7 @@ export async function setupModalListeners(modalEl, editorEl,callbacks){
         console.log("Modal cerrado.");
         modalEl.dataset.currentFormType = '';
     });
-    const allevents = ['item-upd', 'del-item', 'cancel'];
+    const allevents = ['item-upd', 'del-item', 'cancel', 'save', 'delete', 'eliminar'];
     allevents.forEach(event => {
         u(editorEl).on(event, async (e) => {
             console.log('Acción de tabla:', e.detail);

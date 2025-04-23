@@ -20,10 +20,13 @@ const checkAuthOptional = (req, res, next) => {
     }
 };
 // DELETE /catalogo/:id (Requiere Auth) - Simula eliminar (el controlador actual no tiene DELETE)
-router.delete('/catalogo/:id', checkAuth, (req, res) => {
+router.delete('/catalogo/:id', checkAuth,async (req, res) => {
     const { id } = req.params;
     // Implementación real necesitaría dbController.delete('catalogos', id)
-    res.json({ success: true, message: `Catálogo ${id} eliminado (simulado)` });
+    const result =     await dbController.eliminarRegistro('catalogos', {
+        idCatalogo: id
+      })
+    res.json({ success: true, message: `Catálogo ${id} eliminado`,data:result });
 });
 // DELETE /categoria/:idCategoria (Requiere Auth) - Simula eliminar categoría (el controlador actual no tiene DELETE)
 router.delete('/categoria/:idCategoria', checkAuth, (req, res) => {
@@ -36,6 +39,7 @@ router.delete('/rol/:idRol', checkAuth, (req, res) => {
     const { idRol } = req.params;
      // Implementación real necesitaría dbController.delete('roles', idRol)
     res.json({ success: true, message: `Rol ${idRol} eliminado (simulado)` });
+    
 });
 
 

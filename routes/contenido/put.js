@@ -46,4 +46,27 @@ router.put('/rol/:idRol', checkAuth, (req, res) => {
      // Implementación real necesitaría dbController.update('roles', idRol, data)
     res.json({ success: true, message: `Rol ${idRol} actualizado (simulado)` });
 });
+router.put('/catalogo/', checkAuth,async (req, res) => {
+    console.log('SIMULADO: POST /catalogo - Body:', req.body);
+    // Implementación real necesitaría dbController.insert('catalogos', data)
+    const { idCatalogo, nombreCatalogo, tipoCatalogo, estadoCatalogo, imagenPortadaCatalogo, imagenFondoCatalogo,descripcionCatalogo, nsfwCatalogo, recomendacionCatalogo, trailerCatalogo } = req.body;
+    try {
+        const updateItem = await dbController.actualizarRegistro('catalogos', {
+            idCatalogo,
+            nombreCatalogo,
+            tipoCatalogo,
+            estadoCatalogo,
+            imagenPortadaCatalogo,
+            imagenFondoCatalogo,
+            descripcionCatalogo,
+            nsfwCatalogo,
+            recomendacionCatalogo,
+            trailerCatalogo
+        },['idCatalogo']);
+        res.json({ success: true, message: 'Catálogo agregado (simulado)', data: updateItem });
+    } catch (error) {
+        console.error('Error al actualizar catálogo:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });
+    }
+});
 export default router;

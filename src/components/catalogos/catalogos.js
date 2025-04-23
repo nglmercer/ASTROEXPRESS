@@ -110,6 +110,11 @@ function tableListeners(){
       if (originalAction === 'edit'){
         openModal(pageConfig.eventTypes,item)
       }
+      console.log("item",item, "originalAction",originalAction)
+      if (originalAction === 'delete'){
+        const response = await fetchapi.eliminar(item);
+        console.log("response: ", response);
+      }
     });
 
     element.on('menu', async (e) => {
@@ -122,21 +127,25 @@ function tableListeners(){
       }
     });
 }
+// callbacks de la modal
 const callbacks = {
   'item-upd': async (data) => {
     console.log("catalogo:upd",data);
-    const response = await fetchapi.agregar(data);
-    console.log("response: ", response);
+    if (data.idCatalogo === 0){
+      //add
+      const response = await fetchapi.agregar(data);
+      console.log("response: ", response);
+    } else {
+      //upd
+      const response = await fetchapi.actualizar(data);
+      console.log("response: ", response);
+    }
   },
   'del-item': async (data) => {
     console.log("catalogo:del",data);
   },
   'cancel': async (data) => {
     console.log("catalogo:cancel",data);
-  },
-  'delete': async (data) => {
-    //no se utiliza pero esta como referencia
-    console.log("delete",data);
   }
 }
 

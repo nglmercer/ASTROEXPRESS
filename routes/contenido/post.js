@@ -37,19 +37,24 @@ router.post('/catalogo', checkAuth, async (req, res) => {
     console.log('SIMULADO: POST /catalogo - Body:', req.body);
     // Implementación real necesitaría dbController.insert('catalogos', data)
     const { idCatalogo, nombreCatalogo, tipoCatalogo, estadoCatalogo, imagenPortadaCatalogo, imagenFondoCatalogo,descripcionCatalogo, nsfwCatalogo, recomendacionCatalogo, trailerCatalogo } = req.body;
-    const addItem = await dbController.guardarRegistro('catalogos', {
-        idCatalogo,
-        nombreCatalogo,
-        tipoCatalogo,
-        estadoCatalogo,
-        imagenPortadaCatalogo,
-        imagenFondoCatalogo,
-        descripcionCatalogo,
-        nsfwCatalogo,
-        recomendacionCatalogo,
-        trailerCatalogo
-    },['idCatalogo']);
-    res.json({ success: true, message: 'Catálogo agregado (simulado)', data: addItem });
+    try {
+        const addItem = await dbController.guardarRegistro('catalogos', {
+            idCatalogo,
+            nombreCatalogo,
+            tipoCatalogo,
+            estadoCatalogo,
+            imagenPortadaCatalogo,
+            imagenFondoCatalogo,
+            descripcionCatalogo,
+            nsfwCatalogo,
+            recomendacionCatalogo,
+            trailerCatalogo
+        },['idCatalogo']);
+        res.json({ success: true, message: 'Catálogo agregado (simulado)', data: addItem });
+    } catch (error) {
+        console.error('Error al agregar catálogo:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor', details: error.message });
+    }
 });
 
 // POST /catalogo/:id (Requiere Auth) - Simula actualizar (el controlador actual no tiene UPDATE)
