@@ -1,5 +1,5 @@
 // src/lit/register-form.js
-import { html, css } from "lit"; // Need html and css here
+import { html } from "lit"; // Need html and css here
 import { loginservice } from "@utils/fetchapi";
 import { AuthFormBase } from "./auth-form-base"; // Import the base class
 
@@ -43,14 +43,13 @@ export class RegisterFormElement extends AuthFormBase { // Extend the base class
         required
       />
 
-      <input
-        type="password"
-        placeholder="Contraseña"
+      <password-field
         .value=${this._clave}
-        @input=${this._handleClaveInput}
+        placeholder="Contraseña"
         ?disabled=${this._isSending}
+        @change=${(e) => this._clave = e.detail.value}
         required
-      />
+      ></password-field>
     `;
   }
 

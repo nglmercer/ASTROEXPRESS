@@ -44,13 +44,13 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
         ?disabled=${this._isSending}
         required>
 
-      <input
-        type="password"
-        placeholder="Contraseña"
+      <password-field
         .value=${this._clave}
-        @input=${this._handleClaveInput}
+        placeholder="Contraseña"
         ?disabled=${this._isSending}
-        required>
+        @change=${(e) => this._clave = e.detail.value}
+        required
+      ></password-field>
     `;
   }
 
