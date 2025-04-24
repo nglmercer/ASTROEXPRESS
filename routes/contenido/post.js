@@ -202,24 +202,6 @@ router.post('/usuario/:idUsuario/catalogo/:catalogo/favorito', checkAuth, async 
 });
 
 
-
-router.post('/usuario/registro', (req, res) => {
-    const { nombres, correoUsuario, claveUsuario } = req.body;
-    if (!nombres || !correoUsuario || !claveUsuario) {
-        return res.status(400).json({ success: false, message: 'Nombre, correo y contraseña requeridos' });
-    }
-    res.status(201).json({
-        success: true,
-        message: 'Usuario registrado (simulado)',
-        user: {
-            idUsuario: Date.now(),
-            apodoUsuario: nombres,
-            correoUsuario: correoUsuario,
-            rolUsuario: 2
-        }
-    });
-});
-
 router.post('/usuario/:userId/notificacion', checkAuth, (req, res) => {
     const { userId } = req.params;
     const { subscription } = req.body;
@@ -233,5 +215,37 @@ router.post('/usuario/:userId/notificacion', checkAuth, (req, res) => {
 router.post('/categoria', checkAuth, (req, res) => {
     res.json({ success: true, message: 'Categoría agregada (simulada)', id: Date.now() });
 });
+// registro y login  NO NECESITAN el middleware checkAuth
+router.post('/usuario/registro', (req, res) => {
+    const { usuarioUsuario, claveUsuario, correoUsuario } = req.body;
+    console.log('Registrando:', { usuarioUsuario, claveUsuario, correoUsuario });
+    if (!usuarioUsuario || !claveUsuario || !correoUsuario) {
+        return res.status(400).json({ success: false, message: 'Nombre, correo y contraseña requeridos' });
+    }
+    res.status(201).json({
+        success: true,
+        message: 'Usuario registrado (simulado)',
+    })
+});
 
+router.post('/usuario/sesion', (req, res) => {
+    const { usuarioUsuario, claveUsuario } = req.body;
+    console.log('Iniciando sesión:', { usuarioUsuario, claveUsuario });
+    if (!usuarioUsuario || !claveUsuario) {
+        return res.status(400).json({ success: false, message: 'Nombre y contraseña requeridos' });
+    }
+    const user = {
+        idUsuario: Date.now(),
+        apodoUsuario: usuarioUsuario,
+        correoUsuario: usuarioUsuario,
+        rolUsuario: 2
+    };
+    res.status(201).json({
+        success: true,
+        message: 'Sesión iniciada (simulado)',
+        token: '1234',
+        user: user,
+        data: user
+    });
+});
 export default router;

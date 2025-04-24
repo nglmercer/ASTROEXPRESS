@@ -374,9 +374,56 @@ class CapituloService {
     }
 }
 const capituloservice = new CapituloService(actualBaseApi);
+class LoginService {
+    constructor(baseApi) {
+        this.host = baseApi;
+        this.http = http;
+        const info = safeParse(localStorage.getItem("info")) || {};
+        this.token = info.token || localStorage.getItem("token");
+        this.user = safeParse(info.user || safeParse(localStorage.getItem("user"))) || {};
+    }
+    _authHeaders() {
+        return {};
+    }
+    // no necesitamos _authHeaders porque no se usan las credenciales para login o registro
+
+    async _interceptor(promise) {
+        try {
+            const response = await promise;
+            return response;
+        } catch (error) {
+            console.error('Error en la llamada a la API:', error);
+            throw error;
+        }
+    }
+
+    login(formulario) {
+            return this._interceptor(http.post(`${this.host}/usuario/sesion`, formulario));
+        }
+    register(formulario) {
+        return this._interceptor(http.post(`${this.host}/usuario/registro`, formulario));
+    }
+    setTokenUser(token, user) {
+        this.token = token;
+        localStorage.setItem("token", token);
+        this.user = typeof user === 'string' ? safeParse(user) : user;
+        localStorage.setItem("user", JSON.stringify(this.user));
+    }
+    isLoggedIn() {
+        return this.token && this.user;
+    }
+    logout() {
+        this.token = null;
+        localStorage.removeItem("token");
+        this.user = null;
+        localStorage.removeItem("user");
+    }
+}
+const loginservice = new LoginService(actualBaseApi);
 export {
     temporadaservice,
     capituloservice,
     fetchapi,
-    getParams
+    getParams,
+    loginservice
 }

@@ -1,6 +1,6 @@
 // src/lit/login-container.js
 import { LitElement, html, css } from 'lit';
-
+import { loginservice } from '@utils/fetchapi';
 export class LoginFormElement extends LitElement {
 
   static properties = {
@@ -19,7 +19,7 @@ export class LoginFormElement extends LitElement {
     this._isSending = false;
     // this.apiLoginUrl = '/usuario/sesion';
 
-    if (localStorage.getItem("token") && localStorage.getItem("user")) {
+    if (loginservice && loginservice.isLoggedIn()) {
         console.log('Usuario ya logueado, emitiendo evento para navegar a /');
         this.dispatchEvent(new CustomEvent('navigate-request', {
             detail: { path: '/' },
@@ -249,31 +249,17 @@ export class LoginFormElement extends LitElement {
         this._dispatchLoadingState(false);
         return;
       }
-      const localEndpoint = 'http://localhost:8080/';
-      const apiServer = 'https://api.koinima.com/';
-      const apiEndpoint = apiServer + 'usuario/sesion';
-      console.log('Enviando credenciales a:', apiEndpoint);
 
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          usuarioUsuario: this._usuario,
-          claveUsuario: this._clave
-        }),
-      });
 
-      const result = await response.json();
+      const response = await loginservice.login({ usuarioUsuario: this._usuario, claveUsuario: this._clave });
 
-      if (!response.ok) {
-        this.message = result.message || `Error ${response.status}: ${response.statusText}`;
+      if (!response) {
+        console.error('Error en iniciarSesion:', response);
       } else {
-        console.log('Login exitoso:', result);
-        localStorage.setItem("user", JSON.stringify(result.data));
-        localStorage.setItem("token", result.token);
+        console.log('Login exitoso:', response);
 
         this.dispatchEvent(new CustomEvent('login-success', {
-          detail: { user: result.data, token: result.token, data:result.data },
+          detail: response,
           bubbles: true, composed: true
         }));
 

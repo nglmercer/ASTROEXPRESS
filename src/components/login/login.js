@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     console.log("localStorage.getItem('token')", localStorage.getItem("token"));
     console.log("localStorage.getItem('user')", localStorage.getItem("user"));
-    if (localStorage.getItem("token") && localStorage.getItem("user")) {
+/*     if (localStorage.getItem("token") && localStorage.getItem("user")) {
         console.log("Usuario ya logueado, navegando a /", localStorage.getItem("user"), localStorage.getItem("token"));
         window.location.href = "/";
-    }
+    } */
 });

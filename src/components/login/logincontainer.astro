@@ -42,7 +42,7 @@ import DecoratorTriangle from  '@components/decorations/triangulo.astro';
         <div class="center">
           <img src="/Logo White.png" class="imagenLogoLoginLetras" alt="Logo Koinima"/>
           <br><br>
-          <img src="/assets/images/Deku.png" class="imagenPrincipalLogin" alt="Personaje Anime" onerror="this.onerror=null; this.src='https://pic.re/image';"/>
+          <img src="/assets/images/Deku.png" class="imagenPrincipalLogin show-mobile" alt="Personaje Anime" onerror="this.onerror=null; this.src='https://pic.re/image';"/>
         </div>
       </div>
 
@@ -201,7 +201,9 @@ import DecoratorTriangle from  '@components/decorations/triangulo.astro';
     left: 50%;
     transform: translate(-50%, -50%);
   }
-  
+  .show-mobile {
+    display: none;
+  }
   .relative { position: relative !important; }
   .absolute { position: absolute !important; }
 
@@ -215,7 +217,9 @@ import DecoratorTriangle from  '@components/decorations/triangulo.astro';
       height: auto;
       max-width: 250px;
     }
-    
+    .show-mobile {
+      display: block;
+    }
     .imagenLogoLoginLetras {
       width: 50vw;
       height: auto;
