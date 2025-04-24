@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro Basics</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    width: 100dvh;
+    height: 100dvh;
+  }
+</style>
+<style>
+  @media (max-width: 700px) {
+    /* Ajusta este breakpoint si es necesario */
+    body.form-focused {
+      position: absolute;
+      transform: translateY(-20%); /* << ¡AJUSTA ESTE VALOR! Es clave */
+    }
+  }
+  html {
+    /* --- Configuración del Fondo --- */
+
+    /* 1. Define la imagen principal y la de respaldo (fallback) */
+    /* El navegador intentará cargar la primera URL. Si falla, intentará la segunda. */
+    background-image: url("/src/assets/videos/wallpaper_login_2.gif"),
+      url("https://i.ibb.co/MD10cq7/wallpaper-login-ezgif-com-video-to-gif-converter-2.gif");
+
+    /* 2. Haz que el fondo cubra todo el área del body */
+    background-size: cover;
+
+    /* 3. Centra la imagen de fondo */
+    background-position: center center;
+
+    /* 4. Evita que la imagen se repita si es más pequeña que el área */
+    background-repeat: no-repeat;
+
+    /* 5. Fija el fondo para que no se mueva al hacer scroll (efecto wallpaper) */
+    background-attachment: fixed;
+
+    /* --- Layout del Body --- */
+
+    /* Asegura que el body ocupe al menos toda la altura de la ventana */
+    min-height: 100%;
+    /* Si estás seguro de que tu contenido NUNCA será más alto que la ventana, */
+    /* podrías usar height: 100%; pero min-height es más seguro. */
+
+    /* Elimina el margen por defecto del body */
+    margin: 0;
+
+    /* --- Color de Fondo de Respaldo Adicional --- */
+    /* Un color sólido que se mostrará si AMBAS imágenes fallan al cargar */
+    /* y mientras carga la imagen principal. Elige uno que combine. */
+    background-color: #1a0929; /* Un morado oscuro como ejemplo */
+
+    /* --- Opcional: Evitar selección de texto (Usar con precaución) --- */
+    /* Esto aplicaría a TODO el contenido del body, no solo al fondo */
+    /* user-select: none; */
+  }
+  html,
+  body {
+    background-color: transparent;
+  }
+</style>

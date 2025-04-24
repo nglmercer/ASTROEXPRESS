@@ -1,0 +1,303 @@
+---
+// src/components/decorations/DecoratorElement.astro
+interface Props {
+    shape: 'star' | 'dot' | 'triangle' | 'cross' | 'ring' | 'double-ring';
+    size: 'tiny' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'huge';
+    color: string;
+    top?: string;
+    left?: string;
+    right?: string;
+    bottom?: string;
+    zIndex?: number;
+    opacity?: number;
+    rotate?: number; // Propiedad para rotación
+    borderOnly?: boolean; // Nueva propiedad para tener solo borde coloreado
+    borderWidth?: string; // Propiedad opcional para personalizar el ancho del borde
+}
+
+const { 
+  shape, 
+  size = 'medium', 
+  color = 'white', 
+  top, 
+  left, 
+  right, 
+  bottom,
+  zIndex = 3000, // Por defecto detrás del login container (z-index: 3001)
+  opacity = 1,
+  rotate = 0, // Sin rotación por defecto
+  borderOnly = false, // Por defecto, relleno completo
+  borderWidth,
+} = Astro.props;
+
+// Añadir la clase borderOnly si corresponde
+const classList = ["decorator", shape, size];
+if (borderOnly) classList.push("border-only");
+
+const positionStyles = `
+  ${top ? `top: ${top};` : ''}
+  ${left ? `left: ${left};` : ''}
+  ${right ? `right: ${right};` : ''}
+  ${bottom ? `bottom: ${bottom};` : ''}
+  z-index: ${zIndex};
+  opacity: ${opacity};
+  transform: rotate(${rotate}deg);
+  --decorator-color: ${color};
+  ${borderWidth ? `--custom-border-width: ${borderWidth};` : ''}
+`;
+
+// Determinar si añadir la clase de animación
+---
+
+<div class:list={classList} style={positionStyles}></div>
+
+<style>
+  /* Estilos base para todos los decoradores */
+  .decorator {
+    pointer-events: none;
+    position: absolute;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Dimensiones globales (consistentes) */
+  .tiny {
+    --size: 8px;
+    --border-width: 1px;
+    --cross-thickness: 2px;
+  }
+  
+  .small {
+    --size: 16px;
+    --border-width: 1.5px;
+    --cross-thickness: 4px;
+  }
+  
+  .medium {
+    --size: 24px;
+    --border-width: 2.5px;
+    --cross-thickness: 6px;
+  }
+  
+  .large {
+    --size: 40px;
+    --border-width: 3.5px;
+    --cross-thickness: 10px;
+  }
+  
+  .xlarge {
+    --size: 64px;
+    --border-width: 5px;
+    --cross-thickness: 16px;
+  }
+  
+  .xxlarge {
+    --size: 96px;
+    --border-width: 7px;
+    --cross-thickness: 24px;
+  }
+  
+  .huge {
+    --size: 128px; 
+    --border-width: 10px;
+    --cross-thickness: 32px;
+  }
+
+  /* Usar ancho de borde personalizado si está definido */
+  .decorator {
+    --effective-border-width: var(--custom-border-width, var(--border-width));
+  }
+
+  /* FORMA: DOT (Punto) */
+  .dot {
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background-color: var(--decorator-color);
+  }
+  
+  /* Versión con solo borde */
+  .dot.border-only {
+    background-color: transparent;
+    border: var(--effective-border-width) solid var(--decorator-color);
+  }
+
+  /* FORMA: STAR (Estrella) */
+  .star {
+    width: var(--size);
+    height: var(--size);
+    background-color: transparent;
+    position: relative;
+  }
+  
+  .star::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--decorator-color);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+
+  /* Versión con solo borde para la estrella */
+  .star.border-only::before {
+    background-color: transparent;
+    border: var(--effective-border-width) solid var(--decorator-color);
+    clip-path: none;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+  
+  .star.border-only::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: var(--effective-border-width) solid var(--decorator-color);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    box-sizing: border-box;
+  }
+
+  /* FORMA: TRIANGLE (Triángulo) */
+  .triangle {
+    width: 0;
+    height: 0;
+    background-color: transparent;
+    border-left: calc(var(--size) * 0.5) solid transparent;
+    border-right: calc(var(--size) * 0.5) solid transparent;
+    border-bottom: calc(var(--size) * 0.866) solid var(--decorator-color); /* Proporción áurea aproximada */
+  }
+  
+  /* Versión con solo borde para el triángulo */
+  .triangle.border-only {
+    width: var(--size);
+    height: calc(var(--size) * 0.866);
+    border: none;
+    background-color: transparent;
+    position: relative;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+  
+  .triangle.border-only::after {
+    content: '';
+    position: absolute;
+    top: var(--effective-border-width);
+    left: calc(var(--effective-border-width) * 1.155);
+    width: calc(var(--size) - (var(--effective-border-width) * 2.31));
+    height: calc(var(--size) * 0.866 - (var(--effective-border-width) * 1.5));
+    background-color: transparent;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    box-shadow: 0 0 0 var(--effective-border-width) var(--decorator-color);
+  }
+  
+  /* Ajuste para tamaños más grandes del triángulo */
+  .triangle.xxlarge,
+  .triangle.huge {
+    border-left-width: calc(var(--size) * 0.48);
+    border-right-width: calc(var(--size) * 0.48);
+    border-bottom-width: calc(var(--size) * 0.83);
+  }
+
+  /* FORMA: CROSS (Cruz) */
+  .cross {
+    width: var(--size);
+    height: var(--size);
+    position: relative;
+  }
+
+  .cross::before,
+  .cross::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background-color: var(--decorator-color);
+  }
+  
+  .cross::before {
+    width: 100%;
+    height: var(--cross-thickness);
+    transform: translate(-50%, -50%);
+  }
+  
+  .cross::after {
+    width: var(--cross-thickness);
+    height: 100%;
+    transform: translate(-50%, -50%);
+  }
+  
+  /* Versión con solo borde para la cruz */
+  .cross.border-only::before,
+  .cross.border-only::after {
+    background-color: transparent;
+    border: var(--effective-border-width) solid var(--decorator-color);
+    box-sizing: border-box;
+  }
+
+  /* FORMA: RING (Anillo) */
+  .ring {
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    border: var(--effective-border-width) solid var(--decorator-color);
+    background-color: transparent;
+  }
+
+  /* FORMA: DOUBLE-RING (Doble anillo) */
+  .double-ring {
+    width: var(--size);
+    height: var(--size);
+    position: relative;
+    background-color: transparent;
+  }
+
+  .double-ring::before,
+  .double-ring::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: var(--effective-border-width) solid var(--decorator-color);
+  }
+
+  .double-ring::before {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  .double-ring::after {
+    width: 60%;
+    height: 60%;
+    top: 20%;
+    left: 20%;
+  }
+
+  /* ANIMACIONES */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(calc(var(--size) * -0.3)); }
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s infinite ease-in-out;
+  }
+  
+  .animate-spin {
+    animation: spin 3s infinite linear;
+  }
+  
+  .animate-bounce {
+    animation: bounce 1.5s infinite ease-in-out;
+  }
+</style>

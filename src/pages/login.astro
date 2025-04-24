@@ -1,0 +1,12 @@
+---
+import Layout from '@layouts/LoginLayout.astro';
+import LoginContainer from '@components/login/logincontainer.astro';
+---
+
+  <script src="/src/components/login/login-container"></script>
+  <script src="/src/components/login/login.js"></script>
+  <Layout>
+    <LoginContainer>
+      <login-form slot="login-form"></login-form>
+    </LoginContainer>
+  </Layout>

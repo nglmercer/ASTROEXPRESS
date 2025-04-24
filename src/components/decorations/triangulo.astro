@@ -1,0 +1,91 @@
+---
+// src/components/Decorators/DecoratorTriangle.astro
+
+// Importa los SVGs como texto plano (raw)
+import TriangleSolid from '../../assets/TriangleSolid.svg?raw';
+import TriangleBorder from '../../assets/TriangleBorder.svg?raw';
+
+// Definición de Props (como la tenías)
+const {
+  size = 'medium', // e.g., 'small', 'medium', 'large'
+  color = 'white', // Any valid CSS color
+  top,             // e.g., '10%', '50px'
+  left,            // e.g., '10%', '50px'
+  right,           // e.g., '10%', '50px'
+  bottom,          // e.g., '10%', '50px'
+  zIndex = 3000,
+  opacity = 1,
+  rotate = 0,      // degrees
+  borderOnly = false,
+  borderWidth,     // e.g., '1', '2', '3' (unitless for SVG stroke-width)
+} = Astro.props;
+
+// Determina qué SVG usar
+const svgContent = borderOnly ? TriangleBorder : TriangleSolid;
+
+// Construye la lista de clases
+const classList = ["decorator", "triangle", size];
+if (borderOnly) {
+  classList.push("border-only");
+}
+
+// Construye los estilos inline
+// Asegúrate de incluir --decorator-color y --custom-border-width (condicionalmente)
+const inlineStyles = `
+  ${top ? `top: ${top};` : ''}
+  ${left ? `left: ${left};` : ''}
+  ${right ? `right: ${right};` : ''}
+  ${bottom ? `bottom: ${bottom};` : ''}
+  z-index: ${zIndex};
+  opacity: ${opacity};
+  transform: rotate(${rotate}deg);
+  --decorator-color: ${color};
+  ${borderOnly && borderWidth ? `--custom-border-width: ${borderWidth};` : ''}
+`.trim(); // trim() para evitar espacios extra si no hay estilos
+
+// Define un grosor de borde por defecto como variable CSS para el fallback
+const defaultBorderWidth = '2';
+---
+
+<div class:list={classList} style={inlineStyles} set:html={svgContent}>
+  <!-- El contenido SVG se inyectará aquí -->
+</div>
+
+<style define:vars={{ defaultBorderWidth }}>
+  /* Estilos base para cualquier decorador */
+  .decorator {
+    position: absolute;
+    display: inline-block; /* O block, según necesites */
+    line-height: 0; /* Evita espacio extra debajo del div */
+    color: var(--decorator-color, white); /* Usa la variable CSS para el color */
+  }
+
+  /* Tamaños (ajusta los valores según tu diseño) */
+  .decorator.small { width: 20px; height: 20px; }
+  .decorator.medium { width: 40px; height: 40px; }
+  .decorator.large { width: 80px; height: 80px; }
+  /* Puedes añadir más tamaños o usar variables CSS para tamaños */
+
+  /* Estilos específicos para el SVG inyectado */
+  .decorator svg {
+    display: block; /* Asegura que ocupe el espacio correctamente */
+    width: 100%;
+    height: 100%;
+    overflow: visible; /* Permite que el borde no sea cortado si sobresale un poco */
+  }
+
+  /* Estilos específicos para el polígono DENTRO del SVG cuando es borde */
+  .decorator.border-only svg polygon {
+    /* Usa la variable --custom-border-width si está definida, si no, usa el valor por defecto */
+    stroke-width: var(--custom-border-width, var(--defaultBorderWidth));
+    /* El color y fill='none' ya están en el SVG y/o controlados por 'currentColor' */
+     /* vector-effect ya está en el SVG, pero no hace daño repetirlo si hubiera dudas */
+     vector-effect: non-scaling-stroke;
+  }
+
+ /* Asegura que la versión sólida no tenga borde visible por accidente */
+ .decorator:not(.border-only) svg polygon {
+    stroke: none;
+ }
+
+</style>

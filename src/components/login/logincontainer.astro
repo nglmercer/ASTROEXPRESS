@@ -1,0 +1,245 @@
+---
+// LoginContainer.astro
+import DecoratorElement from '@components/decorations/DecoratorElement.astro';
+import DecoratorTriangle from  '@components/decorations/triangulo.astro';
+---
+
+<div class="divTodoComponent">
+
+  <div class="absolute" style="top: 0; left: 0; right: 0; bottom: 0;">
+
+  <DecoratorElement shape="cross" size="xxlarge" color="#FFFFFF" top="55%" left="-30px" opacity={0.5} rotate={-5} />
+  <DecoratorElement shape="cross" size="xlarge" color="#FFFFFF" top="29%" left="500px" opacity={0.5} rotate={25} />
+  <DecoratorElement shape="cross" size="large" color="#FFFFFF" bottom="1%" right="-360px" opacity={0.5} rotate={-5} />
+  <DecoratorElement shape="cross" size="xxlarge" color="#FFFFFF" top="55%" left="210px" opacity={0.5} rotate={25} />
+
+  <DecoratorElement 
+  shape="ring"
+  size="xxlarge" color="white" top="90.5%" left="405px" 
+  rotate={-5} 
+  borderOnly={true} 
+   />
+  <DecoratorElement shape="ring" size="xxlarge" color="yellow" top="90%" left="400px" rotate={-5} />
+  <DecoratorTriangle
+    color="#38124f"
+    size="large"
+    top="10%"
+    left="500px"
+    rotate={90}
+  />
+  <DecoratorTriangle
+  borderOnly={true}
+  color="white"
+  size="large"
+  top="11%"
+  left="500px"
+  rotate={90}
+/>
+</div>
+  <div class="body100">
+    <div class="ContainerLR">
+      <div class="soloTelefono">
+        <div class="center">
+          <img src="/Logo White.png" class="imagenLogoLoginLetras" alt="Logo Koinima"/>
+          <br><br>
+          <img src="/assets/images/Deku.png" class="imagenPrincipalLogin" alt="Personaje Anime" onerror="this.onerror=null; this.src='https://pic.re/image';"/>
+        </div>
+      </div>
+
+      <div class="contentForm">
+        <div style="width: 100%;">
+          <div class="text-center">
+            <p class="mensajePrincipalLogin">¡Sumérgete y diviértete en un diverso mundo junto a tus animes favoritos!</p>
+          </div>
+          <br>
+          
+          <!-- Slot para el formulario de login -->
+          <slot name="login-form"></slot>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  * {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .divTodoComponent {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .body100 {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .ContainerLR {
+    background-color: #38124f;
+    color: white;
+    clip-path: polygon(0% 100%, 75% 100%, 100% 70%, 75% 0%, 0% 0%);
+    max-width: min(100%, 600px);
+    width: 100%;
+    height: max(100%, 100dvh);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    border-radius: 8px;
+    text-align: center;
+    justify-content: center;
+    transition: all 0.5s;
+  }
+  .text-center {
+    text-align: center;
+  }
+  .headerLogin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    height: 10vh;
+    min-height: 50px;
+  }
+  
+  .headerLogin h2 {
+    margin: 20px;
+    cursor: pointer;
+  }
+
+  .soloTelefono {
+    /* Se maneja por media queries */
+  }
+
+  .center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .imagenLogoLoginLetras {
+    max-width: 250px;
+    width: 60%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .imagenPrincipalLogin {
+    max-width: 300px;
+    width: 80%;
+    height: auto;
+    object-fit: contain;
+    margin-top: 20px;
+  }
+
+  .contentForm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  
+  .contentForm > div {
+    width: 100%;
+    max-width: max(500px, 90%)
+  }
+
+  .mensajePrincipalLogin {
+    text-align: center;
+    line-height: 1.4;
+    max-width: 80%;
+    margin: 0 auto;
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .smoll-div {
+    width: 0.5rem;
+    height: 0.5rem;
+    font-size: 2rem;
+  }
+  
+  .medium-div {
+    width: 2rem;
+    height: 2rem;
+    font-size: 6rem;
+  }
+  
+  .large-div {
+    width: 4rem;
+    height: 4rem;
+    font-size: 10rem;
+  }
+  
+  .star {
+    font-weight: 700;
+    border-radius: 0.2rem;
+    content: '+';
+    height: 100%;
+    width: 100%;
+  }
+
+  .star::before {
+    font-weight: 700;
+    content: '+';
+    border-radius: 0.2rem;
+    height: 100%;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .relative { position: relative !important; }
+  .absolute { position: absolute !important; }
+
+  @media (max-width: 700px) {
+    .headerLogin {
+      display: none;
+    }
+
+    .imagenPrincipalLogin {
+      width: 70vw;
+      height: auto;
+      max-width: 250px;
+    }
+    
+    .imagenLogoLoginLetras {
+      width: 50vw;
+      height: auto;
+      max-width: 200px;
+    }
+    
+    .mensajePrincipalLogin {
+      width: 95%; 
+      font-size: 1.1em;
+    }
+    
+    .soloTelefono { 
+      display: block; 
+    }
+    
+    .ContainerLR {
+      background-color: #0000001f;
+      backdrop-filter: blur(4px);
+      height: auto;
+      width: auto;
+    }
+    .contentForm {
+      justify-content: inline-start;
+      width: min(100dvw, 600px);
+    }
+  }
+</style>
