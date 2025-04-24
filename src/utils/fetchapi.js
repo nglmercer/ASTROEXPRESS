@@ -425,6 +425,12 @@ class LoginService {
         this.user = null;
         localStorage.removeItem("user");
     }
+    recoverPassword(email) {
+        //	http://localhost/backnew/recuperacion-contrasena/send-token POST 
+        return this._interceptor(http.post(`${this.host}/recuperacion-contrasena/send-token`, { correoUsuario: email }));
+    
+	
+    }
 }
 const loginservice = new LoginService(actualBaseApi);
 export {

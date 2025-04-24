@@ -156,7 +156,7 @@ class DatabaseController {
 
     const columns = await this.getTableColumns(tableName);
     const validColumn = columns.some(col => col.name === column);
-    
+
     if (!validColumn) {
       throw new Error(`La columna ${column} no existe en la tabla ${tableName}`);
     }
@@ -165,7 +165,7 @@ class DatabaseController {
       const db = this._open(sqlite3.OPEN_READONLY);
       const sql = `SELECT * FROM ${tableName} WHERE ${column} LIKE ?`;
       const searchTerm = `%${substring}%`;
-      
+
       db.all(sql, [searchTerm], (err, rows) => {
         db.close();
         if (err) return reject(err);
@@ -187,12 +187,12 @@ class DatabaseController {
 
     const columns = await this.getTableColumns(tableName);
     const searchTerm = `%${substring}%`;
-    
+
     return new Promise((resolve, reject) => {
       const db = this._open(sqlite3.OPEN_READONLY);
       const conditions = columns.map(col => `${col.name} LIKE ?`).join(' OR ');
       const sql = `SELECT * FROM ${tableName} WHERE ${conditions}`;
-      
+
       db.all(sql, columns.map(() => searchTerm), (err, rows) => {
         db.close();
         if (err) return reject(err);
@@ -225,9 +225,9 @@ class DatabaseController {
         }
       }
     }
-    
+
     // Generar nuevos IDs para campos especificados
-    const newData = {...data};
+    const newData = { ...data };
     for (const idField of idFields) {
       if (newData[idField] === 0 || !newData.hasOwnProperty(idField)) {
         const maxId = await this._getMaxId(tableName, idField);
@@ -241,10 +241,10 @@ class DatabaseController {
       const placeholders = fields.map(() => '?').join(', ');
       const sql = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
 
-      db.run(sql, fields.map(f => newData[f]), function(err) {
+      db.run(sql, fields.map(f => newData[f]), function (err) {
         db.close();
         if (err) return reject(err);
-        resolve({...newData, rowid: this.lastID});
+        resolve({ ...newData, rowid: this.lastID });
       });
     });
   }
@@ -258,7 +258,7 @@ class DatabaseController {
         resolve(!!row);
       });
     });
-}
+  }
   /**
    * Actualiza un registro existente
    * @param {string} tableName - Nombre de la tabla
@@ -278,28 +278,28 @@ class DatabaseController {
     if (!hasValidId) throw new Error('Se requiere al menos un ID válido para actualizar');
 
     return new Promise((resolve, reject) => {
-        const db = this._open(sqlite3.OPEN_READWRITE);
-        
-        // Separar campos de actualización y valores
-        const updateFields = Object.keys(data)
-            .filter(f => validFields.includes(f) && !idFields.includes(f));
-            
-        const updates = updateFields.map(f => `${f} = ?`).join(', ');
-        const where = idFields.map(f => `${f} = ?`).join(' AND ');
-        
-        // Obtener valores en el orden correcto: primero updates, luego WHERE
-        const updateValues = updateFields.map(f => data[f]);
-        const whereValues = idFields.map(f => data[f]);
-        
-        const sql = `UPDATE ${tableName} SET ${updates} WHERE ${where}`;
-        
-        db.run(sql, [...updateValues, ...whereValues], function(err) {
-            db.close();
-            if (err) return reject(err);
-            resolve({...data, changes: this.changes});
-        });
+      const db = this._open(sqlite3.OPEN_READWRITE);
+
+      // Separar campos de actualización y valores
+      const updateFields = Object.keys(data)
+        .filter(f => validFields.includes(f) && !idFields.includes(f));
+
+      const updates = updateFields.map(f => `${f} = ?`).join(', ');
+      const where = idFields.map(f => `${f} = ?`).join(' AND ');
+
+      // Obtener valores en el orden correcto: primero updates, luego WHERE
+      const updateValues = updateFields.map(f => data[f]);
+      const whereValues = idFields.map(f => data[f]);
+
+      const sql = `UPDATE ${tableName} SET ${updates} WHERE ${where}`;
+
+      db.run(sql, [...updateValues, ...whereValues], function (err) {
+        db.close();
+        if (err) return reject(err);
+        resolve({ ...data, changes: this.changes });
+      });
     });
-}
+  }
 
   async _getMaxId(tableName, idField) {
     return new Promise((resolve, reject) => {
@@ -319,7 +319,7 @@ class DatabaseController {
    * @param {Object} ids - Objeto con los IDs para identificar el registro
    * @returns {Promise<Object>} Resultado de la eliminación
    */
-  async eliminarRegistro(tableName, ids,idFields = ["idCatalogo"]) {
+  async eliminarRegistro(tableName, ids, idFields = ["idCatalogo"]) {
     if (!await this.tableExists(tableName)) {
       throw new Error(`La tabla ${tableName} no existe`);
     }
@@ -336,7 +336,7 @@ class DatabaseController {
       const whereClause = validIds.map(([key]) => `${key} = ?`).join(' AND ');
       const sql = `DELETE FROM ${tableName} WHERE ${whereClause}`;
 
-      db.run(sql, validIds.map(([, value]) => value), function(err) {
+      db.run(sql, validIds.map(([, value]) => value), function (err) {
         db.close();
         if (err) return reject(err);
         resolve({ changes: this.changes });
@@ -348,35 +348,35 @@ class DatabaseController {
 // Export singleton instance
 export const dbController = new DatabaseController();
 (async () => {
-    const exists = await dbController.tableExists('audios');
-    console.log('¿Existe tabla audios?', exists);
-    
-    /*
-    if (exists) {
-      const cols = await dbController.getTableColumns('audios');
-      console.log('Columnas de audios:', cols);
-  
-      const count = await dbController.getRowCount('audios');
-      console.log('Total filas en audios:', count);
-    }
-  
-    */
-     const tablas = await dbController.listTables();
-//    console.log('Tablas en la BD:', tablas);
-    // implementar un metodo para buscar en una tabla queryWithFilters si algun elemento incluye una subcadena de texto o contienen un elemento 
-    
-    // Ejemplo de uso del nuevo método
-    if (exists) {
-      const resultados = await dbController.searchBySubstring('audios', 'nombre', 'sonido');
-      console.log('Resultados de búsqueda:', resultados);
-    }
-    // implementar si en una tabla existe un elemento que incluye un elemento y devolver todos las columnas o filas que contienen el elemento
-    // Example usage of the new method
-    if (exists) {
-      const fullTextResults = await dbController.searchAcrossAllColumns('audios', 'sonido');
-      console.log('Full text search results:', fullTextResults);
-    }
-  })();
+  const exists = await dbController.tableExists('audios');
+  console.log('¿Existe tabla audios?', exists);
+
+  /*
+  if (exists) {
+    const cols = await dbController.getTableColumns('audios');
+    console.log('Columnas de audios:', cols);
+ 
+    const count = await dbController.getRowCount('audios');
+    console.log('Total filas en audios:', count);
+  }
+ 
+  */
+  const tablas = await dbController.listTables();
+  //    console.log('Tablas en la BD:', tablas);
+  // implementar un metodo para buscar en una tabla queryWithFilters si algun elemento incluye una subcadena de texto o contienen un elemento 
+
+  // Ejemplo de uso del nuevo método
+  if (exists) {
+    const resultados = await dbController.searchBySubstring('audios', 'nombre', 'sonido');
+    console.log('Resultados de búsqueda:', resultados);
+  }
+  // implementar si en una tabla existe un elemento que incluye un elemento y devolver todos las columnas o filas que contienen el elemento
+  // Example usage of the new method
+  if (exists) {
+    const fullTextResults = await dbController.searchAcrossAllColumns('audios', 'sonido');
+    console.log('Full text search results:', fullTextResults);
+  }
+})();
 
 // Ejemplo de uso
 /* (async () => {

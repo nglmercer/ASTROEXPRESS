@@ -97,6 +97,16 @@ class AuthService {
         }
         return { valid: true, userData: decoded.data };
     }
+    
+    // Genera hash de contraseña usando bcrypt
+    generatePasswordHash(plainPassword, saltRounds = 10) {
+        try {
+            return bcrypt.hashSync(plainPassword, saltRounds);
+        } catch (error) {
+            console.error("Error al generar hash de contraseña:", error);
+            return null;
+        }
+    }
 }
 
 const authService = new AuthService();
