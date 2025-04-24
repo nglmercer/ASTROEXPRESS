@@ -6,7 +6,7 @@ import { AuthFormBase } from './auth-form-base'; // Import the base class
 export class LoginFormElement extends AuthFormBase { // Extend the base class
 
   static properties = {
-    _usuario: { state: true }, // Specific properties remain here
+    _correoUsuario: { state: true }, // Specific properties remain here
     _clave: { state: true },   // Specific properties remain here
     // message and _isSending are inherited
     // apiLoginUrl: { type: String } // Keep if needed externally
@@ -14,7 +14,7 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
 
   constructor() {
     super(); // Call the base class constructor
-    this._usuario = '';
+    this._correoUsuario = '';
     this._clave = '';
     // message and _isSending are initialized by the base constructor
 
@@ -37,9 +37,9 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
   renderFormFields() {
     return html`
       <input
-        type="text"
+        type="email"
         placeholder="Correo electrónico"
-        .value=${this._usuario}
+        .value=${this._correoUsuario}
         @input=${this._handleUsuarioInput}
         ?disabled=${this._isSending}
         required>
@@ -49,6 +49,7 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
         placeholder="Contraseña"
         ?disabled=${this._isSending}
         @change=${(e) => this._clave = e.detail.value}
+        @submit=${(e) => this._iniciarSesion()}
         required
       ></password-field>
     `;
@@ -72,7 +73,7 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
 
   // Keep specific input handlers, ensuring they clear the inherited message
   _handleUsuarioInput(event) {
-    this._usuario = event.target.value;
+    this._correoUsuario = event.target.value;
     this.message = ''; // Clear inherited message
   }
 
@@ -88,11 +89,11 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
 
     try {
       // Login-specific validation
-      if (!this._usuario || !this._clave) {
+      if (!this._correoUsuario || !this._clave) {
         this.message = "Todos los campos son requeridos.";
         return; // Exit the try block
       }
-      if (!(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this._usuario))) {
+      if (!(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this._correoUsuario))) {
         this.message = "El correo no es valido.";
         return; // Exit the try block
       }
@@ -102,7 +103,7 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
       }
 
       // Login-specific API call
-      const response = await loginservice.login({ usuarioUsuario: this._usuario, claveUsuario: this._clave });
+      const response = await loginservice.login({ correoUsuario: this._correoUsuario, claveUsuario: this._clave });
 
       if (!response) { // Assuming null/undefined means failure not handled by catch
          // Handle specific API error responses if needed based on 'response' content

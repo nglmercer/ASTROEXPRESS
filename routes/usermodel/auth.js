@@ -4,7 +4,7 @@ import authService  from "./jwt.js";
 export class AuthModel {
   constructor() {}
 
-  async iniciarSesion({apodoUsuario, correoUsuario,claveUsuario}) {
+  async iniciarSesion({ correoUsuario,claveUsuario}) {
     const results = await dbController.queryWithFilters('usuarios', { correoUsuario });
     if (!results || results.length === 0) {
       return null;

@@ -344,6 +344,15 @@ export class PasswordField extends LitElement {
     }));
   }
 
+  _handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      this.dispatchEvent(new CustomEvent('submit', {
+        bubbles: true,
+        composed: true
+      }));
+    }
+  }
+
   getPassword() {
     return this.value;
   }
@@ -359,6 +368,7 @@ export class PasswordField extends LitElement {
             placeholder="${this.placeholder}"
             ?disabled="${this.disabled}"
             @input="${this.handleInput}"
+            @keypress="${this._handleKeyPress}"
           />
           <button
             class="toggle-button"

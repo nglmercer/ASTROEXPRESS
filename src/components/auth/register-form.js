@@ -48,6 +48,7 @@ export class RegisterFormElement extends AuthFormBase { // Extend the base class
         placeholder="Contraseña"
         ?disabled=${this._isSending}
         @change=${(e) => this._clave = e.detail.value}
+        @submit=${(e) => this._registrarUsuario()}
         required
       ></password-field>
     `;
