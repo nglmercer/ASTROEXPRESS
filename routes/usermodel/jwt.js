@@ -50,12 +50,15 @@ class AuthService {
     // Create JWT token for authenticated user
     createUserToken(userData, expiration = 60*60*24*10) {
         // Remove sensitive data before creating token
-        const userForToken = { ...userData };
-        delete userForToken.claveUsuario; // Don't include password hash in token
-        
+        const userForToken = this.userForToken(userData);
         return this.jwtService.createToken(userForToken, expiration);
     }
-
+    userForToken(userData) {
+        // Remove sensitive data before creating token
+        const userForToken = { ...userData };
+        delete userForToken.claveUsuario; // Don't include password hash in token
+        return userForToken;
+    }
     // Verify password against bcrypt hash
     verifyPassword(plainPassword, hashedPassword) {
         try {
@@ -82,12 +85,7 @@ class AuthService {
         return {
             success: true,
             token,
-            user: {
-                id: user.idUsuario,
-                username: user.apodoUsuario,
-                email: user.correoUsuario,
-                role: user.rolUsuario
-            }
+            user: this.userForToken(user)
         };
     }
 
