@@ -24,3 +24,4 @@ pnpm-debug.log*
 .idea/
 backup.db
 backup*.db
+package-lock.json

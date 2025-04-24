@@ -103,9 +103,12 @@ export class AuthModel {
     const hashedPassword = await authService.generatePasswordHash(claveUsuario);
     newUser.claveUsuario = hashedPassword;
     newUser.fechaCreacion = new Date().toISOString();
+    newUser.rolUsuario = 1;
     // rellenamos los campos faltantes
-    const user = createObjectFromTemplate(Usermodel, newUser);
-    return user;
+    const Parseduser = createObjectFromTemplate(Usermodel, newUser);
+    const result = await dbController.guardarRegistro('usuarios', Parseduser,["idUsuario"]);
+    delete result.claveUsuario;
+    return result;
   }
   async existeUsuario({ correoUsuario }) {
     const results = await dbController.queryWithFilters('usuarios', { correoUsuario });
