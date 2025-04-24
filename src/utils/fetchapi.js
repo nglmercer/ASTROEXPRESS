@@ -41,14 +41,19 @@ const http = {
 // catalogo post, envia un objeto para agregar un catalogo -- agregar
 // catalogo put, actualiza un catalogo --- actualizar
 // catalogo delete, elimina un catalogo --- eliminar
-export var localStorage  = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
-  ? localStorage
-  : {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-      clear: () => {},
-    };
+
+// Polyfill for localStorage and window in SSR environments
+const storage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+};
+
+var localStorage = typeof window !== 'undefined' 
+    ? (window.localStorage || storage)
+    : storage;
+
 function getParams(paramNames = []) {
     const urlParams = new URLSearchParams(window.location.search);
     let paramsObject = Object.fromEntries(urlParams.entries());
@@ -407,7 +412,9 @@ class LoginService {
         this.token = token;
         localStorage.setItem("token", token);
         this.user = typeof user === 'string' ? safeParse(user) : user;
-        localStorage.setItem("user", JSON.stringify(this.user));
+        const userString = typeof user ==='string' ? user : JSON.stringify(user);
+        localStorage.setItem("user", userString);
+        console.log("user", userString, "token", this.token, localStorage.getItem("token"), localStorage.getItem("user"));
     }
     isLoggedIn() {
         return this.token && this.user;

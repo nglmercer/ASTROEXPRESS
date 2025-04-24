@@ -59,7 +59,8 @@ function validateFields({required, actualObj, options = {}}) {
     // Initialize validation results
     const validationResults = {
         isValid: true,
-        errors: []
+        errors: [],
+        filteredObj
     };
 
     // Get required keys

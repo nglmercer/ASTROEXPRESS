@@ -7,7 +7,7 @@ export class AuthModel {
   async iniciarSesion({ correoUsuario,claveUsuario}) {
     const results = await dbController.queryWithFilters('usuarios', { correoUsuario });
     if (!results || results.length === 0) {
-      return null;
+      return { success: false, message: "Usuario no existe o contraseña incorrecta" };
     }
     const user = results[0];
     const getToken = await authService.authenticateUser(user, claveUsuario);
@@ -23,7 +23,7 @@ export class AuthModel {
     const newUser = { apodoUsuario, correoUsuario, claveUsuario };
     const hashedPassword = await authService.createUserToken(newUser);
     console.log("hashedPassword", hashedPassword);
-    return { success: true, message: "Usuario creado" };
+    return hashedPassword;
     // test
   }
 }

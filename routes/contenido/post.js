@@ -1,12 +1,16 @@
 import express from 'express';
 import { dbController } from '../backupdb.js';
-import { AudiosModel } from '../models/AudiosModel.js';
+/* import { AudiosModel } from '../models/AudiosModel.js';
 import { ResolucionesModel } from '../models/ResolucionesModel.js';
-import { SubtitulosModel } from '../models/SubtitulosModel.js';
+import { SubtitulosModel } from '../models/SubtitulosModel.js'; */
 import { filterRequiredFields, validateFields } from '../verifys.js';
-const audiosModel = new AudiosModel();
+import { AuthModel } from "../usermodel/auth.js";
+
+/* const audiosModel = new AudiosModel();
 const resolucionesModel = new ResolucionesModel();
-const subtitulosModel = new SubtitulosModel();
+const subtitulosModel = new SubtitulosModel(); */
+const authModel = new AuthModel();
+
 const router = express.Router();
 
 // Middleware para parsear JSON
@@ -157,7 +161,6 @@ router.post('/temporada', checkAuth, async (req, res) => {
 
 router.post('/capitulo', checkAuth, async (req, res) => {
     console.log('Agregando: POST /capitulo - Body:', req.body);
-    const { idTemporada, numeroCapitulo, imagenCapitulo, catalogoCapitulo, meGustasCapitulo, noMeGustasCapitulo, reproduccionesCapitulo, tiempoCapitulo } = req.body;
     const exampleFields ={
         idCapitulo:	63508,
         numeroCapitulo:	1,
@@ -216,36 +219,63 @@ router.post('/categoria', checkAuth, (req, res) => {
     res.json({ success: true, message: 'Categoría agregada (simulada)', id: Date.now() });
 });
 // registro y login  NO NECESITAN el middleware checkAuth
-router.post('/usuario/registro', (req, res) => {
-    const { usuarioUsuario, claveUsuario, correoUsuario } = req.body;
-    console.log('Registrando:', { usuarioUsuario, claveUsuario, correoUsuario });
-    if (!usuarioUsuario || !claveUsuario || !correoUsuario) {
-        return res.status(400).json({ success: false, message: 'Nombre, correo y contraseña requeridos' });
+router.post('/usuario/registro',async (req, res) => {
+    const userOBJ = {
+        apodoUsuario: "string",
+        claveUsuario: "string",
+        correoUsuario: "string"
     }
-    res.status(201).json({
-        success: true,
-        message: 'Usuario registrado (simulado)',
-    })
+    const objtoValidate = filterRequiredFields({
+        required: userOBJ,
+        actualObj: req.body,
+    });
+    const options = {
+        //validators && types
+        validators: {
+            apodoUsuario: (value) => typeof value === 'string' && value.length > 0,
+            claveUsuario: (value) => typeof value === 'string' && value.length > 0,
+            correoUsuario: (value) => typeof value === 'string' && value.length > 0
+        }
+    }
+    const ValidOBJ = validateFields({required: userOBJ, actualObj: req.body, options});
+    console.log('Registrando:', objtoValidate);
+    if (!ValidOBJ.isValid) {
+        return res.status(400).json({ success: false, message: 'Nombre, correo y contraseña requeridos',ValidOBJ });
+    }
+    const result = await authModel.registrarUsuario(objtoValidate);
+    if (!result.success) {
+        return res.status(400).json({ success: false, message: result.message });
+    } else {
+        return res.status(201).json(result);
+    }
 });
 
-router.post('/usuario/sesion', (req, res) => {
-    const { usuarioUsuario, claveUsuario } = req.body;
-    console.log('Iniciando sesión:', { usuarioUsuario, claveUsuario });
-    if (!usuarioUsuario || !claveUsuario) {
-        return res.status(400).json({ success: false, message: 'Nombre y contraseña requeridos' });
+router.post('/usuario/sesion', async (req, res) => {
+    const userOBJ = {
+        correoUsuario: "string",
+        claveUsuario: "string"
     }
-    const user = {
-        idUsuario: Date.now(),
-        apodoUsuario: usuarioUsuario,
-        correoUsuario: usuarioUsuario,
-        rolUsuario: 2
-    };
-    res.status(201).json({
-        success: true,
-        message: 'Sesión iniciada (simulado)',
-        token: '1234',
-        user: user,
-        data: user
+    const objtoValidate = filterRequiredFields({
+        required: userOBJ,
+        actualObj: req.body,
     });
+    const options = {
+        //validators && types
+        validators: {
+            correoUsuario: (value) => typeof value ==='string' && value.length > 0,
+            claveUsuario: (value) => typeof value ==='string' && value.length > 0
+        }
+    }
+    const ValidOBJ = validateFields({required: userOBJ, actualObj: req.body, options});
+    if (!ValidOBJ.isValid) {
+        return res.status(400).json({ success: false, message: 'Nombre y contraseña requeridos',ValidOBJ });
+    }
+    const result = await authModel.iniciarSesion(objtoValidate);
+    if (!result.success) {
+        return res.status(400).json({ success: false, message: result.message });
+    } else {
+        return res.status(201).json(result);
+    }
+
 });
 export default router;

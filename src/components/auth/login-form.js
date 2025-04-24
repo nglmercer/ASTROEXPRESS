@@ -115,7 +115,7 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
       }
       else {
         console.log('Login exitoso:', response);
-
+        loginservice.setTokenUser(response.token, response.user);
         // Dispatch login success and navigation events
         this.dispatchE('login-success', response); // Use inherited dispatchE
         this.dispatchE('navigate-request', { path: '/', replace: true }); // Use inherited dispatchE

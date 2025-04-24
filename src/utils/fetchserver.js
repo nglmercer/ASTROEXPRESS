@@ -2,14 +2,16 @@ const baseApi = "productionUrl";
 const baseTestApi = "http://localhost:8080"; // Original test API
 const mockApi = "http://localhost:8081/mock-api"; // Mock API endpoint
 const actualBaseApi = mockApi; // Use mock API for development
-var localStorage  = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
-  ? localStorage
-  : {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-      clear: () => {},
-    };
+const storage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+};
+
+var localStorage = typeof window !== 'undefined' 
+    ? (window.localStorage || storage)
+    : storage;
 const http = {
     get: (url, options = {}) => {
         return fetch(url, {
