@@ -208,7 +208,7 @@ class DatabaseController {
    * @param {Array} idFields - Campos ID a auto-incrementar
    * @returns {Promise<Object>} Registro guardado
    */
-  async guardarRegistro(tableName, data, idFields = ["idCatalogo"]) {
+  async guardarRegistro(tableName, data, idFields = ["id"]) {
     if (!await this.tableExists(tableName)) {
       throw new Error(`La tabla ${tableName} no existe`);
     }
@@ -265,7 +265,7 @@ class DatabaseController {
    * @param {Object} data - Datos a actualizar (debe contener al menos un ID)
    * @returns {Promise<Object>} Registro actualizado
    */
-  async actualizarRegistro(tableName, data, idFields = ["idCatalogo"]) {
+  async actualizarRegistro(tableName, data, idFields = ["id"]) {
     if (!await this.tableExists(tableName)) {
       throw new Error(`La tabla ${tableName} no existe`);
     }
@@ -319,7 +319,7 @@ class DatabaseController {
    * @param {Object} ids - Objeto con los IDs para identificar el registro
    * @returns {Promise<Object>} Resultado de la eliminación
    */
-  async eliminarRegistro(tableName, ids, idFields = ["idCatalogo"]) {
+  async eliminarRegistro(tableName, ids, idFields = ["id"]) {
     if (!await this.tableExists(tableName)) {
       throw new Error(`La tabla ${tableName} no existe`);
     }

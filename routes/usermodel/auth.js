@@ -4,13 +4,38 @@ import authService  from "./jwt.js";
 import crypto from "crypto";
 
 // Código corto para validación manual (6 caracteres alfanum.)
-function genCode(length = 6) {
-  return crypto
-    .randomBytes(length)
-    .toString("base64") // base64 → +, / caracteres
-    .replace(/[^a-zA-Z0-9]/g, "") // limpio a solo alfanum
-    .substring(0, length)
-    .toUpperCase();
+function genCode(length = 6, type = "number") {
+  let allowedChars;
+
+  if (type === "number") {
+    allowedChars = "0123456789";
+  } else { // Default or "alphanumeric"
+    // Use uppercase letters and numbers, matching the original output style
+    allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  }
+
+  let code = "";
+  const allowedCharsLength = allowedChars.length;
+
+  // Generate random bytes and map them to characters from the allowed set
+  // This ensures the code has the exact requested length and uses only allowed characters.
+  while (code.length < length) {
+    // Generate bytes needed for the remaining characters
+    const bytes = crypto.randomBytes(length - code.length);
+
+    for (let i = 0; i < bytes.length; i++) {
+      // Map the byte value to an index within the allowed characters string
+      const charIndex = bytes[i] % allowedCharsLength;
+      code += allowedChars[charIndex];
+
+      // Stop adding characters once the desired length is reached
+      if (code.length === length) {
+        break;
+      }
+    }
+  }
+
+  return code;
 }
 
 // Token largo para incluir en la URL
@@ -64,6 +89,24 @@ const Usermodel ={
   idUltimaTransaccion: "string | null",
   fechaUltimaTransaccion: "string | null",
 }
+/*
+recoverpassword model
+*/
+const recoverpasswordmodel = {
+  id: "number",
+  usuario: "number",
+  ruta: "string | null",
+  codigo: "number",
+  estado: "number",
+  fecha_creacion: "string | null",
+  fecha_vencimiento: "string | null",
+}
+const templatepasswordcode =  {
+  "path": "string",
+  "codigo": "number",
+  "nuevaContrasena":"string"
+}
+
 function getDefaultValue(expectedType) {
   switch (expectedType) {
       case "string":
@@ -97,6 +140,37 @@ function createObjectFromTemplate(template, source) {
   }
 
   return result;
+}
+function verifycode(obj, { code }) {
+    // Check if the object exists and has the necessary properties
+    if (!obj || typeof obj.codigo === 'undefined' || !obj.fecha_vencimiento) {
+        // console.log("Verification failed: Invalid object or missing properties."); // Optional logging
+        return { success: false, message: "Invalid object or missing properties." };
+    }
+
+    // Check if the code matches
+    // Assuming obj.codigo is a number based on the template.
+    // The input code might be a string, so parse it to ensure correct comparison.
+    const providedCode = parseInt(code, 10);
+    if (isNaN(providedCode) || obj.codigo !== providedCode) {
+        // console.log("Verification failed: Code mismatch or invalid input code."); // Optional logging
+        return { success: false, message: "Code mismatch or invalid input code.",code,codew:obj.codigo };
+    }
+
+    // Check if the expiration date is in the future
+    // The date string should be parseable by new Date()
+    const expirationDate = new Date(obj.fecha_vencimiento);
+    const now = new Date();
+
+    // Check if the parsed date is valid and if it's in the past
+    if (isNaN(expirationDate.getTime()) || expirationDate < now) {
+        // console.log("Verification failed: Code has expired or invalid expiration date."); // Optional logging
+        return { success: false, message: "Code has expired or invalid expiration date." };
+    }
+
+    // If all checks pass (object valid, code matches, and not expired)
+    // console.log("Verification successful."); // Optional logging
+    return { success: true, message: "Verification successful." };
 }
 export class AuthModel {
   constructor() {}
@@ -135,6 +209,37 @@ export class AuthModel {
         token: typeof token === 'object' ? token.token : token
     }
   }
+  async actualizarRegistro({userId, newPassword}) {
+    try {
+      // Hash the new password
+      const hashedPassword = await authService.generatePasswordHash(newPassword);
+      
+      // Update user's password in database
+      const updateResult = await dbController.actualizarRegistro(
+        'usuarios',
+        { idUsuario: userId,claveUsuario: hashedPassword },
+        ["idUsuario"]
+      );
+      
+      if (!updateResult || updateResult.success === false) {
+        return { success: false, message: "Error al actualizar la contraseña" };
+      }
+      
+      return {
+        success: true,
+        message: "Contraseña actualizada correctamente",
+        requireRelogin: true
+      };
+      
+    } catch (error) {
+      console.error("Error durante la actualización de contraseña:", error);
+      return {
+        success: false,
+        message: "Error al procesar el cambio de contraseña",
+        error: error.message
+      };
+    }
+  }
   async existeUsuario({ correoUsuario }) {
     const results = await dbController.queryWithFilters('usuarios', { correoUsuario });
     return results;
@@ -143,40 +248,125 @@ export class AuthModel {
     const hashedPassword = authService.generatePasswordHash(string);
     return hashedPassword;
   }
-  async recuperarpassword({correoUsuario, email}){
-    const EMAIL = correoUsuario || email
-    const existeuser = await this.existeUsuario({correoUsuario:EMAIL})
-    if (!existeuser || existeuser.length === 0){
-      return { success: false}
+  async recuperarpassword({ correoUsuario, email }) {
+    // Use email as the primary identifier, allowing either parameter name
+    const userEmail = correoUsuario || email;
+
+    if (!userEmail) {
+        // Should ideally be handled by input validation before reaching here, but defensive check
+        return { success: false, message: "Email address is required." };
     }
-    const existuserobj = Array.isArray(existeuser) ? existeuser[0] : existeuser;
-    const recovertoken =genToken()
-    const recoverCode = genCode()
-    const username = existuserobj?.apodoUsuario || correoUsuario;
+
+    // Check if user exists by email
+    const results = await this.existeUsuario({ correoUsuario: userEmail });
+    if (!results || results.length === 0) {
+      console.log(`Password recovery requested for non-existent user: ${userEmail}`); // Log for debugging
+      // Always return a generic success message for security (prevents user enumeration)
+      return { success: true, message: "If a user with that email exists, a recovery link has been sent." };
+    }
+
+    const user = Array.isArray(results) ? results[0] : results;
+    const userId = user.idUsuario; // Use the actual user ID from the database
+    const userName = user.apodoUsuario; // Use the user's nickname for personalization
+
+    // Generate unique token and code for this recovery attempt
+    // Assuming genToken() and genCode() are defined elsewhere and generate unique values
+    const recoverToken = genToken();
+    const recoverCode = genCode();
+
+    // Construct the path for the reset link on the frontend
+    const path = `/reset-password/${recoverToken}`;
+
+    // Set timestamps
+    const now = new Date();
+    // Calculate expiry time (15 minutes from now)
+    // Use getTime() for correct millisecond addition
+    const expiresAt = new Date(now.getTime() + 15 * 60 * 1000);
+
+    // Create the recovery entry object to be saved in the database
     const resetEntry = {
-      id:         existuserobj?.idUsuario || Date.now(),     // o usa uuid()
-      userId:     username,
-      userName: username,
-      username,
-      code:      recoverCode,
-      token:      recovertoken,
-      path:       `/reset-password/${recovertoken}`,
-      status:     'pending',
-      createdAt:  new Date().toISOString(),
-      expiresAt:  new Date(Date.now() + 15*60*1000).toISOString() // +15m
+      id: typeof uuid === 'function' ? uuid() : Date.now(), // Prefer uuid() for unique ID
+      userId: userId,
+      userName: userName,
+      code: recoverCode,
+      token: recoverToken,
+      path: path,
+      status: 'pending', // Initial status of the recovery request
+      createdAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+      usuario: userId, // Para el campo 'usuario' de tipo number
+      ruta: path, // Para el campo 'ruta' de tipo string | null
+      codigo: parseInt(recoverCode), // Para el campo 'codigo' de tipo number
+      estado: 1, // Para el campo 'estado' de tipo number (1 para pendiente)
+      fecha_creacion: now.toISOString(), // Para el campo 'fecha_creacion' de tipo string | null
+      fecha_vencimiento: expiresAt.toISOString(), // Para el campo 'fecha_vencimiento' de tipo string | null
     };
-    const result = await notificationService.sendRecoveryCode(
-      {
-        ...resetEntry,
-        method:NOTIFICATION_METHODS.EMAIL,
-        to: EMAIL,
-      }
-    );
-    // save restEntry {}
+
+    try {
+        const entryToSave = createObjectFromTemplate(recoverpasswordmodel, resetEntry);
+        // Assuming dbController.guardarRegistro saves the record and returns a result indicating success
+        // Replace 'password_resets' with the actual table name if different
+        const saveResult = await dbController.guardarRegistro('recuperacion_contrasena', entryToSave,["id"]);
+
+        // Check if saving was successful (adjust check based on dbController return value)
+        if (!saveResult || saveResult.success === false) {
+             console.error("Failed to save password reset entry for user:", userId, saveResult);
+             // If saving fails, the recovery process cannot proceed as the token/code won't be valid.
+             // Return a failure message that doesn't reveal user existence.
+             return { success: false, message: "An error occurred. Please try again later." };
+        }
+
+        // Send the recovery email to the user
+        // Pass necessary details to the email service for template rendering
+        const emailResult = await notificationService.sendRecoveryCode(
+          {
+            method: NOTIFICATION_METHODS.EMAIL,
+            to: userEmail,
+            userName: userName, // User's name for email personalization
+            recoveryLink: `${path}`, // Construct the full URL to the reset page ${process.env.FRONTEND_URL}
+            recoveryCode: recoverCode, // The code (if needed in the email body)
+            expiresAt: expiresAt, // Expiry date/time
+            // Add any other data required by the email template (e.g., site name)
+          }
+        );
+
+        // Check if email sending was successful (adjust based on notificationService return)
+        if (!emailResult || emailResult.success === false) {
+             console.error("Failed to send recovery email for user:", userId, emailResult);
+             // If email sending fails, the user didn't receive the link/code.
+             // Return a failure message that doesn't reveal user existence.
+             // Consider logging the saved entry ID for potential manual retry or debugging.
+             return { success: false, message: "An error occurred. Please try again later." };
+        }
+
+        // If saving and sending were successful, return a generic success message
+        return { success: true, message: "If a user with that email exists, a recovery link has been sent." };
+
+    } catch (error) {
+        // Catch any unexpected errors during the process (e.g., database connection issues, service errors)
+        console.error("Unexpected error during password recovery process for email:", userEmail, error);
+        return { success: false, message: "An unexpected error occurred. Please try again later." };
+    }
+  }
+  async verifycodePassword({path,code,password, codigo, contrasena}){
+    const pathlink = path;
+    const codenumber = code || codigo;
+    const passwordstring = password || contrasena;
+
+    const results  = await dbController.queryWithFilters('recuperacion_contrasena', {ruta: pathlink});
+    if (!results || results.lenght === 0) return {success:false, message:"no existe"}
+    const resultobj = Array.isArray(results) ? results[0] : results
+
+    const isValid = verifycode(resultobj, {code:codenumber})
+    if (!isValid?.success) return isValid;
+    const changePasswordresult = await     this.actualizarRegistro({
+      userId: resultobj.usuario,
+      newPassword: passwordstring,
+    })
     return {
-      existuserobj,
-      resetEntry,
-      result
+      ...isValid,
+      resultobj,
+      changePasswordresult
     }
   }
 }

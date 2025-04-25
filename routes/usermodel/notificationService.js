@@ -165,18 +165,17 @@ class NotificationService {
    * Envía una notificación con un código de recuperación de contraseña.
    * @param {NOTIFICATION_METHODS.EMAIL | NOTIFICATION_METHODS.SMS} method - Método de notificación ('email' o 'sms').
    * @param {string} to - Dirección de correo o número de teléfono del destinatario.
-   * @param {string} code - Código de recuperación.
-   * @param {string} username - Nombre o nombre de usuario del destinatario.
+   * @param {string} recoveryCode - Código de recuperación.
+   * @param {string} userName - Nombre o nombre de usuario del destinatario.
    * @param {number} [expiryMinutes=15] - Tiempo de expiración del código en minutos.
    * @returns {Promise<{success: boolean, error?: string, messageId?: string, sid?: string}>} - Resultado de la operación.
    */
   async sendRecoveryCode({
     method,
     to,
-    code,
-    token,
-    username,
-    path,
+    recoveryCode,
+    userName,
+    recoveryLink,
     expiryMinutes = 15
   }) {
     const expiryText = `Este código expirará en ${expiryMinutes} minutos.`;
@@ -186,9 +185,9 @@ class NotificationService {
       case NOTIFICATION_METHODS.EMAIL:
         const subject = 'Código de Recuperación de Contraseña';
   
-        const text = `Hola ${username},
+        const text = `Hola ${userName},
   
-  Tu código de recuperación es: ${code}
+  Tu código de recuperación es: ${recoveryCode}
   
   Este código expirará en ${expiryMinutes} minutos.
   
@@ -197,9 +196,9 @@ class NotificationService {
         const html = `
           <div style="font-family: sans-serif; line-height: 1.6;">
             <h2>Recuperación de Contraseña</h2>
-            <p>Hola ${username},</p>
-            <p>Tu código de recuperación de contraseña es: <strong style="font-size: 1.2em;">${code}</strong></p>
-            <p><a href="https://tu-app.com${path}" style="display: inline-block; padding: 10px 20px; background: #4a90e2; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a></p>
+            <p>Hola ${userName},</p>
+            <p>Tu código de recuperación de contraseña es: <strong style="font-size: 1.2em;">${recoveryCode}</strong></p>
+            <p><a href="${recoveryLink}" style="display: inline-block; padding: 10px 20px; background: #4a90e2; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a></p>
             <p><em>${expiryText}</em></p>
             <hr>
             <p><small>${ignoreText}</small></p>
@@ -209,7 +208,7 @@ class NotificationService {
         return this.sendEmail(to, subject, text, html);
   
       case NOTIFICATION_METHODS.SMS:
-        const message = `Tu código de recuperación es: ${code}. Expira en ${expiryMinutes} min.`;
+        const message = `Tu código de recuperación es: ${recoveryCode}. Expira en ${expiryMinutes} min.`;
         return this.sendSMS(to, message);
   
       default:
