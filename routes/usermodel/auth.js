@@ -85,10 +85,11 @@ export class AuthModel {
 
   async iniciarSesion({ correoUsuario,claveUsuario}) {
     const results = await dbController.queryWithFilters('usuarios', { correoUsuario });
+    const notExistMessage = { success: false, message: "Usuario no existe o contraseña incorrecta" }
     if (!results || results.length === 0) {
-      return { success: false, message: "Usuario no existe o contraseña incorrecta" };
+      return notExistMessage;
     }
-    const user = results[0];
+    const user = Array.isArray(results) ? results[0] : results;
     const getToken = await authService.authenticateUser(user, claveUsuario);
     return getToken;
   }

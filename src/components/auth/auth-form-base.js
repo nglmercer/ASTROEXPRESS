@@ -6,12 +6,14 @@ export class AuthFormBase extends LitElement {
   static properties = {
     message: { state: true },      // Common state for displaying messages (errors, info)
     _isSending: { state: true },   // Common state for indicating form submission in progress
+    _messagecolor: { state: true },      // Common state for displaying messages (errors, info)
   };
 
   constructor() {
     super();
     this.message = '';
     this._isSending = false;
+    this._messagecolor = 'blue';
   }
 
   // Common styles for form layout, inputs, buttons, etc.
@@ -203,7 +205,7 @@ export class AuthFormBase extends LitElement {
           </div>
         </div>
 
-        <div class="error-message">
+        <div class="error-message" style="color:${this._messagecolor}">
           ${this.message ? html`<p>${this.message}</p>` : ''} <!-- Common error message display -->
         </div>
         <br>
