@@ -3,7 +3,15 @@ import notificationService, { NOTIFICATION_METHODS } from './notificationService
 // Ejemplo de uso
 async function requestPasswordReset(userEmail, userName) {
   const recoveryCode = Math.random().toString(36).substring(2, 8).toUpperCase(); // Genera un código simple
-
+/*
+  id INTEGER,
+  usuario INTEGER,
+  ruta TEXT,
+  codigo INTEGER,
+  estado INTEGER,
+  fecha_creacion TEXT,
+  fecha_vencimiento TEXT
+   */
   console.log(`Enviando código de recuperación a ${userEmail}`);
   const result = await notificationService.sendRecoveryCode(
     NOTIFICATION_METHODS.EMAIL,

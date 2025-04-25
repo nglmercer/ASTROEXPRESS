@@ -1,5 +1,23 @@
+import notificationService, { NOTIFICATION_METHODS } from './notificationService.js'; // Ajusta la ruta
 import { dbController } from '../backupdb.js';
 import authService  from "./jwt.js";
+import crypto from "crypto";
+
+// Código corto para validación manual (6 caracteres alfanum.)
+function genCode(length = 6) {
+  return crypto
+    .randomBytes(length)
+    .toString("base64") // base64 → +, / caracteres
+    .replace(/[^a-zA-Z0-9]/g, "") // limpio a solo alfanum
+    .substring(0, length)
+    .toUpperCase();
+}
+
+// Token largo para incluir en la URL
+function genToken() {
+  return crypto.randomBytes(32).toString("hex"); // 64 caracteres hex
+}
+
 /*export interface IUser {
   idUsuario: number;
   apodoUsuario: string;
@@ -124,5 +142,41 @@ export class AuthModel {
   obtenerUsuario(string) {
     const hashedPassword = authService.generatePasswordHash(string);
     return hashedPassword;
+  }
+  async recuperarpassword({correoUsuario, email}){
+    const EMAIL = correoUsuario || email
+    const existeuser = await this.existeUsuario({correoUsuario:EMAIL})
+    if (!existeuser || existeuser.length === 0){
+      return { success: false}
+    }
+    const existuserobj = Array.isArray(existeuser) ? existeuser[0] : existeuser;
+    const recovertoken =genToken()
+    const recoverCode = genCode()
+    const username = existuserobj?.apodoUsuario || correoUsuario;
+    const resetEntry = {
+      id:         existuserobj?.idUsuario || Date.now(),     // o usa uuid()
+      userId:     username,
+      userName: username,
+      username,
+      code:      recoverCode,
+      token:      recovertoken,
+      path:       `/reset-password/${recovertoken}`,
+      status:     'pending',
+      createdAt:  new Date().toISOString(),
+      expiresAt:  new Date(Date.now() + 15*60*1000).toISOString() // +15m
+    };
+    const result = await notificationService.sendRecoveryCode(
+      {
+        ...resetEntry,
+        method:NOTIFICATION_METHODS.EMAIL,
+        to: EMAIL,
+      }
+    );
+    // save restEntry {}
+    return {
+      existuserobj,
+      resetEntry,
+      result
+    }
   }
 }

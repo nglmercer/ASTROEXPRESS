@@ -430,11 +430,19 @@ class LoginService {
         localStorage.removeItem("user");
     }
     recoverPassword(email) {
-        //	http://localhost/backnew/recuperacion-contrasena/send-token POST 
+        // send email code
+        //	http://localhost/backnew/recuperacion-contrasena/send-token POST {email:"string@"}
         return this._interceptor(http.post(`${this.host}/recuperacion-contrasena/send-token`, { correoUsuario: email }));
-    
-	
     }
+    changePassword(data){
+        // https://api.koinima.com/recuperacion-contrasena/verify-token POST 
+        var requiredata={"path": "string", "codigo": "325036","nuevaContrasena":"string"}
+/*         codigo    : "325036"// CODE
+        nuevaContrasena    : "PASSWORD" //newpassword
+        path :     "nMwEnLRl7Ta1QvjecE8PqlvuW7YdqVAQJvjYoGFY22Evwl8ESd" */
+        return this._interceptor(http.post(`${this.host}/recuperacion-contrasena/verify-token`,data));
+    }
+
 }
 const loginservice = new LoginService(actualBaseApi);
 export {

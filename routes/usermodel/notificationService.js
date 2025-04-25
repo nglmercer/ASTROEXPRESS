@@ -170,36 +170,54 @@ class NotificationService {
    * @param {number} [expiryMinutes=15] - Tiempo de expiración del código en minutos.
    * @returns {Promise<{success: boolean, error?: string, messageId?: string, sid?: string}>} - Resultado de la operación.
    */
-  async sendRecoveryCode(method, to, code, username, expiryMinutes = 15) {
+  async sendRecoveryCode({
+    method,
+    to,
+    code,
+    token,
+    username,
+    path,
+    expiryMinutes = 15
+  }) {
     const expiryText = `Este código expirará en ${expiryMinutes} minutos.`;
     const ignoreText = 'Si no solicitaste este código, por favor ignora este mensaje.';
-
+  
     switch (method) {
       case NOTIFICATION_METHODS.EMAIL:
         const subject = 'Código de Recuperación de Contraseña';
-        const text = `Hola ${username},\n\nTu código de recuperación de contraseña es: ${code}\n\n${expiryText}\n\n${ignoreText}`;
-        const html =/*html */ `
+  
+        const text = `Hola ${username},
+  
+  Tu código de recuperación es: ${code}
+  
+  Este código expirará en ${expiryMinutes} minutos.
+  
+  Si no solicitaste este código, ignora este mensaje.`;
+  
+        const html = `
           <div style="font-family: sans-serif; line-height: 1.6;">
             <h2>Recuperación de Contraseña</h2>
             <p>Hola ${username},</p>
             <p>Tu código de recuperación de contraseña es: <strong style="font-size: 1.2em;">${code}</strong></p>
+            <p><a href="https://tu-app.com${path}" style="display: inline-block; padding: 10px 20px; background: #4a90e2; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a></p>
             <p><em>${expiryText}</em></p>
             <hr>
             <p><small>${ignoreText}</small></p>
           </div>
         `;
+  
         return this.sendEmail(to, subject, text, html);
-
+  
       case NOTIFICATION_METHODS.SMS:
-        // Los SMS suelen ser más concisos
         const message = `Tu código de recuperación es: ${code}. Expira en ${expiryMinutes} min.`;
         return this.sendSMS(to, message);
-
+  
       default:
         console.error(`Invalid notification method requested: ${method}`);
         return { success: false, error: 'Método de notificación inválido' };
     }
   }
+  
 }
 
 // Exporta una instancia única (Singleton pattern)

@@ -1,8 +1,8 @@
 import { AuthModel } from "./usermodel/auth.js";
 import authService  from "./usermodel/jwt.js";
 const exampleUser = {
-  apodoUsuario: "test1234123",
-  correoUsuario: "test1234123@gmail.com",
+  apodoUsuario: "nglmercer",
+  correoUsuario: "nglmercer@gmail.com",
   claveUsuario: "123456",
 }
 async function main() {
@@ -19,7 +19,7 @@ async function main() {
   // verificamos que sea correcto 
   const exactPassword = await authService.verifyPassword("123456", paswwordhash);
   console.log("exactPassword", exactPassword); */
-  const resultReg = await authModel.registrarUsuario(exampleUser);
-  console.log("resultReg", resultReg);
+  const resultRec = await authModel.recuperarpassword(exampleUser);
+  console.log("resultRec", resultRec);
 }
 main();
