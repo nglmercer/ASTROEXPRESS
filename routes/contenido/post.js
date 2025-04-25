@@ -243,7 +243,10 @@ router.post('/usuario/registro',async (req, res) => {
         return res.status(400).json({ success: false, message: 'Nombre, correo y contraseña requeridos',ValidOBJ });
     }
     const result = await authModel.registrarUsuario(objtoValidate);
-    res.status(201).json(result);
+    if (result && result.success) {
+        return res.status(201).json(result);
+    }
+    res.status(400).json({ success: false, message: result.message });
 });
 
 router.post('/usuario/sesion', async (req, res) => {

@@ -107,8 +107,14 @@ export class AuthModel {
     // rellenamos los campos faltantes
     const Parseduser = createObjectFromTemplate(Usermodel, newUser);
     const result = await dbController.guardarRegistro('usuarios', Parseduser,["idUsuario"]);
+    const token = await authService.authenticateUser(result, claveUsuario);
     delete result.claveUsuario;
-    return result;
+    return {
+        success: true,
+        message: "Usuario registrado correctamente",
+        data: result,
+        token: typeof token === 'object' ? token.token : token
+    }
   }
   async existeUsuario({ correoUsuario }) {
     const results = await dbController.queryWithFilters('usuarios', { correoUsuario });

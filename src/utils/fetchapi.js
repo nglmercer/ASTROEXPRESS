@@ -165,7 +165,11 @@ class FetchApi {
             headers: this._authHeaders()
         }));
     }
-
+    obtenerUsuarios(pagina, data) {
+        return this._interceptor(this.http.get(`${this.host}/usuario/pagina/${pagina}`, {
+            headers: this._authHeaders()
+        }));
+    }
     obtenerCatalogosRecientes() {
         return this._interceptor(this.http.get(`${this.host}/catalogos/recientes`, {
             headers: this._authHeaders()

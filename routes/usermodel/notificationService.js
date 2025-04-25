@@ -178,7 +178,7 @@ class NotificationService {
       case NOTIFICATION_METHODS.EMAIL:
         const subject = 'Código de Recuperación de Contraseña';
         const text = `Hola ${username},\n\nTu código de recuperación de contraseña es: ${code}\n\n${expiryText}\n\n${ignoreText}`;
-        const html = `
+        const html =/*html */ `
           <div style="font-family: sans-serif; line-height: 1.6;">
             <h2>Recuperación de Contraseña</h2>
             <p>Hola ${username},</p>

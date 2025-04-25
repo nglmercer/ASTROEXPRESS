@@ -343,24 +343,60 @@ class DatabaseController {
       });
     });
   }
+    /**
+   * Obtiene registros con paginación y ordenamiento.
+   * @param {string} tableName - Nombre de la tabla.
+   * @param {number} [page=1] - Número de página (base 1).
+   * @param {number} [limit=10] - Cantidad de registros por página.
+   * @param {string} [orderByColumn='rowid'] - Columna por la cual ordenar. 'rowid' es el ID interno de SQLite. Usa 'id' o tu clave primaria si prefieres.
+   * @param {'ASC' | 'DESC'} [orderDirection='ASC'] - Dirección del ordenamiento. 'ASC' para los primeros, 'DESC' para los últimos.
+   * @returns {Promise<Array>} - Array de registros paginados.
+   */
+    async getRecordsWithPagination({tableName, page = 1, limit = 10, orderByColumn = 'rowid', orderDirection = 'DESC'}) {
+      // Reutiliza la verificación de existencia de tabla si lo deseas
+      // if (!await this.tableExists(tableName)) {
+      //   throw new Error(`Table ${tableName} does not exist`);
+      // }
+  
+      const validOrder = ['ASC', 'DESC'].includes(orderDirection.toUpperCase());
+      if (!validOrder) {
+        throw new Error("orderDirection debe ser 'ASC' o 'DESC'");
+      }
+      // Asegurar que page y limit sean números positivos
+      const currentPage = Math.max(1, page);
+      const currentLimit = Math.max(1, limit);
+      const offset = (currentPage - 1) * currentLimit;
+      const direction = orderDirection.toUpperCase();
+  
+      return new Promise((resolve, reject) => {
+        // Es mejor usar READONLY para consultas SELECT si no modificas datos
+        const db = this._open(sqlite3.OPEN_READONLY);
+        // Asegúrate de que orderByColumn es un nombre de columna válido para evitar inyección SQL si viniera de input no confiable.
+        // Para este ejemplo, asumimos que es seguro ya que viene del código o de una fuente controlada.
+        const sql = `
+          SELECT *
+          FROM ${tableName}
+          ORDER BY ${orderByColumn} ${direction}
+          LIMIT ? OFFSET ?
+        `;
+  
+        db.all(sql, [currentLimit, offset], (err, rows) => {
+          db.close();
+          if (err) return reject(err);
+          resolve(rows || []); // Devuelve array vacío si no hay filas
+        });
+      });
+    }
 }
-
 // Export singleton instance
 export const dbController = new DatabaseController();
+
 (async () => {
+
+  /*
   const exists = await dbController.tableExists('audios');
   console.log('¿Existe tabla audios?', exists);
 
-  /*
-  if (exists) {
-    const cols = await dbController.getTableColumns('audios');
-    console.log('Columnas de audios:', cols);
- 
-    const count = await dbController.getRowCount('audios');
-    console.log('Total filas en audios:', count);
-  }
- 
-  */
   const tablas = await dbController.listTables();
   //    console.log('Tablas en la BD:', tablas);
   // implementar un metodo para buscar en una tabla queryWithFilters si algun elemento incluye una subcadena de texto o contienen un elemento 
@@ -415,5 +451,6 @@ export const dbController = new DatabaseController();
   } catch (error) {
     console.error('Error:', error);
   }
-})(); */
+  */
+  })(); 
 

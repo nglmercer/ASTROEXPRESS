@@ -27,6 +27,30 @@ const checkAuthOptional = (req, res, next) => {
 
 // Define un tamaño de página por defecto
 const DEFAULT_PAGE_SIZE = 20;
+// GET /categorias/pagina/:pagina (Requiere Auth) - Obtener categorías paginadas
+router.get('/categorias/pagina/:pagina', checkAuth, async (req, res) => {
+    const pagina = parseInt(req.params.pagina, 10);
+    const page = pagina
+    if (isNaN(pagina) || pagina < 1) {
+        return res.status(400).json({ message: 'Número de página inválido' });
+    }
+    try {
+        const data = await dbController.getRecordsWithPagination({
+            tableName: 'categorias',
+            page
+        });
+        const totalCount = await dbController.getRowCount('categorias');
+        const totalPaginas = Math.ceil(totalCount / 20);
+
+        res.json({
+            data: data,
+            totalPaginas: totalPaginas
+        });
+    } catch (error) {
+        console.error('Error al obtener categorías paginadas:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
 
 // GET /catalogo/:idCatalogo (Requiere Auth) - Obtener un catálogo por ID
 router.get('/catalogo/:idCatalogo', checkAuth, async (req, res) => {
@@ -185,30 +209,6 @@ router.get('/usuario/:idUsuario/catalogo/:catalogo/favorito', checkAuth, async (
     }
 });
 
-// GET /categorias/pagina/:pagina (Requiere Auth) - Obtener categorías paginadas
-router.get('/categorias/pagina/:pagina', checkAuth, async (req, res) => {
-    const pagina = parseInt(req.params.pagina, 10);
-    if (isNaN(pagina) || pagina < 1) {
-        return res.status(400).json({ message: 'Número de página inválido' });
-    }
-
-    const limit = DEFAULT_PAGE_SIZE;
-    const offset = (pagina - 1) * limit;
-
-    try {
-        const data = await dbController.getRecords('categorias', limit, offset);
-        const totalCount = await dbController.getRowCount('categorias');
-        const totalPaginas = Math.ceil(totalCount / limit);
-
-        res.json({
-            data: data,
-            totalPaginas: totalPaginas
-        });
-    } catch (error) {
-        console.error('Error al obtener categorías paginadas:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
-    }
-});
 
 // GET /usuario/pov/:idUsuario (Requiere Auth) - Obtener datos públicos de un usuario por ID
 router.get('/usuario/pov/:idUsuario', checkAuth, async (req, res) => {
@@ -241,7 +241,35 @@ router.get('/usuario/:idUsuario', checkAuth, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
+router.get('/usuario/pagina/:pagina', checkAuth, async (req, res) => {
+    const pagina = parseInt(req.params.pagina, 10);
+    const page = pagina;
+    if (isNaN(pagina) || pagina < 1) {
+        return res.status(400).json({ message: 'Número de página inválido' });
+    }
+    try {
+        const data = await dbController.getRecordsWithPagination({
+            tableName: 'usuarios',
+            page
+        });
+        const totalCount = await dbController.getRowCount('usuarios');
+        const totalPaginas = Math.ceil(totalCount / DEFAULT_PAGE_SIZE);
 
+        // Filter out sensitive data like password/claveUsuario
+        const processedData = data.map(user => {
+            const { password, claveUsuario, ...restOfData } = user;
+            return restOfData;
+        });
+
+        res.json({
+            data: processedData,
+            totalPaginas: totalPaginas
+        });
+    } catch (error) {
+        console.error('Error al obtener usuarios paginados:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
 // GET /roles/pagina/:pagina (Requiere Auth) - Obtener roles paginados
 router.get('/roles/pagina/:pagina', checkAuth, async (req, res) => {
     const pagina = parseInt(req.params.pagina, 10);
