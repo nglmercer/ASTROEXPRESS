@@ -238,7 +238,6 @@ router.post('/usuario/registro',async (req, res) => {
         }
     }
     const ValidOBJ = validateFields({required: userOBJ, actualObj: req.body, options});
-    console.log('Registrando:', objtoValidate);
     if (!ValidOBJ.isValid) {
         return res.status(400).json({ success: false, message: 'Nombre, correo y contraseña requeridos',ValidOBJ });
     }

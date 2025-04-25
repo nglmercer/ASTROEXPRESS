@@ -138,9 +138,9 @@ export class RegisterFormElement extends AuthFormBase { // Extend the base class
       if (!response) { // Assuming null/undefined means failure not handled by catch
          console.error('Register API returned no data or generic error');
          this.message = "Error al registrar usuario. Inténtalo de nuevo.";
-      } else if (response.error) { // Assuming API might return an 'error' property on failure
-         this.message = response.error; // Display error message from API
-         console.error('Register API error:', response.error);
+      } else if (response.error || response.success === false) { // Assuming API might return an 'error' property on failure
+         this.message = response.error || response.message; // Display error message from API
+         console.error('Register API error:', response.error || response.message);
       }
       else {
         console.log("Registro exitoso:", response);
@@ -149,6 +149,7 @@ export class RegisterFormElement extends AuthFormBase { // Extend the base class
         this._email = "";
         this._clave = "";
         this.message = "Registro exitoso! Ahora puedes iniciar sesión."; // Success message
+        this._messagecolor = 'green';
 
         // Dispatch registration success event
         this.dispatchE('registration-success', response); // Use inherited dispatchE

@@ -13,7 +13,7 @@ export class AuthFormBase extends LitElement {
     super();
     this.message = '';
     this._isSending = false;
-    this._messagecolor = 'blue';
+    this._messagecolor = 'red';
   }
 
   // Common styles for form layout, inputs, buttons, etc.
@@ -98,8 +98,7 @@ export class AuthFormBase extends LitElement {
       text-decoration: underline;
     }
 
-    .error-message {
-      color: rgb(255, 36, 36);
+    .state-message {
       text-align: center;
       width: 100%;
       font-weight: bolder;
@@ -205,7 +204,7 @@ export class AuthFormBase extends LitElement {
           </div>
         </div>
 
-        <div class="error-message" style="color:${this._messagecolor}">
+        <div class="state-message" style="color:${this._messagecolor}">
           ${this.message ? html`<p>${this.message}</p>` : ''} <!-- Common error message display -->
         </div>
         <br>
