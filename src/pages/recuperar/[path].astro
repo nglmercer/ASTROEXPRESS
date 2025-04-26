@@ -1,49 +1,36 @@
 ---
 import LoginPage from "@pages/login.astro";
-import ModalComponent from '@components/modal/Modal.astro';
 const { path } =  Astro.params;
 console.log(path);
 
 ---
 <script src="/src/components/lit/litcomponents.js"></script>
 <LoginPage />
-<ModalComponent id='modal-2' title='intruce el codigo'>
-  <div class="form-container">
-    <base-recovery-code-input id="stateful-base" length="8" allowed-chars="alphanumeric"></base-recovery-code-input>
-  </div>
-  <slot name="actions">
-    <div class="flex justify-cc">
-      <button class="modal__btn modal__btn-primary" id="confirmbtn">
-        verificar Codigo
-      </button>
-      <button class="modal__btn" data-micromodal-close>
-        Cancelar
-      </button>
-    </div>
-  </slot>
-</ModalComponent>
+
 <script>
+  import MicroModal from "micromodal";
 document.addEventListener('DOMContentLoaded', async function() {
     const modal = document.querySelector('#modal-2');
-    console.log("modal", modal,MicroModal);
+    const buttonform = document.getElementById("confirmbtn")
+    const verifyInput = document.querySelector("base-recovery-code-input")
+    if (!modal || !buttonform) return;
     MicroModal.show('modal-2');
-    if (modal) {
-        modal.addEventListener('modal-success', (e) => {
-            const detail = e.detail;
-            console.log('modal exitoso:', detail.message);
-            MicroModal.close('modal-2');
-        });
-    }
-    // no funcionan los eventListeners
-    const passform = document.getElementById("password-recovery-form")
-    console.log(passform)
-    passform?.addEventListener("submit",function (e){
-      e.preventDefault();
-      const formdata = new FormData(passform);
-      console.log("submit",passform, formdata)
+    
+    console.log("modal", modal);
+    console.log("buttonform",buttonform)
+    const events = ["submit"];
+    console.log("verifyInput",verifyInput)
+    events.forEach(event => {
+      verifyInput?.addEventListener(event,function (e){
+        console.log("event",e)
+        console.log("verifyInput",verifyInput.value)
+      })
     })
-    passform?.addEventListener("change",function (e){
-      console.log("change",e)
+    buttonform?.addEventListener("click",function (e){
+      const value = verifyInput?.value
+      verifyInput?.setState("loading")
+      console.log("click",value)
     })
+
 });
 </script>
