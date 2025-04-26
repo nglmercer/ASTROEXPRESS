@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', async function() {
               });
               
         });
+        loginForm.addEventListener('recuperar',(e)=>{
+          console.log("recuperar")
+        })
     }
     console.log("localStorage.getItem('token')", localStorage.getItem("token"));
     console.log("localStorage.getItem('user')", localStorage.getItem("user"));

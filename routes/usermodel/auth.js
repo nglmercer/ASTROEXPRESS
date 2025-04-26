@@ -142,35 +142,51 @@ function createObjectFromTemplate(template, source) {
   return result;
 }
 function verifycode(obj, { code }) {
-    // Check if the object exists and has the necessary properties
     if (!obj || typeof obj.codigo === 'undefined' || !obj.fecha_vencimiento) {
-        // console.log("Verification failed: Invalid object or missing properties."); // Optional logging
         return { success: false, message: "Invalid object or missing properties." };
     }
 
-    // Check if the code matches
-    // Assuming obj.codigo is a number based on the template.
-    // The input code might be a string, so parse it to ensure correct comparison.
     const providedCode = parseInt(code, 10);
     if (isNaN(providedCode) || obj.codigo !== providedCode) {
-        // console.log("Verification failed: Code mismatch or invalid input code."); // Optional logging
         return { success: false, message: "Code mismatch or invalid input code.",code,codew:obj.codigo };
     }
 
-    // Check if the expiration date is in the future
-    // The date string should be parseable by new Date()
-    const expirationDate = new Date(obj.fecha_vencimiento);
-    const now = new Date();
-
-    // Check if the parsed date is valid and if it's in the past
-    if (isNaN(expirationDate.getTime()) || expirationDate < now) {
-        // console.log("Verification failed: Code has expired or invalid expiration date."); // Optional logging
-        return { success: false, message: "Code has expired or invalid expiration date." };
+    const timetonumber = Number(obj.fecha_vencimiento);
+    const isvalidTime = isValidTime(timetonumber)
+    if (!isvalidTime) {
+        return { success: false, message: "Code has expired or invalid expiration date.", isvalidTime };
     }
 
-    // If all checks pass (object valid, code matches, and not expired)
-    // console.log("Verification successful."); // Optional logging
     return { success: true, message: "Verification successful." };
+}
+function getTimestamp(expirationMinutes = 15) {
+  const createdAt = Date.now();
+  const expiresAt = createdAt + (expirationMinutes * 60 * 1000);
+  return {
+    createdAt: createdAt,    // Timestamp en milisegundos
+    expiresAt: expiresAt     // Timestamp en milisegundos
+  };
+}
+function isValidTime(expirationTime) {
+  const currentTime = Date.now();
+  let expirationTimestampValue;
+
+  if (typeof expirationTime === 'number') {
+    // If the input is already a number, assume it's a timestamp in milliseconds
+    expirationTimestampValue = expirationTime;
+  } else if (typeof expirationTime === 'string') {
+    // If the input is a string, try parsing it as a date
+    const parsedDate = new Date(expirationTime);
+    // getTime() returns NaN if the date string is invalid
+    expirationTimestampValue = parsedDate.getTime();
+  } else {
+    // If the input is neither a number nor a string, it's invalid input
+    expirationTimestampValue = NaN;
+  }
+
+  // Check if the obtained timestamp is a valid number AND if the current time is before the expiration time
+  // If expirationTimestampValue is NaN, the first part of the condition is false, returning false (invalid/expired)
+  return !isNaN(expirationTimestampValue) && currentTime < expirationTimestampValue;
 }
 export class AuthModel {
   constructor() {}
@@ -278,10 +294,7 @@ export class AuthModel {
     const path = `/reset-password/${recoverToken}`;
 
     // Set timestamps
-    const now = new Date();
-    // Calculate expiry time (15 minutes from now)
-    // Use getTime() for correct millisecond addition
-    const expiresAt = new Date(now.getTime() + 15 * 60 * 1000);
+    const { createdAt, expiresAt } = getTimestamp();
 
     // Create the recovery entry object to be saved in the database
     const resetEntry = {
@@ -292,14 +305,14 @@ export class AuthModel {
       token: recoverToken,
       path: path,
       status: 'pending', // Initial status of the recovery request
-      createdAt: now.toISOString(),
-      expiresAt: expiresAt.toISOString(),
+      createdAt: createdAt,
+      expiresAt: expiresAt,
       usuario: userId, // Para el campo 'usuario' de tipo number
       ruta: path, // Para el campo 'ruta' de tipo string | null
       codigo: parseInt(recoverCode), // Para el campo 'codigo' de tipo number
       estado: 1, // Para el campo 'estado' de tipo number (1 para pendiente)
-      fecha_creacion: now.toISOString(), // Para el campo 'fecha_creacion' de tipo string | null
-      fecha_vencimiento: expiresAt.toISOString(), // Para el campo 'fecha_vencimiento' de tipo string | null
+      fecha_creacion: createdAt, // Para el campo 'fecha_creacion' de tipo string | null
+      fecha_vencimiento: expiresAt, // Para el campo 'fecha_vencimiento' de tipo string | null
     };
 
     try {

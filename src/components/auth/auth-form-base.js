@@ -18,13 +18,18 @@ export class AuthFormBase extends LitElement {
 
   // Common styles for form layout, inputs, buttons, etc.
   static styles = css`
+    :host {
+      --yellow-text: #E5AF05;
+    }
     .formLogin { /* Renamed from .formLogin to .authForm to be more generic, but kept original class name for less refactor in HTML */
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
+    .yellow {
+      color: var(--yellow-text) !important;
+    }
     .text-shadow { /* Moved from register, might be used in login too, or keep specific */
         text-shadow:
           -1px -1px 0 gray,
@@ -102,7 +107,6 @@ export class AuthFormBase extends LitElement {
       text-align: center;
       width: 100%;
       font-weight: bolder;
-      margin-top: 10px;
       min-height: 1.2em;
     }
 
@@ -141,6 +145,7 @@ export class AuthFormBase extends LitElement {
 
   // Utility method for dispatching custom events with bubbles and composed
   dispatchE(name, data) {
+    console.log("dispatchE",name)
     this.dispatchEvent(new CustomEvent(name, {
       detail: data,
       bubbles: true,
@@ -207,8 +212,6 @@ export class AuthFormBase extends LitElement {
         <div class="state-message" style="color:${this._messagecolor}">
           ${this.message ? html`<p>${this.message}</p>` : ''} <!-- Common error message display -->
         </div>
-        <br>
-
         <div class="center" style="width: 100%;">
           ${this.renderSubmitButton()} <!-- Insert specific submit button -->
         </div>

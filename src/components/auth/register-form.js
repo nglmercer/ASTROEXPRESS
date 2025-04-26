@@ -36,10 +36,12 @@ export class RegisterFormElement extends AuthFormBase { // Extend the base class
 
       <input
         type="email"
+        name="email"
         placeholder="Correo electrónico"
         .value=${this._email}
         @input=${this._handleEmailInput}
         ?disabled=${this._isSending}
+        autocomplete="email"
         required
       />
 

@@ -38,10 +38,12 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
     return html`
       <input
         type="email"
+        name="email"
         placeholder="Correo electrónico"
         .value=${this._correoUsuario}
         @input=${this._handleUsuarioInput}
         ?disabled=${this._isSending}
+        autocomplete="email"
         required>
 
       <password-field
@@ -52,6 +54,8 @@ export class LoginFormElement extends AuthFormBase { // Extend the base class
         @submit=${(e) => this._iniciarSesion()}
         required
       ></password-field>
+      
+      <p><a href="#" class="yellow" @click=${()=>this.dispatchE("recuperar")}>Recuperar contraseña</a></p>
     `;
   }
 
