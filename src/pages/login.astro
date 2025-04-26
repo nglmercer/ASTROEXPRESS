@@ -34,11 +34,13 @@ import ModalComponent from '@components/modal/Modal.astro';
       </slot>
     </ModalComponent>
     <script>
+      import { loginservice } from "@utils/fetchapi";
       const passform = document.getElementById("password-recovery-form") as HTMLFormElement;
       passform?.addEventListener("submit",function (e){
         e.preventDefault();
         const formdata = new FormData(passform);
-        console.log("submit",passform, formdata)
+        console.log("submit",passform, formdata);
+        loginservice.recoverPassword(formdata.get("email"))
       })
     </script>
   </Layout>

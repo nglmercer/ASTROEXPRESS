@@ -6,7 +6,14 @@ console.log(path);
 ---
 <script src="/src/components/lit/litcomponents.js"></script>
 <LoginPage />
-
+<script define:vars={{ path }}>
+  const urlParams = new URLSearchParams(window.location.search);
+  var RecoveryOBJ = {
+    path: path,
+    email: urlParams.get("email")
+  }
+  window.RecoveryOBJ = RecoveryOBJ;
+</script>
 <script>
   import MicroModal from "micromodal";
 document.addEventListener('DOMContentLoaded', async function() {
@@ -23,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     events.forEach(event => {
       verifyInput?.addEventListener(event,function (e){
         console.log("event",e)
-        console.log("verifyInput",verifyInput.value)
+        console.log("verifyInput",verifyInput.value, window.RecoveryOBJ)
       })
     })
     buttonform?.addEventListener("click",function (e){

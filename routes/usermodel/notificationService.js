@@ -6,7 +6,8 @@ import dotenv from 'dotenv'; // Importa dotenv para cargar variables de entorno
 // Carga las variables de entorno desde el archivo .env si existe
 // Es importante llamar a config() al principio
 dotenv.config();
-
+const urlweb = process.env.URL_WEB;
+console.log("dotenv", urlweb)
 // Constantes para los métodos de notificación
 export const NOTIFICATION_METHODS = {
   EMAIL: 'email',
@@ -180,7 +181,7 @@ class NotificationService {
   }) {
     const expiryText = `Este código expirará en ${expiryMinutes} minutos.`;
     const ignoreText = 'Si no solicitaste este código, por favor ignora este mensaje.';
-  
+    const urlRedirect = urlweb + "/recuperar/" + recoveryLink;
     switch (method) {
       case NOTIFICATION_METHODS.EMAIL:
         const subject = 'Código de Recuperación de Contraseña';
@@ -198,7 +199,8 @@ class NotificationService {
             <h2>Recuperación de Contraseña</h2>
             <p>Hola ${userName},</p>
             <p>Tu código de recuperación de contraseña es: <strong style="font-size: 1.2em;">${recoveryCode}</strong></p>
-            <p><a href="${recoveryLink}" style="display: inline-block; padding: 10px 20px; background: #4a90e2; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a></p>
+            <p><a href="${urlRedirect}" style="display: inline-block; padding: 10px 20px; background: #4a90e2; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a></p>
+            <p>o entra a este enlace ${urlRedirect}</p> 
             <p><em>${expiryText}</em></p>
             <hr>
             <p><small>${ignoreText}</small></p>

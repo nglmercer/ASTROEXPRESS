@@ -291,7 +291,7 @@ export class AuthModel {
     const recoverCode = genCode();
 
     // Construct the path for the reset link on the frontend
-    const path = `/reset-password/${recoverToken}`;
+    const path = recoverToken;
 
     // Set timestamps
     const { createdAt, expiresAt } = getTimestamp();
@@ -336,8 +336,8 @@ export class AuthModel {
             method: NOTIFICATION_METHODS.EMAIL,
             to: userEmail,
             userName: userName, // User's name for email personalization
-            recoveryLink: `${path}`, // Construct the full URL to the reset page ${process.env.FRONTEND_URL}
-            recoveryCode: recoverCode, // The code (if needed in the email body)
+            recoveryLink: recoverToken, // Construct the full URL to the reset page ${process.env.FRONTEND_URL}
+            recoveryCode: recoverCode, // The code  (if needed in the email body)
             expiresAt: expiresAt, // Expiry date/time
             // Add any other data required by the email template (e.g., site name)
           }
