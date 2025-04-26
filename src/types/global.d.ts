@@ -3,4 +3,5 @@ interface Window {
         path: string;
         email: string | null;
     }
+    StatusNotification: any;
 } 

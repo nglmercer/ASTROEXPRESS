@@ -1,0 +1,211 @@
+---
+// src/components/StatusNotification.astro
+import { Icon } from 'astro-icon/components'; // Import the Icon component
+
+interface Props {
+    id: string;
+    type?: "success" | "error" | "loading" | "info";
+    message: string;
+    showButtons?: boolean;
+    primaryButtonText?: string;
+    secondaryButtonText?: string;
+    showCloseButton?: boolean; // Added prop for close button
+}
+
+const {
+    id,
+    type = "info",
+    message,
+    showButtons = false,
+    primaryButtonText = "Aceptar",
+    secondaryButtonText = "Cancelar",
+} = Astro.props;
+
+// Define base and type-specific classes using Tailwind
+const typeStyles = {
+    success: {
+        base: "bg-green-50 border-green-400 text-green-800",
+        icon: "text-green-500",
+        primaryButton: "bg-green-600 hover:bg-green-700 focus-visible:outline-green-600 text-white",
+        secondaryButton: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20 hover:bg-green-100",
+        closeButton: "bg-green-50 text-green-500 hover:bg-green-100 focus:ring-green-600",
+    },
+    error: {
+        base: "bg-red-50 border-red-400 text-red-800",
+        icon: "text-red-500",
+        primaryButton: "bg-red-600 hover:bg-red-700 focus-visible:outline-red-600 text-white",
+        secondaryButton: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20 hover:bg-red-100",
+        closeButton: "bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-600",
+    },
+    loading: {
+        base: "bg-blue-50 border-blue-400 text-blue-800",
+        icon: "text-blue-500",
+        primaryButton: "bg-blue-600 hover:bg-blue-700 focus-visible:outline-blue-600 text-white",
+        secondaryButton: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100",
+        closeButton: "bg-blue-50 text-blue-500 hover:bg-blue-100 focus:ring-blue-600",
+    },
+    info: {
+        base: "bg-gray-50 border-gray-400 text-gray-800",
+        icon: "text-gray-500",
+        primaryButton: "bg-gray-600 hover:bg-gray-700 focus-visible:outline-gray-600 text-white",
+        secondaryButton: "bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-600/20 hover:bg-gray-100",
+        closeButton: "bg-gray-50 text-gray-500 hover:bg-gray-100 focus:ring-gray-600",
+    },
+};
+
+// Map types to icon names (using Heroicons solid set as an example)
+// Find icons here: https://heroicons.com/ or use other sets supported by astro-icon
+const iconMap = {
+    // Format: pack:icon-name
+    success: "heroicons-solid:check-circle",
+    error: "heroicons-solid:x-circle",
+    loading: "heroicons-solid:arrow-path", // Good alternative for loading
+    info: "heroicons-solid:information-circle",
+};
+
+const currentStyles = typeStyles[type];
+
+---
+
+<div class="modal micromodal-slide" id={id} aria-hidden="true" role="alert">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
+      <header class="modal__header">
+        <br>
+        <button class="modal__close" aria-label="Cerrar modal" data-micromodal-close></button>
+      </header>
+      <main class="modal__content" id={`${id}-content`}>
+        <div class="flex items-start"> <!-- Changed to items-start for better alignment with close button -->
+            <div class:list={["flex-shrink-0 status-icon mr-3", currentStyles.icon]}>
+                <Icon
+                    name={iconMap[type]}
+                    class:list={[
+                        "h-6 w-6", // Adjust size as needed
+                        { "animate-spin": type === "loading" } // Apply spin only for loading
+                    ]}
+                />
+            </div>
+            <div class="flex-grow message-text text-sm font-medium">
+                {message}
+            </div>
+        </div>
+    
+        {showButtons && (
+            <div class="mt-4 flex justify-end space-x-3">
+                <button
+                    type="button"
+                    class:list={[
+                        "primary-action inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors",
+                        currentStyles.primaryButton // Type-specific primary button colors
+                    ]}
+                    data-action="primary"
+                >
+                    {primaryButtonText}
+                </button>
+                <button
+                    type="button"
+                    class:list={[
+                        "secondary-action inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors",
+                         currentStyles.secondaryButton // Type-specific secondary button colors
+                    ]}
+                    data-action="secondary"
+                >
+                    {secondaryButtonText}
+                </button>
+            </div>
+        )}
+      </main>
+      <footer class="modal__footer">
+        <slot name="actions" />
+      </footer>
+    </div>
+  </div>
+</div>
+
+<script src="/src/components/modal/modalinit.js"></script>
+
+<script>
+interface StatusNotificationOptions {
+    onPrimaryClick?: (instance: StatusNotification) => void; // Pass instance back
+    onSecondaryClick?: (instance: StatusNotification) => void;
+    onClose?: (instance: StatusNotification) => void; // Callback for close action
+}
+
+class StatusNotification {
+    private element: HTMLElement;
+    private primaryButton: HTMLButtonElement | null;
+    private secondaryButton: HTMLButtonElement | null;
+    private closeButton: HTMLButtonElement | null;
+
+    // Store callbacks internally instead of on the element
+    private callbacks: StatusNotificationOptions = {};
+
+    constructor(id: string) {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.error(`StatusNotification element with id "${id}" not found.`);
+            // Throw an error or handle this case as needed
+            throw new Error(`Element ${id} not found`);
+        }
+        this.element = element;
+        this.primaryButton = this.element.querySelector<HTMLButtonElement>('[data-action="primary"]');
+        this.secondaryButton = this.element.querySelector<HTMLButtonElement>('[data-action="secondary"]');
+        this.closeButton = this.element.querySelector<HTMLButtonElement>('.close-button');
+
+        this.setupEventListeners();
+    }
+
+    private setupEventListeners() {
+        this.primaryButton?.addEventListener("click", this.handlePrimaryClick);
+        this.secondaryButton?.addEventListener("click", this.handleSecondaryClick);
+        this.closeButton?.addEventListener("click", this.handleCloseClick);
+    }
+
+    // Use arrow functions for handlers to maintain 'this' context
+    private handlePrimaryClick = () => {
+        this.callbacks.onPrimaryClick?.(this); // Execute callback if it exists
+    };
+
+    private handleSecondaryClick = () => {
+        this.callbacks.onSecondaryClick?.(this);
+    };
+
+    private handleCloseClick = () => {
+        this.callbacks.onClose?.(this);
+    }
+
+    // Method to set listeners after instantiation
+    listeners(options: StatusNotificationOptions = {}) {
+       this.callbacks = options; // Store the callbacks
+       return this; // Allow chaining
+    }
+    destroy() {
+        this.primaryButton?.removeEventListener("click", this.handlePrimaryClick);
+        this.secondaryButton?.removeEventListener("click", this.handleSecondaryClick);
+        this.closeButton?.removeEventListener("click", this.handleCloseClick);
+    }
+}
+
+// Make StatusNotification available globally (if needed, or export/import)
+window.StatusNotification = StatusNotification;
+
+</script>
+
+<style>
+/* Keep minimal global styles if needed */
+.status-notification {
+    z-index: 1050; /* Ensure it's above typical modal overlays (often 1040) */
+    min-width: 300px;
+    max-width: 450px; /* Slightly adjusted max-width */
+}
+
+/* Ensure spinning animation is defined if not using Tailwind's */
+/* Redundant if using Tailwind's animate-spin class */
+/* @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+} */
+</style>

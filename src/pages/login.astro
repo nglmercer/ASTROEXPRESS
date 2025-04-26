@@ -2,11 +2,14 @@
 import Layout from '@layouts/LoginLayout.astro';
 import LoginContainer from '@components/auth/logincontainer.astro';
 import ModalComponent from '@components/modal/Modal.astro';
+import StatusNotification from '@components/StatusNotification.astro';
+
 
 ---
 
   <script src="/src/components/auth/login-form"></script>
   <script src="/src/components/auth/login.js"></script>
+
   <Layout>
     <LoginContainer>
       <login-form slot="login-form"></login-form>
@@ -59,6 +62,29 @@ import ModalComponent from '@components/modal/Modal.astro';
       </div>
     </slot>
   </ModalComponent>
+    <StatusNotification
+    id="notification1"
+    type="success"
+    message="Operación completada con éxito"
+  />
+
   <script>
     
+
+          
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log(" window.StatusNotification",  window.StatusNotification );
+      const notification = new window.StatusNotification('notification1');
+      // Mostrar la notificación con callbacks
+      notification.listeners({
+        onPrimaryClick: () => {
+          console.log('Botón primario clickeado');
+          // Tu código aquí
+        },
+        onSecondaryClick: () => {
+          console.log('Botón secundario clickeado');
+          // Tu código aquí
+        }
+      });
+    });
   </script>

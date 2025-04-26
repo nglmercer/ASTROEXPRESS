@@ -2,6 +2,7 @@ import MicroModal from 'micromodal';
   
 // Initialize MicroModal when the component is mounted
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("document.ready", Mi)
   MicroModal.init({
     onShow: modal => console.info(`${modal.id} mostrado`),
     onClose: modal => console.info(`${modal.id} cerrado`),
