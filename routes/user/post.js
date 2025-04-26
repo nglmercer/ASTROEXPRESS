@@ -95,6 +95,16 @@ router.post('/recuperacion-contrasena/send-token', async (req, res) => {
     const result = await authModel.recuperarpassword({ correoUsuario });
     if (!result.success) {
         return res.status(400).json({ success: false, message: result.message });
+    } else {    
+        return res.status(201).json(result);
+    }
+});
+// post /recuperacion-contrasena/verify-token
+router.post('/recuperacion-contrasena/verify-token', async (req, res) => {
+    const { path, codigo,code } = req.body;
+    const result = await authModel.verifyRecoveryCode({path,code,codigo});
+    if (!result.success) {
+        return res.status(400).json({ success: false, message: result.message });
     } else {
         return res.status(201).json(result);
     }

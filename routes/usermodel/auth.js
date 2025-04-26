@@ -361,24 +361,33 @@ export class AuthModel {
         return { success: false, message: "An unexpected error occurred. Please try again later." };
     }
   }
-  async verifycodePassword({path,code,password, codigo, contrasena}){
+  async verifyRecoveryCode({path, code, codigo}) {
     const pathlink = path;
     const codenumber = code || codigo;
-    const passwordstring = password || contrasena;
-
-    const results  = await dbController.queryWithFilters('recuperacion_contrasena', {ruta: pathlink});
-    if (!results || results.lenght === 0) return {success:false, message:"no existe"}
+    console.log("verifyRecoveryCode", {path, code, codigo})
+    const results = await dbController.queryWithFilters('recuperacion_contrasena', {ruta: pathlink});
+    if (!results || results.lenght === 0) return {success: false, message: "no existe"}
     const resultobj = Array.isArray(results) ? results[0] : results
 
-    const isValid = verifycode(resultobj, {code:codenumber})
-    if (!isValid?.success) return isValid;
-    const changePasswordresult = await     this.actualizarRegistro({
-      userId: resultobj.usuario,
-      newPassword: passwordstring,
-    })
+    const isValid = verifycode(resultobj, {code: codenumber})
     return {
       ...isValid,
-      resultobj,
+      resultobj
+    }
+  }
+
+  async updatePasswordWithCode({path, code, password, codigo, contrasena}) {
+    const verifyResult = await this.verifyRecoveryCode({path, code, codigo});
+    if (!verifyResult.success) return verifyResult;
+
+    const passwordstring = password || contrasena;
+    const changePasswordresult = await this.actualizarRegistro({
+      userId: verifyResult.resultobj.usuario,
+      newPassword: passwordstring,
+    });
+
+    return {
+      ...verifyResult,
       changePasswordresult
     }
   }

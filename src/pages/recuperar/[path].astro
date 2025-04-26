@@ -7,15 +7,12 @@ console.log(path);
 <script src="/src/components/lit/litcomponents.js"></script>
 <LoginPage />
 <script define:vars={{ path }}>
-  const urlParams = new URLSearchParams(window.location.search);
-  var RecoveryOBJ = {
-    path: path,
-    email: urlParams.get("email")
-  }
+  var RecoveryOBJ = { path: path }
   window.RecoveryOBJ = RecoveryOBJ;
 </script>
 <script>
   import MicroModal from "micromodal";
+  import { loginservice } from "@utils/fetchapi";
 document.addEventListener('DOMContentLoaded', async function() {
     const modal = document.querySelector('#modal-2');
     const buttonform = document.getElementById("confirmbtn")
@@ -28,9 +25,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     const events = ["submit"];
     console.log("verifyInput",verifyInput)
     events.forEach(event => {
-      verifyInput?.addEventListener(event,function (e){
+      verifyInput?.addEventListener(event,async function (e){
         console.log("event",e)
         console.log("verifyInput",verifyInput.value, window.RecoveryOBJ)
+        const codigo = verifyInput.value, code = verifyInput.value;
+        const result = await loginservice.changePassword({
+          path: window.RecoveryOBJ.path,
+          codigo,
+          code
+        })
+        console.log("result",result)
       })
     })
     buttonform?.addEventListener("click",function (e){

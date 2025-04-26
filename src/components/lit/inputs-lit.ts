@@ -48,6 +48,8 @@ export class BaseRecoveryCodeInput extends LitElement {
                 --rc-cc: var(--rc-cc-l, auto);
                 --rc-dbg: var(--rc-dbg-l, #e9ecef);
                 --rc-dop: var(--rc-dop-l, 0.7);
+                display: flex;
+                justify-content: center;
             }
 
             .w {
