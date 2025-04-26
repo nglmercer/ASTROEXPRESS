@@ -10,6 +10,7 @@ interface Props {
     primaryButtonText?: string;
     secondaryButtonText?: string;
     showCloseButton?: boolean; // Added prop for close button
+    index?: number; // Added prop for index of modal
 }
 
 const {
@@ -19,6 +20,7 @@ const {
     showButtons = false,
     primaryButtonText = "Aceptar",
     secondaryButtonText = "Cancelar",
+    index,
 } = Astro.props;
 
 // Define base and type-specific classes using Tailwind
@@ -64,11 +66,11 @@ const iconMap = {
 };
 
 const currentStyles = typeStyles[type];
-
+const zindex = index ? (100+index) : 100; // Ensure it's above typical modal overlays (often 1040)
 ---
 
 <div class="modal micromodal-slide" id={id} aria-hidden="true" role="alert">
-  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close style={`z-index: ${zindex}`}>
     <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
       <header class="modal__header">
         <br>

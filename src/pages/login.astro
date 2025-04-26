@@ -14,7 +14,7 @@ import StatusNotification from '@components/StatusNotification.astro';
     <LoginContainer>
       <login-form slot="login-form"></login-form>
     </LoginContainer>
-    <ModalComponent id="modal-1" title="Recuperar Contraseña">
+    <ModalComponent id="modal-1" title="Recuperar Contraseña" index={1}>
       <form id="password-recovery-form"
       class="form-container"
       onsubmit="return false;"
@@ -47,7 +47,7 @@ import StatusNotification from '@components/StatusNotification.astro';
       })
     </script>
   </Layout>
-  <ModalComponent id='modal-2' title='intruce el codigo'>
+  <ModalComponent id='modal-2' title='intruce el codigo' index={2}>
     <div class="form-container">
       <base-recovery-code-input id="stateful-base" length="6" allowed-chars="alphanumeric"></base-recovery-code-input>
     </div>
@@ -66,6 +66,7 @@ import StatusNotification from '@components/StatusNotification.astro';
     id="notification1"
     type="success"
     message="Operación completada con éxito"
+    index={3}
   />
 
   <script>

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const buttonform = document.getElementById("confirmbtn")
     const verifyInput = document.querySelector("base-recovery-code-input")
     if (!modal || !buttonform) return;
-    MicroModal.show('modal-2');
+    MicroModal.show('modal-2',window.Modaloptions); // Mostrar el modal
     
     console.log("modal", modal);
     console.log("buttonform",buttonform)
