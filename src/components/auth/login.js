@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2';
-
+import MicroModal from 'micromodal';
 document.addEventListener('DOMContentLoaded', async function() {
     const loginForm = document.querySelector('login-form');
     console.log("loginForm", loginForm);
@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
         loginForm.addEventListener('recuperar',(e)=>{
           console.log("recuperar")
+           MicroModal.show('modal-1');
+          const modal = document.querySelector('#modal-1');
+          console.log("modal", modal);
         })
     }
     console.log("localStorage.getItem('token')", localStorage.getItem("token"));

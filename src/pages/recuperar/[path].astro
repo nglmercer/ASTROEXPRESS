@@ -1,15 +1,49 @@
 ---
-import Layout from '@layouts/LoginLayout.astro';
-import LoginContainer from '@components/auth/logincontainer.astro';
+import LoginPage from "@pages/login.astro";
+import ModalComponent from '@components/modal/Modal.astro';
 const { path } =  Astro.params;
 console.log(path);
 
 ---
-
-  <script src="/src/components/auth/login-form"></script>
-  <script src="/src/components/auth/login.js"></script>
-  <Layout>
-    <LoginContainer>
-      <login-form slot="login-form"></login-form>
-    </LoginContainer>
-  </Layout>
+<script src="/src/components/lit/litcomponents.js"></script>
+<LoginPage />
+<ModalComponent id='modal-2' title='intruce el codigo'>
+  <div class="form-container">
+    <base-recovery-code-input id="stateful-base" length="8" allowed-chars="alphanumeric"></base-recovery-code-input>
+  </div>
+  <slot name="actions">
+    <div class="flex justify-cc">
+      <button class="modal__btn modal__btn-primary" id="confirmbtn">
+        verificar Codigo
+      </button>
+      <button class="modal__btn" data-micromodal-close>
+        Cancelar
+      </button>
+    </div>
+  </slot>
+</ModalComponent>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    const modal = document.querySelector('#modal-2');
+    console.log("modal", modal,MicroModal);
+    MicroModal.show('modal-2');
+    if (modal) {
+        modal.addEventListener('modal-success', (e) => {
+            const detail = e.detail;
+            console.log('modal exitoso:', detail.message);
+            MicroModal.close('modal-2');
+        });
+    }
+    // no funcionan los eventListeners
+    const passform = document.getElementById("password-recovery-form")
+    console.log(passform)
+    passform?.addEventListener("submit",function (e){
+      e.preventDefault();
+      const formdata = new FormData(passform);
+      console.log("submit",passform, formdata)
+    })
+    passform?.addEventListener("change",function (e){
+      console.log("change",e)
+    })
+});
+</script>

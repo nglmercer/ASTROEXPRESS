@@ -1,6 +1,8 @@
 ---
 import Layout from '@layouts/LoginLayout.astro';
 import LoginContainer from '@components/auth/logincontainer.astro';
+import ModalComponent from '@components/modal/Modal.astro';
+
 ---
 
   <script src="/src/components/auth/login-form"></script>
@@ -9,4 +11,52 @@ import LoginContainer from '@components/auth/logincontainer.astro';
     <LoginContainer>
       <login-form slot="login-form"></login-form>
     </LoginContainer>
+    <ModalComponent id="modal-1" title="Recuperar Contraseña">
+      <form id="password-recovery-form"
+      class="form-container"
+      onsubmit="return false;"
+      >
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required  placeholder="coloca tu correo @"/>
+        </div>
+      </form>
+  
+      <slot name="actions">
+        <div class="flex justify-cc">
+          <button class="modal__btn modal__btn-primary" type="submit" form="password-recovery-form">
+            Enviar Codigo
+          </button>
+          <button class="modal__btn" data-micromodal-close>
+            Cancelar
+          </button>
+        </div>
+      </slot>
+    </ModalComponent>
+    <script>
+      const passform = document.getElementById("password-recovery-form") as HTMLFormElement;
+      passform?.addEventListener("submit",function (e){
+        e.preventDefault();
+        const formdata = new FormData(passform);
+        console.log("submit",passform, formdata)
+      })
+    </script>
   </Layout>
+  <ModalComponent id='modal-2' title='intruce el codigo'>
+    <div class="form-container">
+      <base-recovery-code-input id="stateful-base" length="8" allowed-chars="alphanumeric"></base-recovery-code-input>
+    </div>
+    <slot name="actions">
+      <div class="flex justify-cc">
+        <button class="modal__btn modal__btn-primary">
+          verificar Codigo
+        </button>
+        <button class="modal__btn" data-micromodal-close>
+          Cancelar
+        </button>
+      </div>
+    </slot>
+  </ModalComponent>
+  <script>
+    
+  </script>
