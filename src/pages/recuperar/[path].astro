@@ -24,6 +24,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log("buttonform",buttonform)
     const events = ["submit"];
     console.log("verifyInput",verifyInput)
+    console.log(" window.StatusNotification",  window.StatusNotification );
+    const notification = new window.StatusNotification('notification1');
+    notification.listeners({
+      onPrimaryClick: () => {
+        console.log('Botón primario clickeado');
+      },
+      onSecondaryClick: () => {
+        console.log('Botón secundario clickeado');
+      }
+    });
     events.forEach(event => {
       verifyInput?.addEventListener(event,async function (e){
         console.log("event",e)
@@ -35,6 +45,10 @@ document.addEventListener('DOMContentLoaded', async function() {
           code
         })
         console.log("result",result)
+        notification.changeMessage(result.message)
+        const ItemResponse = (result && result.success) ? "success" : "error"
+        notification.changeItem(ItemResponse)
+        MicroModal.show('notification1',window.Modaloptions);
       })
     })
     buttonform?.addEventListener("click",function (e){

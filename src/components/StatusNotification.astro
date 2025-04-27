@@ -11,6 +11,7 @@ interface Props {
     secondaryButtonText?: string;
     showCloseButton?: boolean; // Added prop for close button
     index?: number; // Added prop for index of modal
+    class?: string; // Added prop for class     
 }
 
 const {
@@ -21,34 +22,31 @@ const {
     primaryButtonText = "Aceptar",
     secondaryButtonText = "Cancelar",
     index,
+    class: className
 } = Astro.props;
 
 // Define base and type-specific classes using Tailwind
 const typeStyles = {
     success: {
         base: "bg-green-50 border-green-400 text-green-800",
-        icon: "text-green-500",
         primaryButton: "bg-green-600 hover:bg-green-700 focus-visible:outline-green-600 text-white",
         secondaryButton: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20 hover:bg-green-100",
         closeButton: "bg-green-50 text-green-500 hover:bg-green-100 focus:ring-green-600",
     },
     error: {
         base: "bg-red-50 border-red-400 text-red-800",
-        icon: "text-red-500",
         primaryButton: "bg-red-600 hover:bg-red-700 focus-visible:outline-red-600 text-white",
         secondaryButton: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20 hover:bg-red-100",
         closeButton: "bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-600",
     },
     loading: {
         base: "bg-blue-50 border-blue-400 text-blue-800",
-        icon: "text-blue-500",
         primaryButton: "bg-blue-600 hover:bg-blue-700 focus-visible:outline-blue-600 text-white",
         secondaryButton: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100",
         closeButton: "bg-blue-50 text-blue-500 hover:bg-blue-100 focus:ring-blue-600",
     },
     info: {
         base: "bg-gray-50 border-gray-400 text-gray-800",
-        icon: "text-gray-500",
         primaryButton: "bg-gray-600 hover:bg-gray-700 focus-visible:outline-gray-600 text-white",
         secondaryButton: "bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-600/20 hover:bg-gray-100",
         closeButton: "bg-gray-50 text-gray-500 hover:bg-gray-100 focus:ring-gray-600",
@@ -68,6 +66,124 @@ const iconMap = {
 const currentStyles = typeStyles[type];
 const zindex = index ? (100+index) : 100; // Ensure it's above typical modal overlays (often 1040)
 ---
+<script>
+class StatusIconSwitcher extends HTMLElement {
+    static observedAttributes = ['data-type'];
+
+    private _icons: Map<string, HTMLElement> = new Map();
+    private _currentType: string | null = null;
+    private _initialized: boolean = false;
+
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot!.innerHTML = `
+            <style>
+                :host {
+                    display: inline-block;
+                    position: relative;
+                }
+                ::slotted(.hidden) {
+                    display: none !important;
+                }
+                .status-icon-element.hidden {
+                    display: none !important;
+                }
+            </style>
+            <slot></slot>
+        `;
+    }
+
+    connectedCallback(): void {
+        if (this._initialized) {
+            const currentAttrValue = this.getAttribute('data-type');
+            if (currentAttrValue && currentAttrValue !== this._currentType) {
+                this.showIcon(currentAttrValue);
+            } else if (!currentAttrValue && this._currentType) {
+                this.showIcon('info');
+            }
+            return;
+        }
+
+        this.setupIcons();
+        
+        this._icons.forEach((icon) => {
+            if (!icon.hasAttribute('style')) {
+                icon.setAttribute('style', '');
+            }
+        });
+
+        const initialType = this.getAttribute('data-type') || 'info';
+        this.showIcon(initialType);
+        this._initialized = true;
+    }
+
+    disconnectedCallback(): void {
+        this._initialized = false;
+    }
+
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
+        if (name === 'data-type' && oldValue !== newValue && this._initialized) {
+            this.showIcon(newValue || undefined);
+        }
+    }
+
+    setupIcons(): void {
+        this._icons.clear();
+        
+        this.querySelectorAll('.status-icon-element').forEach((iconEl) => {
+            const iconElement = iconEl as HTMLElement;
+            const type = iconElement.dataset.iconType;
+            if (type) {
+                this._icons.set(type, iconElement);
+                
+                iconElement.classList.add('hidden');
+                iconElement.setAttribute('aria-hidden', 'true');
+                iconElement.style.display = 'none';
+            } else {
+                console.warn(`StatusIconSwitcher (${this.id || 'no-id'}): Found icon without data-icon-type`, iconElement);
+            }
+        });
+    }
+
+    showIcon(type?: string): void {
+        if (this._icons.size === 0 && this.isConnected) {
+            this.setupIcons();
+            if (this._icons.size === 0) {
+                console.error(`StatusIconSwitcher (${this.id || 'no-id'}): No icons found`);
+                return;
+            }
+        }
+
+        const requestedType = type || 'info';
+
+        this._icons.forEach((icon) => {
+            icon.classList.add('hidden');
+            icon.setAttribute('aria-hidden', 'true');
+            icon.style.display = 'none';
+        });
+
+        const targetIcon = this._icons.get(requestedType);
+        if (targetIcon) {
+            targetIcon.classList.remove('hidden');
+            targetIcon.removeAttribute('aria-hidden');
+            targetIcon.style.display = '';
+            this._currentType = requestedType;
+        } else {
+            console.warn(`StatusIconSwitcher (${this.id || 'no-id'}): Icon type "${requestedType}" not found`);
+            this._currentType = null;
+        }
+    }
+
+    updateIcon(newType: string): void {
+        this.setAttribute('data-type', newType);
+    }
+}
+
+if (!customElements.get('status-icon-switcher')) {
+    customElements.define('status-icon-switcher', StatusIconSwitcher);
+}
+</script>
 
 <div class="modal micromodal-slide" id={id} aria-hidden="true" role="alert">
   <div class="modal__overlay" tabindex="-1" data-micromodal-close style={`z-index: ${zindex}`}>
@@ -78,16 +194,30 @@ const zindex = index ? (100+index) : 100; // Ensure it's above typical modal ove
       </header>
       <main class="modal__content" id={`${id}-content`}>
         <div class="flex items-start"> <!-- Changed to items-start for better alignment with close button -->
-            <div class:list={["flex-shrink-0 status-icon mr-3", currentStyles.icon]}>
-                <Icon
-                    name={iconMap[type]}
-                    class:list={[
-                        "h-6 w-6", // Adjust size as needed
-                        { "animate-spin": type === "loading" } // Apply spin only for loading
-                    ]}
-                />
+            <div class:list={["flex-shrink-0 status-icon mr-3"]}>
+                <status-icon-switcher id={id} class:list={className} data-type={type}>
+                    {/* Light DOM is simpler here */}
+                
+                    {Object.entries(iconMap).map(([key, iconName]) => (
+                         <Icon
+                            name={iconName}
+                            data-icon-type={key}
+                            class:list={[
+                                "status-icon-element", /* Class for JS querySelector */
+                                "h-6 w-6",
+                                // Base color can be set here or on parent
+                                "hidden", /* Initially hidden by Astro render - IMPORTANT */
+                                { "animate-spin": key === "loading" } // Conditional class for animation
+                            ]}
+                            aria-hidden="true"
+                            role="img"
+                            aria-label={key}
+                        />
+                    ))}
+                </status-icon-switcher>
+                
             </div>
-            <div class="flex-grow message-text text-sm font-medium">
+            <div class="flex-grow message-text text-sm font-medium" id="status-notification-message">                       
                 {message}
             </div>
         </div>
@@ -127,6 +257,7 @@ const zindex = index ? (100+index) : 100; // Ensure it's above typical modal ove
 <script src="/src/components/modal/modalinit.js"></script>
 
 <script>
+
 interface StatusNotificationOptions {
     onPrimaryClick?: (instance: StatusNotification) => void; // Pass instance back
     onSecondaryClick?: (instance: StatusNotification) => void;
@@ -186,28 +317,44 @@ class StatusNotification {
         this.secondaryButton?.removeEventListener("click", this.handleSecondaryClick);
         this.closeButton?.removeEventListener("click", this.handleCloseClick);
     }
+    changeMessage(message: string) {
+        const messageElement = this.element.querySelector("#status-notification-message");
+        if (messageElement) {               
+            messageElement.innerHTML = message;
+        }
+    }
+    changeItem(item: string) {
+        const itemElement = document.querySelector("status-icon-switcher") as HTMLElement;
+        console.log("itemElement", itemElement, item);
+        // customWebcomponent.setAttribute data-type="item"
+        if (itemElement) {
+            itemElement.setAttribute("data-type", item);
+            let color = "white";
+            switch (item) {
+                case "success":
+                   color = "green";
+                    break;
+                case "error":
+                    color = "red";
+                    break;
+                case "loading":
+                    color = "blue";
+                    break;
+                case "info":
+                    color = "gray";
+                    break;
+                default:
+                    color = "white";
+                    break;
+            }
+            if (itemElement){
+                itemElement.style.color = color;
+            }
+        }
+    }
 }
 
 // Make StatusNotification available globally (if needed, or export/import)
 window.StatusNotification = StatusNotification;
 
 </script>
-
-<style>
-/* Keep minimal global styles if needed */
-.status-notification {
-    z-index: 1050; /* Ensure it's above typical modal overlays (often 1040) */
-    min-width: 300px;
-    max-width: 450px; /* Slightly adjusted max-width */
-}
-
-/* Ensure spinning animation is defined if not using Tailwind's */
-/* Redundant if using Tailwind's animate-spin class */
-/* @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-.animate-spin {
-    animation: spin 1s linear infinite;
-} */
-</style>

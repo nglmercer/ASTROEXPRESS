@@ -43,11 +43,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.location.href = "/";
     } 
 */
-showModal();
 });
 function showModal() {
   MicroModal.show('modal-1',window.Modaloptions);
   const modal = document.querySelector('#modal-1');
   console.log("modal", modal);
-  MicroModal.show('notification1',window.Modaloptions);
+//  MicroModal.show('notification1',window.Modaloptions);
 }
