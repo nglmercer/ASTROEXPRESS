@@ -9,6 +9,7 @@ import StatusNotification from '@components/StatusNotification.astro';
 
   <script src="/src/components/auth/login-form"></script>
   <script src="/src/components/auth/login.js"></script>
+  <script src="/src/components/auth/change-password.js"></script>
 
   <Layout>
     <LoginContainer>
@@ -36,18 +37,9 @@ import StatusNotification from '@components/StatusNotification.astro';
         </div>
       </slot>
     </ModalComponent>
-    <script>
-      import { loginservice } from "@utils/fetchapi";
-      const passform = document.getElementById("password-recovery-form") as HTMLFormElement;
-      passform?.addEventListener("submit",function (e){
-        e.preventDefault();
-        const formdata = new FormData(passform);
-        console.log("submit",passform, formdata);
-        loginservice.recoverPassword(formdata.get("email"))
-      })
-    </script>
+
   </Layout>
-  <ModalComponent id='modal-2' title='intruce el codigo' index={2}>
+  <ModalComponent id='modal-2' title='Intruce el codigo' index={2}>
     <div class="form-container">
       <base-recovery-code-input id="stateful-base" length="6" allowed-chars="alphanumeric"></base-recovery-code-input>
     </div>
@@ -62,7 +54,20 @@ import StatusNotification from '@components/StatusNotification.astro';
       </div>
     </slot>
   </ModalComponent>
-    <StatusNotification
+  <ModalComponent id='modal-3' title='Cambia tu contraseña' index={3}>
+      <change-password-form class="form-container" id="newpassword-form"></change-password-form>
+    <slot name="actions">
+      <div class="flex justify-cc">
+        <button class="modal__btn modal__btn-primary" id="newpassword-btn">
+          Cambiar Contraseña
+        </button>
+        <button class="modal__btn" data-micromodal-close>
+          Cancelar
+        </button>
+      </div>
+    </slot>
+  </ModalComponent>
+  <StatusNotification
     id="notification1"
     type="success"
     message="Operación completada con éxito"
@@ -70,6 +75,31 @@ import StatusNotification from '@components/StatusNotification.astro';
   />
 
   <script>
+    import { loginservice } from "@utils/fetchapi";
+    import MicroModal from "micromodal";
     
-
+    document.addEventListener('DOMContentLoaded', async function() {
+      const passform = document.getElementById("password-recovery-form") as HTMLFormElement;
+      const notification = new window.StatusNotification('notification1');
+      notification.listeners({
+        onPrimaryClick: () => {
+          console.log('Botón primario clickeado');
+        },
+        onSecondaryClick: () => {
+          console.log('Botón secundario clickeado');
+        }
+      });
+      passform?.addEventListener("submit", async function (e){
+        e.preventDefault();
+        const formdata = new FormData(passform);
+        console.log("submit",passform, formdata);
+        const result = await loginservice.recoverPassword(formdata.get("email"))
+        if (!result) return;
+        notification.changeMessage(result.message)
+        
+        const ItemResponse = (result && result.success) ? "success" : "error"
+        notification.changeItem(ItemResponse)
+        MicroModal.show('notification1',window.Modaloptions);
+      })
+    });
   </script>

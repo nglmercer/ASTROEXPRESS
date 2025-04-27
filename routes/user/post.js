@@ -109,4 +109,18 @@ router.post('/recuperacion-contrasena/verify-token', async (req, res) => {
         return res.status(201).json(result);
     }
 });
+// updatePasswordWithCode /recuperacion-contrasena/update-password
+router.post('/recuperacion-contrasena/update-password', async (req, res) => {
+    const { path, codigo,code,password,newpassword } = req.body;
+    const existPassword = password || newpassword;
+    if (!path || !codigo || !code || !existPassword) {
+        return res.status(400).json({ success: false, message: 'Faltan parámetros',data: req.body });
+    }
+    const result = await authModel.updatePasswordWithCode({path,code,password:existPassword,codigo});
+    if (!result.success) {
+        return res.status(400).json({ success: false, message: result.message });
+    } else {
+        return res.status(201).json(result);
+    }
+});
 export default router;

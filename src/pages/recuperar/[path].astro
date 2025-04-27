@@ -13,49 +13,75 @@ console.log(path);
 <script>
   import MicroModal from "micromodal";
   import { loginservice } from "@utils/fetchapi";
-document.addEventListener('DOMContentLoaded', async function() {
-    const modal = document.querySelector('#modal-2');
-    const buttonform = document.getElementById("confirmbtn")
-    const verifyInput = document.querySelector("base-recovery-code-input")
-    if (!modal || !buttonform) return;
-    MicroModal.show('modal-2',window.Modaloptions); // Mostrar el modal
-    
-    console.log("modal", modal);
-    console.log("buttonform",buttonform)
-    const events = ["submit"];
-    console.log("verifyInput",verifyInput)
-    console.log(" window.StatusNotification",  window.StatusNotification );
-    const notification = new window.StatusNotification('notification1');
-    notification.listeners({
-      onPrimaryClick: () => {
-        console.log('Botón primario clickeado');
-      },
-      onSecondaryClick: () => {
-        console.log('Botón secundario clickeado');
-      }
-    });
-    events.forEach(event => {
-      verifyInput?.addEventListener(event,async function (e){
-        console.log("event",e)
-        console.log("verifyInput",verifyInput.value, window.RecoveryOBJ)
-        const codigo = verifyInput.value, code = verifyInput.value;
-        const result = await loginservice.changePassword({
-          path: window.RecoveryOBJ.path,
-          codigo,
-          code
+  document.addEventListener('DOMContentLoaded', async function() {
+      const modal = document.querySelector('#modal-2');
+      const buttonform = document.getElementById("confirmbtn")
+      const verifyInput = document.querySelector("base-recovery-code-input")
+      if (!modal || !buttonform) return;
+      MicroModal.show('modal-2',window.Modaloptions); // Mostrar el modal
+      
+      console.log("modal", modal);
+      console.log("buttonform",buttonform)
+      const events = ["submit"];
+      console.log("verifyInput",verifyInput)
+      console.log(" window.StatusNotification",  window.StatusNotification );
+      const notification = new window.StatusNotification('notification1');
+      notification.listeners({
+        onPrimaryClick: () => {
+          console.log('Botón primario clickeado');
+        },
+        onSecondaryClick: () => {
+          console.log('Botón secundario clickeado');
+        }
+      });
+      events.forEach(event => {
+        verifyInput?.addEventListener(event,async function (e){
+          sendCode(verifyInput,notification)
         })
-        console.log("result",result)
-        notification.changeMessage(result.message)
-        const ItemResponse = (result && result.success) ? "success" : "error"
-        notification.changeItem(ItemResponse)
-        MicroModal.show('notification1',window.Modaloptions);
       })
-    })
-    buttonform?.addEventListener("click",function (e){
-      const value = verifyInput?.value
-      verifyInput?.setState("loading")
-      console.log("click",value)
-    })
+      buttonform?.addEventListener("click",function (e){
+        sendCode(verifyInput,notification)
+      })
 
-});
+  });
+  async function sendCode(verifyInput:HTMLElement |any,notification:any){
+    const codigo = Number(verifyInput.value);
+    if (!codigo) return;
+    verifyInput?.setState("loading")
+    const code = codigo;
+    const datasend= {
+      path: window.RecoveryOBJ.path,
+      codigo,
+      code
+    }
+    const result = await loginservice.verifyRecoveryCode(datasend)
+    if (!result) return;
+    console.log("result",result)
+    notification.changeMessage(result.message)
+    if (result.success) changePassword(datasend,notification)
+    if (!result.success) MicroModal.show('notification1',window.Modaloptions);
+  }
+  async function changePassword(datasend:Object,notification:any){
+    const modal_3 = document.querySelector('#modal-3');
+    if (!modal_3) return;
+    MicroModal.show('modal-3',window.Modaloptions);
+    console.log("datasend",datasend)
+    const passwordelement = document.querySelector("change-password-form")
+    if (!passwordelement) return;
+    passwordelement.addEventListener("submit",async function (e){
+      const formdata = (e as CustomEvent).detail;
+      const sendData = {...formdata, ...datasend}
+      const result =  await loginservice.changePassword(sendData)
+      if (!result) return;
+      console.log("result",result)
+      notification.changeMessage(result.message)
+      if (result.success) MicroModal.close('modal-3');
+      if (!result.success) MicroModal.show('notification1',window.Modaloptions);
+    })
+    const newpassword_btn = document.getElementById("newpassword-btn")
+    if (!newpassword_btn) return;
+    newpassword_btn.addEventListener("click",async function (e){
+        passwordelement._changePassword()
+    })
+  }
 </script>
